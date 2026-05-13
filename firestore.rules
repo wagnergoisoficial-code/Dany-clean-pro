@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 1. Primitive Definitions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'wagnergoisoficial@gmail.com'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 2. Collection Specific Rules
+
+    // Settings: Publicly readable, Admin write
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidSettings(incoming());
+      
+      function isValidSettings(data) {
+        return data.keys().hasAll(['value']) && 
+               data.keys().size() == 1 &&
+               (data.value == null || (data.value is string && data.value.size() <= 1048576));
+      }
+    }
+
+    // Reviews: Publicly readable if published, Anyone can create (feedback), Admin update/delete
+    match /reviews/{reviewId} {
+      allow list: if (resource.data.isPublished == true || isAdmin());
+      allow get: if true;
+      allow create: if isSignedIn() && isValidReview(incoming());
+      allow update, delete: if isAdmin();
+
+      function isValidReview(data) {
+        return data.keys().hasAll(['author', 'rating', 'comment', 'date', 'isPublished']) &&
+               data.keys().size() == 5 &&
+               data.author is string && data.author.size() <= 100 &&
+               data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+               data.comment is string && data.comment.size() <= 1000 &&
+               data.isPublished == false; // Users can only create UNPUBLISHED reviews
+      }
+    }
+
+    // Gallery: Publicly readable, Admin write
+    match /gallery/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidGallery(incoming());
+
+      function isValidGallery(data) {
+        return data.keys().hasAll(['url', 'title', 'category', 'createdAt']) &&
+               data.keys().size() == 4 &&
+               data.url is string && data.url.size() <= 1000 &&
+               data.title is string && data.title.size() <= 200 &&
+               data.category is string && data.category.size() <= 100 &&
+               data.createdAt == request.time;
+      }
+    }
+
+    // Leads: Anyone can create, Admin read/write
+    match /leads/{leadId} {
+      allow create: if true && isValidLead(incoming());
+      allow read, update, delete: if isAdmin();
+
+      function isValidLead(data) {
+        return data.keys().hasAll(['name', 'email', 'phone', 'city', 'service_type', 'bedrooms', 'bathrooms', 'status', 'createdAt']) &&
+               data.name is string && data.name.size() <= 100 &&
+               data.email is string && data.email.size() <= 100 &&
+               data.phone is string && data.phone.size() <= 30 &&
+               data.status == 'new' &&
+               data.createdAt == request.time;
+      }
+    }
+
+    // Admins: Read-only for self (to check status), write-only for existing admins
+    match /admins/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+  }
+}

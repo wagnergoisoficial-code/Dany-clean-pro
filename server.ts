@@ -1,0 +1,253 @@
+import express from "express";
+import path from "path";
+import { createServer as createViteServer } from "vite";
+import Database from "better-sqlite3";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+import * as admin from "firebase-admin";
+
+dotenv.config();
+
+const app = express();
+const PORT = 3000;
+const JWT_SECRET = process.env.JWT_SECRET || "dany-clean-pro-secret-key-2024";
+
+// Firebase Admin Initialization (Lazy)
+let firebaseAdmin: admin.app.App | null = null;
+function getFirebaseAdmin() {
+  if (!firebaseAdmin) {
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+    if (projectId && clientEmail && privateKey) {
+      firebaseAdmin = admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId,
+          clientEmail,
+          privateKey,
+        }),
+      });
+    } else {
+      console.warn("Firebase Admin not configured. Some server-side features may be limited.");
+    }
+  }
+  return firebaseAdmin;
+}
+
+const getFirestore = () => {
+  const adminApp = getFirebaseAdmin();
+  return adminApp ? adminApp.firestore() : null;
+};
+
+// Database Initialization (Legacy / Fallback)
+const db = new Database("database.db");
+
+// Simple schema setup
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password TEXT,
+    role TEXT DEFAULT 'admin'
+  );
+
+  CREATE TABLE IF NOT EXISTS leads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    email TEXT,
+    phone TEXT,
+    city TEXT,
+    zip_code TEXT,
+    service_type TEXT,
+    bedrooms INTEGER,
+    bathrooms INTEGER,
+    preferred_date TEXT,
+    message TEXT,
+    status TEXT DEFAULT 'new',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    author TEXT,
+    rating INTEGER,
+    comment TEXT,
+    date TEXT,
+    is_published BOOLEAN DEFAULT 1
+  );
+
+  CREATE TABLE IF NOT EXISTS gallery (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url TEXT,
+    title TEXT,
+    category TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS service_areas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    city TEXT UNIQUE,
+    zip_codes TEXT
+  );
+`);
+
+// Seed initial admin if not exists
+const adminExists = db.prepare("SELECT * FROM users WHERE username = ?").get("admin");
+if (!adminExists) {
+  const hashedPassword = bcrypt.hashSync("admin123", 10);
+  db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("admin", hashedPassword);
+}
+
+// Seed initial reviews for trust
+const reviewCount = (db.prepare("SELECT COUNT(*) as count FROM reviews").get() as any).count;
+if (reviewCount === 0) {
+  const initialReviews = [
+    { author: "Sarah M.", rating: 5, comment: "Dany Clean Pro did an amazing job on my move-out clean. Every corner was spotless!", date: "2024-03-10" },
+    { author: "John D.", rating: 5, comment: "Professional, punctual, and very thorough. Highly recommended for commercial cleaning.", date: "2024-02-15" }
+  ];
+  const stmt = db.prepare("INSERT INTO reviews (author, rating, comment, date) VALUES (?, ?, ?, ?)");
+  initialReviews.forEach(r => stmt.run(r.author, r.rating, r.comment, r.date));
+}
+
+app.use(express.json());
+
+// --- API ROUTES ---
+
+// Template: Example of a sensitive API handler (e.g., Stripe, Email, Google Maps)
+// This logic stays on the server to protect your secret keys.
+app.post("/api/secret/process-payment", async (req, res) => {
+  const SECRET_KEY = process.env.STRIPE_SECRET_KEY; // Managed in Settings > Environment Variables
+  if (!SECRET_KEY) {
+    return res.status(500).json({ error: "API Key not configured" });
+  }
+  // Logic to call third-party API goes here
+  res.json({ message: "Request processed securely" });
+});
+
+// Auth
+app.post("/api/auth/login", (req, res) => {
+  const { username, password } = req.body;
+  const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username) as any;
+  
+  if (user && bcrypt.compareSync(password, user.password)) {
+    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: "24h" });
+    res.json({ token, user: { id: user.id, username: user.username } });
+  } else {
+    res.status(401).json({ error: "Invalid credentials" });
+  }
+});
+
+// Middleware for protected routes
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (err) {
+    res.status(401).json({ error: "Invalid token" });
+  }
+};
+
+// Leads
+app.post("/api/leads", (req, res) => {
+  const { name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message } = req.body;
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO leads (name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const result = stmt.run(name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message);
+    res.status(201).json({ id: result.lastInsertRowid });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to submit lead" });
+  }
+});
+
+app.get("/api/admin/leads", authenticate, (req, res) => {
+  const leads = db.prepare("SELECT * FROM leads ORDER BY created_at DESC").all();
+  res.json(leads);
+});
+
+app.patch("/api/admin/leads/:id", authenticate, (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  db.prepare("UPDATE leads SET status = ? WHERE id = ?").run(status, id);
+  res.json({ success: true });
+});
+
+// Public Reviews
+app.get("/api/reviews", (req, res) => {
+  const reviews = db.prepare("SELECT * FROM reviews WHERE is_published = 1 ORDER BY date DESC").all();
+  res.json(reviews);
+});
+
+// Admin Review Management
+app.get("/api/admin/reviews", authenticate, (req, res) => {
+  const reviews = db.prepare("SELECT * FROM reviews ORDER BY date DESC").all();
+  res.json(reviews);
+});
+
+app.post("/api/admin/reviews", authenticate, (req, res) => {
+  const { author, rating, comment, date } = req.body;
+  db.prepare("INSERT INTO reviews (author, rating, comment, date) VALUES (?, ?, ?, ?)").run(author, rating, comment, date);
+  res.status(201).json({ success: true });
+});
+
+app.patch("/api/admin/reviews/:id/toggle", authenticate, (req, res) => {
+  const { id } = req.params;
+  const review = db.prepare("SELECT is_published FROM reviews WHERE id = ?").get(id) as any;
+  if (!review) return res.status(404).json({ error: "Not found" });
+  
+  db.prepare("UPDATE reviews SET is_published = ? WHERE id = ?").run(review.is_published ? 0 : 1, id);
+  res.json({ success: true });
+});
+
+app.delete("/api/admin/reviews/:id", authenticate, (req, res) => {
+  db.prepare("DELETE FROM reviews WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
+
+// Public Gallery
+app.get("/api/gallery", (req, res) => {
+  const items = db.prepare("SELECT * FROM gallery ORDER BY created_at DESC").all();
+  res.json(items);
+});
+
+// Admin Gallery Management
+app.post("/api/admin/gallery", authenticate, (req, res) => {
+  const { url, title, category } = req.body;
+  db.prepare("INSERT INTO gallery (url, title, category) VALUES (?, ?, ?)").run(url, title, category);
+  res.status(201).json({ success: true });
+});
+
+app.delete("/api/admin/gallery/:id", authenticate, (req, res) => {
+  db.prepare("DELETE FROM gallery WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
+
+// --- VITE MIDDLEWARE ---
+
+async function startServer() {
+  if (process.env.NODE_ENV !== "production") {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), "dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+  }
+
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+startServer();

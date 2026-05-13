@@ -1,0 +1,79 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Lead",
+      "description": "Form submission from a potential customer",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "city": { "type": "string" },
+        "zip_code": { "type": "string" },
+        "service_type": { "type": "string" },
+        "bedrooms": { "type": "number" },
+        "bathrooms": { "type": "number" },
+        "preferred_date": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["new", "contacted", "scheduled", "completed", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "phone", "createdAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Customer testimonial",
+      "type": "object",
+      "properties": {
+        "author": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "date": { "type": "string" },
+        "isPublished": { "type": "boolean" }
+      },
+      "required": ["author", "rating", "comment", "date"]
+    },
+    "GalleryItem": {
+      "title": "Gallery Item",
+      "description": "Image of completed work",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["url", "title", "createdAt"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "App configuration",
+      "type": "object",
+      "properties": {
+        "value": { "type": "string" }
+      },
+      "required": ["value"]
+    }
+  },
+  "firestore": {
+    "/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "Client quote requests"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Testimonials"
+    },
+    "/gallery/{itemId}": {
+      "schema": "GalleryItem",
+      "description": "Showcase images"
+    },
+    "/settings/{settingId}": {
+      "schema": "Setting",
+      "description": "Global config like logo and cover"
+    },
+    "/admins/{userId}": {
+      "description": "Administrative users who can manage the platform"
+    }
+  }
+}
