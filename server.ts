@@ -86,7 +86,15 @@ function getFirebaseAdmin() {
 
 const getFirestore = () => {
   const adminApp = getFirebaseAdmin();
-  return adminApp ? adminApp.firestore() : null;
+  if (!adminApp) return null;
+  
+  const databaseId = process.env.FIREBASE_DATABASE_ID || process.env.VITE_FIREBASE_DATABASE_ID;
+  try {
+    return databaseId ? (adminApp as any).firestore(databaseId) : adminApp.firestore();
+  } catch (err) {
+    console.error("Firestore initialization error (Database ID possibly invalid):", err);
+    return null;
+  }
 };
 
 // --- AUTOMATION HELPER ---

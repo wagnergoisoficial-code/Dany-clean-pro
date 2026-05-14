@@ -55,9 +55,14 @@ async function testConnection() {
     const docRef = doc(db, 'test', 'connection');
     await getDocFromServer(docRef);
     console.log("Firebase connection established successfully.");
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration.");
+  } catch (error: any) {
+    const msg = error?.message || '';
+    if (msg.includes('not found') || msg.includes('permission')) {
+      console.warn("Firestore database configuration issue detected. Platform will operate in fallback mode.");
+    } else if (msg.includes('the client is offline')) {
+      console.warn("Firestore is offline.");
+    } else {
+      console.warn("Firestore connection check issue:", error);
     }
   }
 }
@@ -93,16 +98,29 @@ export interface FirestoreErrorInfo {
   }
 }
 
+let lastErrorTime = 0;
+const ERROR_SPAM_THRESHOLD = 5000; // 5 seconds
+
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  
+  // Check for configuration/permission loops
+  const now = Date.now();
+  if (now - lastErrorTime < ERROR_SPAM_THRESHOLD) {
+    // Suppress console spam
+    return;
+  }
+  lastErrorTime = now;
+
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
+    error: errorMessage,
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map((provider: any) => ({
+      userId: auth?.currentUser?.uid || null,
+      email: auth?.currentUser?.email || null,
+      emailVerified: auth?.currentUser?.emailVerified || false,
+      isAnonymous: auth?.currentUser?.isAnonymous || false,
+      tenantId: auth?.currentUser?.tenantId || null,
+      providerInfo: auth?.currentUser?.providerData?.map((provider: any) => ({
         providerId: provider.providerId,
         email: provider.email,
       })) || []
@@ -110,6 +128,13 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path
   }
+
   console.error('Firestore Error: ', JSON.stringify(errInfo));
+
+  // If it's a database not found error, don't throw to avoid white screen
+  if (errorMessage.includes('not found') || errorMessage.includes('permission')) {
+    return;
+  }
+
   throw new Error(JSON.stringify(errInfo));
 }
