@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+
 const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
@@ -15,7 +16,7 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
   console.warn("Firebase configuration is missing. Ensure VITE_FIREBASE_API_KEY and VITE_FIREBASE_PROJECT_ID are set.");
 }
 
-let app;
+let app: any;
 let db: any;
 let auth: any;
 
@@ -61,7 +62,8 @@ async function testConnection() {
   }
 }
 
-if (process.env.NODE_ENV !== 'production') {
+// Vite uses import.meta.env.DEV for checking dev mode
+if (import.meta.env.DEV) {
   testConnection();
 }
 
@@ -100,7 +102,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
       emailVerified: auth.currentUser?.emailVerified,
       isAnonymous: auth.currentUser?.isAnonymous,
       tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+      providerInfo: auth.currentUser?.providerData?.map((provider: any) => ({
         providerId: provider.providerId,
         email: provider.email,
       })) || []

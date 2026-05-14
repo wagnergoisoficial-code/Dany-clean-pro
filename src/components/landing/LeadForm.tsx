@@ -139,6 +139,12 @@ export default function LeadForm() {
           <>Check Availability <ArrowRight size={20} /></>
         )}
       </button>
+
+      {mutation.isError && (
+        <p className="text-red-500 text-sm text-center mt-2 font-medium">
+          Something went wrong. Please try calling us at {businessPhone} instead.
+        </p>
+      )}
       
       <p className="text-[10px] text-center text-slate-400 font-medium px-4">
         By clicking, you agree to be contacted by our team. No credit card is required to get a quote.
