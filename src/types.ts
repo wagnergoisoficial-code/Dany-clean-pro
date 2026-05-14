@@ -10,7 +10,7 @@ export interface Lead {
   bathrooms: number;
   preferred_date: string;
   message: string;
-  status: 'new' | 'contacted' | 'estimate_sent' | 'booked' | 'completed' | 'lost';
+  status: 'new' | 'contacted' | 'scheduled' | 'completed' | 'cancelled';
   created_at: string;
 }
 

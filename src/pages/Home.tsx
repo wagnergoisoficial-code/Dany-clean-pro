@@ -24,17 +24,17 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-white">
               <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">
-                Pronto para uma Casa Impecável?
+                Ready for a Spotless Home?
               </h2>
               <p className="text-xl text-blue-50 mb-8 max-w-lg">
-                Reserve seu serviço de limpeza em menos de 2 minutos. Nossa equipe profissional está pronta para atender você em Connecticut!
+                Book your cleaning service in less than 2 minutes. Our professional team is ready to serve you in Connecticut!
               </p>
               <ul className="space-y-4">
                 {[
-                  "Totalmente Segurado",
-                  "Empresa Familiar",
-                  "Garantia de Satisfação de 100%",
-                  "Profissionais com Antecedentes Verificados"
+                  "Fully Insured",
+                  "Family Owned & Operated",
+                  "100% Satisfaction Guarantee",
+                  "Background Checked Professionals"
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3">
                     <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
@@ -49,8 +49,8 @@ export default function Home() {
             </div>
             <div className="bg-white p-8 rounded-3xl shadow-2xl">
               <div className="mb-6 text-center">
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">Peça seu Orçamento Gratuito</h3>
-                <p className="text-slate-500">Preencha o formulário abaixo e entraremos em contato em breve.</p>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">Request Your Free Quote</h3>
+                <p className="text-slate-500">Fill out the form below and we'll get in touch shortly.</p>
               </div>
               <LeadForm />
             </div>

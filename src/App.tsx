@@ -7,10 +7,19 @@ import AdminDashboard from './pages/AdminDashboard';
 import Layout from './components/Layout';
 import { AuthState } from './types';
 import { auth as firebaseAuth } from './lib/firebase';
+import AIVoiceCall from './components/AIVoiceCall';
+import { AnimatePresence } from 'motion/react';
 
 const queryClient = new QueryClient();
 
 export default function App() {
+  const [isVoiceCallOpen, setIsVoiceCallOpen] = useState(false);
+
+  useEffect(() => {
+    const handleTriggerCall = () => setIsVoiceCallOpen(true);
+    window.addEventListener('trigger-ai-call', handleTriggerCall);
+    return () => window.removeEventListener('trigger-ai-call', handleTriggerCall);
+  }, []);
   const [auth, setAuth] = useState<AuthState>(() => {
     const saved = localStorage.getItem('dany_clean_auth');
     return saved ? JSON.parse(saved) : { token: null, user: null };
@@ -59,6 +68,9 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <AnimatePresence>
+          {isVoiceCallOpen && <AIVoiceCall onClose={() => setIsVoiceCallOpen(false)} />}
+        </AnimatePresence>
         <Routes>
           {/* Public Routes */}
           <Route element={<Layout />}>

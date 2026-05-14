@@ -4,10 +4,20 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import Container from '../ui/Container';
 import Logo from '../ui/Logo';
+import { useSetting } from '../../lib/settings';
+import { useConfig } from '../../hooks/useConfig';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const { value: heroCover } = useSetting('hero_cover');
+  const { businessPhone } = useConfig();
+
+  const triggerAICall = (e: React.MouseEvent) => {
+    // We allow the default action (making the call) 
+    // while still triggering the AI overlay for multi-modal context.
+    window.dispatchEvent(new CustomEvent('trigger-ai-call'));
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -57,14 +67,18 @@ export default function Header() {
             
             {/* Contact Links */}
             <div className="flex items-center gap-6">
-              <a href="tel:+14753413699" className="flex items-center gap-2 group">
+              <a 
+                href={`tel:${businessPhone.replace(/\D/g, '')}`} 
+                onClick={triggerAICall}
+                className="flex items-center gap-2 group"
+              >
                 <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                   <Phone size={14} />
                 </div>
-                <span className="text-[13px] font-bold text-slate-900 line-clamp-1">(475) 341-3699</span>
+                <span className="text-[13px] font-bold text-slate-900 line-clamp-1">{businessPhone}</span>
               </a>
 
-              <a href="sms:+14753413699" className="flex items-center gap-2 group">
+              <a href={`sms:${businessPhone.replace(/\D/g, '')}`} className="flex items-center gap-2 group">
                 <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
                   <MessageSquare size={14} />
                 </div>
@@ -97,14 +111,15 @@ export default function Header() {
               <Mail size={18} />
             </a>
             <a 
-              href="sms:+14753413699" 
+              href={`sms:${businessPhone.replace(/\D/g, '')}`} 
               className="p-2.5 rounded-xl bg-green-50 text-green-600 border border-green-100"
               title="Text Us"
             >
               <MessageSquare size={18} />
             </a>
             <a 
-              href="tel:+14753413699" 
+              href={`tel:${businessPhone.replace(/\D/g, '')}`} 
+              onClick={triggerAICall}
               className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100"
               title="Call Us"
             >
@@ -147,23 +162,30 @@ export default function Header() {
               <div className="pt-8 border-t border-slate-100 space-y-4">
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Direct Contact</p>
                 
-                <a href="tel:+14753413699" className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50 text-blue-600">
+                <a 
+                  href={`tel:${businessPhone.replace(/\D/g, '')}`} 
+                  onClick={(e) => {
+                    setIsOpen(false);
+                    triggerAICall(e);
+                  }}
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50 text-blue-600"
+                >
                   <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
                     <Phone size={20} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Call Us</p>
-                    <p className="text-lg font-bold">(475) 341-3699</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">AI Call Assistant</p>
+                    <p className="text-lg font-bold">{businessPhone}</p>
                   </div>
                 </a>
 
-                <a href="sms:+14753413699" className="flex items-center gap-4 p-4 rounded-2xl bg-green-50 text-green-600">
+                <a href={`sms:${businessPhone.replace(/\D/g, '')}`} className="flex items-center gap-4 p-4 rounded-2xl bg-green-50 text-green-600">
                   <div className="w-10 h-10 rounded-xl bg-green-600 text-white flex items-center justify-center">
                     <MessageSquare size={20} />
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Text Us</p>
-                    <p className="text-lg font-bold">(475) 341-3699</p>
+                    <p className="text-lg font-bold">{businessPhone}</p>
                   </div>
                 </a>
 

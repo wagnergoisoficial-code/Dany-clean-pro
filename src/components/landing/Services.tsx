@@ -4,34 +4,34 @@ import Container from '../ui/Container';
 
 const services = [
   {
-    title: "Limpeza Residencial Padrão",
-    description: "Limpeza de manutenção semanal ou quinzenal para manter sua casa impecável e confortável.",
+    title: "Standard Residential Cleaning",
+    description: "Weekly or bi-weekly maintenance cleaning to keep your home spotless and comfortable.",
     icon: Home,
   },
   {
-    title: "Limpeza Profunda (Spring Cleaning)",
-    description: "Uma limpeza completa de cima a baixo, focando em cada canto esquecido para o máximo frescor.",
+    title: "Deep Cleaning",
+    description: "A complete top-to-bottom clean, focusing on every forgotten corner for maximum freshness.",
     icon: Waves,
     popular: true
   },
   {
-    title: "Mudança (Move-In / Move-Out)",
-    description: "Transições sem estresse com uma propriedade impecável. Perfeito para corretores e proprietários.",
+    title: "Move-In / Move-Out Cleaning",
+    description: "Stress-free transitions with a spotless property. Perfect for realtors and homeowners.",
     icon: Truck,
   },
   {
-    title: "Escritórios e Comercial",
-    description: "Limpeza profissional para clínicas, pequenas empresas e espaços de escritório compartilhados.",
+    title: "Office & Commercial Cleaning",
+    description: "Professional cleaning for clinics, small businesses, and shared office spaces.",
     icon: Building2,
   },
   {
-    title: "Pós-Obra",
-    description: "Remoção de poeira fina e detritos após reformas para revelar seu belo novo espaço.",
+    title: "Post-Construction Cleaning",
+    description: "Fine dust and debris removal after renovations to reveal your beautiful new space.",
     icon: HardHat,
   },
   {
-    title: "Propriedades de Aluguel",
-    description: "Turnarounds rápidos e limpeza pronta para hóspedes em Airbnbs e aluguéis locais.",
+    title: "Rental Properties",
+    description: "Quick turnarounds and guest-ready cleaning for Airbnbs and local rentals.",
     icon: Palmtree,
   }
 ];
@@ -42,11 +42,11 @@ export default function Services() {
       <Container>
         <div className="text-center mb-20">
           <h3 className="text-4xl md:text-5xl font-display font-bold text-slate-900 mb-6">
-            Limpeza Profissional <br />
-            De Forma Simples.
+            Professional Cleaning <br />
+            Made Simple.
           </h3>
           <p className="text-slate-500 text-lg max-w-2xl mx-auto font-medium">
-            De Fairfield a New Haven, trazemos detalhes de classe mundial para cada casa que tocamos.
+            From Fairfield to New Haven, we bring world-class detail to every home we touch.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export default function Services() {
             >
               {service.popular && (
                 <div className="absolute top-6 right-6 px-3 py-1 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full">
-                  Mais Popular
+                  Most Popular
                 </div>
               )}
               <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-8 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-500">

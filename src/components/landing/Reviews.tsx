@@ -10,15 +10,9 @@ export default function Reviews() {
   const { data: reviews, isLoading } = useQuery<Review[]>({
     queryKey: ['reviews'],
     queryFn: async () => {
-      const path = 'reviews';
-      try {
-        const q = query(collection(db, path), where('isPublished', '==', true));
-        const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
-      } catch (error) {
-        handleFirestoreError(error, OperationType.LIST, path);
-        return [];
-      }
+      const response = await fetch('/api/reviews');
+      if (!response.ok) throw new Error('Failed to fetch reviews');
+      return response.json();
     }
   });
 
@@ -27,8 +21,8 @@ export default function Reviews() {
       <Container>
         <div className="text-center mb-20">
           <h3 className="text-4xl md:text-5xl font-display font-bold text-slate-900 leading-tight">
-            Amado pelas Famílias <br />
-            Em Todo o Connecticut.
+            Loved by Families <br />
+            Across Connecticut.
           </h3>
         </div>
 
@@ -65,7 +59,7 @@ export default function Reviews() {
                    </div>
                    <div>
                      <p className="font-bold text-slate-900 text-base leading-none mb-1">{review.author}</p>
-                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Residente Verificado</p>
+                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Verified Resident</p>
                    </div>
                 </div>
               </motion.div>

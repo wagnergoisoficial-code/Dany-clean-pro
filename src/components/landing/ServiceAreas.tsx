@@ -20,11 +20,11 @@ export default function ServiceAreas() {
           <div className="space-y-10">
             <div className="space-y-6">
               <h3 className="text-4xl md:text-5xl font-display font-bold text-slate-900 leading-tight">
-                Atendendo Famílias <br />
-                Em Todo Connecticut.
+                Serving Families <br />
+                Across All Connecticut.
               </h3>
               <p className="text-slate-500 text-lg leading-relaxed font-medium">
-                Oferecemos serviços de limpeza profissionais para residências e empresas em todos os condados de Fairfield e New Haven. Se você não vir sua cidade na lista, entre em contato conosco!
+                We offer professional cleaning services for homes and businesses throughout Fairfield and New Haven counties. If you don't see your city on the list, please contact us!
               </p>
             </div>
             
@@ -44,8 +44,8 @@ export default function ServiceAreas() {
                 <MapPin size={24} />
               </div>
               <div className="space-y-1">
-                <p className="font-bold text-slate-900">Expandindo em breve!</p>
-                <p className="text-sm text-slate-400 font-medium leading-relaxed">Estamos constantemente adicionando novas áreas de serviço. Cadastre-se em nossa newsletter para ser notificado.</p>
+                <p className="font-bold text-slate-900">Expanding soon!</p>
+                <p className="text-sm text-slate-400 font-medium leading-relaxed">We are constantly adding new service areas. Sign up for our newsletter to be notified.</p>
               </div>
             </div>
           </div>
@@ -60,7 +60,7 @@ export default function ServiceAreas() {
                    <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center pointer-events-none">
                       <MapPin size={48} className="text-blue-600 mb-4 animate-bounce" />
                       <p className="text-sm font-bold text-slate-900 px-4 py-2 bg-white rounded-full shadow-lg border border-slate-100">
-                        Baseados em Stamford, CT
+                        Based in Stamford, CT
                       </p>
                    </div>
                 </div>

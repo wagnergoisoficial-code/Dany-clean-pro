@@ -6,27 +6,21 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../../lib/firebase';
 
 const defaultImages = [
-  { url: "https://images.unsplash.com/photo-1527515545081-5db817172677?auto=format&fit=crop&q=80&w=800", title: "Sala de Estar", category: "Residencial" },
-  { url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=800", title: "Cozinha Moderna", category: "Residencial" },
-  { url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800", title: "Banheiro de Luxo", category: "Limpeza Profunda" },
-  { url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=800", title: "Espaço de Escritório", category: "Comercial" },
-  { url: "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?auto=format&fit=crop&q=80&w=800", title: "Quarto Master", category: "Residencial" },
-  { url: "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&q=80&w=800", title: "Detalhes do Jantar", category: "Preparação para Eventos" }
+  { url: "https://images.unsplash.com/photo-1527515545081-5db817172677?auto=format&fit=crop&q=80&w=800", title: "Living Room", category: "Residential" },
+  { url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=800", title: "Modern Kitchen", category: "Residential" },
+  { url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800", title: "Luxury Bathroom", category: "Deep Clean" },
+  { url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=800", title: "Office Space", category: "Commercial" },
+  { url: "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?auto=format&fit=crop&q=80&w=800", title: "Master Bedroom", category: "Residential" },
+  { url: "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&q=80&w=800", title: "Dining Details", category: "Event Prep" }
 ];
 
 export default function Gallery() {
   const { data: galleryItems, isLoading } = useQuery<GalleryItem[]>({
     queryKey: ['gallery'],
     queryFn: async () => {
-      const path = 'gallery';
-      try {
-        const q = query(collection(db, path), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
-      } catch (error) {
-        handleFirestoreError(error, OperationType.LIST, path);
-        return [];
-      }
+      const response = await fetch('/api/gallery');
+      if (!response.ok) throw new Error('Failed to fetch gallery');
+      return response.json();
     }
   });
 
@@ -38,12 +32,12 @@ export default function Gallery() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="space-y-4">
             <h3 className="text-4xl md:text-5xl font-display font-bold text-slate-900 leading-tight">
-              Veja os Resultados <br />
-              Por Você Mesmo.
+              See the Results <br />
+              For Yourself.
             </h3>
           </div>
           <button className="text-[11px] font-black uppercase tracking-[0.2em] text-blue-600 border-b-2 border-primary/10 pb-1 hover:border-blue-600 transition-all">
-            Ver Galeria de Projetos
+            View Project Gallery
           </button>
         </div>
 

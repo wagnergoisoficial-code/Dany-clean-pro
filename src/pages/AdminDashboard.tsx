@@ -39,30 +39,28 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
   const { data: leads, isLoading, isError, error: leadsError } = useQuery<Lead[]>({
     queryKey: ['admin-leads'],
     queryFn: async () => {
-      const path = 'leads';
-      try {
-        const q = query(collection(db, path), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
-      } catch (error) {
-        handleFirestoreError(error, OperationType.LIST, path);
-        return [];
-      }
+      const response = await fetch('/api/admin/leads', {
+        headers: {
+          'Authorization': `Bearer ${auth.token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch leads');
+      return response.json();
     },
     retry: false
   });
 
-  const isFirebaseDenied = isError && leadsError instanceof Error && leadsError.message.includes('permission');
-
   const updateLeadStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string, status: string }) => {
-      const path = `leads/${id}`;
-      try {
-        const docRef = doc(db, 'leads', id);
-        await updateDoc(docRef, { status });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.UPDATE, path);
-      }
+      const response = await fetch(`/api/admin/leads/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${auth.token}`
+        },
+        body: JSON.stringify({ status })
+      });
+      if (!response.ok) throw new Error('Failed to update lead');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-leads'] });
@@ -70,17 +68,17 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
   });
 
   const stats = [
-    { label: 'Novos Leads', value: leads?.filter(l => l.status === 'new')?.length || 0, icon: Users, color: 'text-blue-600 bg-blue-50' },
-    { label: 'Agendados', value: leads?.filter(l => l.status === 'booked')?.length || 0, icon: Calendar, color: 'text-green-600 bg-green-50' },
-    { label: 'Concluídos', value: leads?.filter(l => l.status === 'completed')?.length || 0, icon: CheckCircle2, color: 'text-purple-600 bg-purple-50' }
+    { label: 'New Leads', value: leads?.filter(l => l.status === 'new')?.length || 0, icon: Users, color: 'text-blue-600 bg-blue-50' },
+    { label: 'Scheduled', value: leads?.filter(l => l.status === 'scheduled')?.length || 0, icon: Calendar, color: 'text-green-600 bg-green-50' },
+    { label: 'Completed', value: leads?.filter(l => l.status === 'completed')?.length || 0, icon: CheckCircle2, color: 'text-purple-600 bg-purple-50' }
   ];
 
   const sidebarLinks = [
-    { icon: LayoutDashboard, label: 'Visão Geral', path: '/admin/dashboard' },
-    { icon: Users, label: 'Gerenciar Leads', path: '/admin/dashboard/leads' },
-    { icon: Image, label: 'Galeria', path: '/admin/dashboard/gallery' },
-    { icon: MessageSquare, label: 'Avaliações', path: '/admin/dashboard/reviews' },
-    { icon: Settings, label: 'Configurações', path: '/admin/dashboard/settings' },
+    { icon: LayoutDashboard, label: 'Overview', path: '/admin/dashboard' },
+    { icon: Users, label: 'Manage Leads', path: '/admin/dashboard/leads' },
+    { icon: Image, label: 'Gallery', path: '/admin/dashboard/gallery' },
+    { icon: MessageSquare, label: 'Reviews', path: '/admin/dashboard/reviews' },
+    { icon: Settings, label: 'Settings', path: '/admin/dashboard/settings' },
   ];
 
   return (
@@ -122,17 +120,17 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
       <main className="flex-grow flex flex-col min-w-0">
         <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0">
           <h2 className="text-lg font-bold text-slate-900">
-            Bem-vindo de volta, {fbUser?.displayName || auth.user?.username || 'Admin'}!
+            Welcome back, {fbUser?.displayName || auth.user?.username || 'Admin'}!
           </h2>
           <div className="flex items-center gap-4">
              <div className="text-right hidden sm:block">
                <p className="text-xs font-black uppercase tracking-widest text-blue-600">
-                 {fbUser ? 'Autenticado via Firebase' : 'Sessão Legada'}
+                 {fbUser ? 'Authenticated via Firebase' : 'Legacy Session'}
                </p>
                <p className="text-[10px] text-slate-400 font-medium">{fbUser?.email || auth.user?.username}</p>
              </div>
              <a href="/" target="_blank" className="text-sm font-medium text-blue-600 flex items-center gap-1 hover:underline">
-               Ver Site <ExternalLink size={14} />
+               View Site <ExternalLink size={14} />
              </a>
              <div className="w-10 h-10 bg-slate-100 rounded-full border border-slate-200 overflow-hidden flex items-center justify-center">
                {fbUser?.photoURL ? (
@@ -161,15 +159,15 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                   <Globe size={24} />
                 </div>
                 <div>
-                  <h4 className="font-bold whitespace-nowrap">Conecte sua Conta Google</h4>
-                  <p className="text-sm text-blue-700">Para salvar configurações e gerenciar dados em tempo real, você precisa estar autenticado via Firebase.</p>
+                  <h4 className="font-bold whitespace-nowrap">Connect Your Google Account</h4>
+                  <p className="text-sm text-blue-700">To save settings and manage real-time data, you need to be authenticated via Firebase.</p>
                 </div>
               </div>
               <button 
                 onClick={() => navigate('/admin/login')}
                 className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all shrink-0 w-full md:w-auto"
               >
-                Conectar Agora
+                Connect Now
               </button>
             </div>
           )}
@@ -231,7 +229,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                                <span className={cn(
                                  "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
                                  lead.status === 'new' ? "bg-blue-100 text-blue-700" :
-                                 lead.status === 'booked' ? "bg-green-100 text-green-700" :
+                                 lead.status === 'scheduled' ? "bg-green-100 text-green-700" :
                                  "bg-slate-100 text-slate-600"
                                )}>
                                  {lead.status}
@@ -246,8 +244,9 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                                  >
                                    <option value="new">New</option>
                                    <option value="contacted">Contacted</option>
-                                   <option value="booked">Booked</option>
-                                   <option value="lost">Lost</option>
+                                   <option value="scheduled">Scheduled</option>
+                                   <option value="completed">Completed</option>
+                                   <option value="cancelled">Cancelled</option>
                                  </select>
                                </div>
                             </td>
@@ -270,23 +269,30 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                       <Globe size={20} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-xl text-slate-900">Identidade da Marca</h3>
+                      <h3 className="font-bold text-xl text-slate-900">Brand Identity</h3>
                       <p className="text-sm text-slate-500 flex items-center gap-2">
-                        Gerencie como sua empresa aparece para os clientes. 
+                        Manage how your business appears to customers. 
                         <span className="inline-flex items-center gap-1 text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-widest">
-                          <CheckCircle2 size={10} /> Salva automaticamente
+                          <CheckCircle2 size={10} /> Auto-saves
                         </span>
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-12">
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Website Logo</label>
+                  <div className="flex flex-col gap-10 max-w-3xl">
+                    <div className="space-y-6">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Website Logo</label>
+                        <p className="text-xs text-slate-400 ml-1">Recommended: PNG or SVG with transparent background.</p>
+                      </div>
                       <LogoUpload />
                     </div>
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Hero Section Banner</label>
+                    
+                    <div className="pt-10 border-t border-slate-100 space-y-6">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Hero Cover Image</label>
+                        <p className="text-xs text-slate-400 ml-1">This image will appear as the background in the main section of the site.</p>
+                      </div>
                       <HeroCoverUploader />
                     </div>
                   </div>
@@ -350,10 +356,9 @@ function LeadsList({ auth, leads, updateLeadStatus }: { auth: AuthState, leads: 
                      >
                        <option value="new">New</option>
                        <option value="contacted">Contacted</option>
-                       <option value="estimate_sent">Estimate Sent</option>
-                       <option value="booked">Booked</option>
+                       <option value="scheduled">Scheduled</option>
                        <option value="completed">Completed</option>
-                       <option value="lost">Lost</option>
+                       <option value="cancelled">Cancelled</option>
                      </select>
                   </td>
                   <td className="px-6 py-4">
@@ -378,42 +383,38 @@ function ReviewManager({ auth }: { auth: AuthState }) {
   const { data: reviews, isLoading } = useQuery<Review[]>({
     queryKey: ['admin-reviews'],
     queryFn: async () => {
-      const path = 'reviews';
-      try {
-        const querySnapshot = await getDocs(collection(db, path));
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
-      } catch (error) {
-        handleFirestoreError(error, OperationType.LIST, path);
-        return [];
-      }
+      const response = await fetch('/api/admin/reviews', {
+        headers: {
+          'Authorization': `Bearer ${auth.token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch reviews');
+      return response.json();
     }
   });
 
   const toggleReview = useMutation({
     mutationFn: async (review: any) => {
-      const path = `reviews/${review.id}`;
-      try {
-        const docRef = doc(db, 'reviews', review.id);
-        const newValue = review.isPublished !== undefined ? !review.isPublished : !review.is_published;
-        await updateDoc(docRef, { 
-          isPublished: newValue, // Sync both for safety
-          is_published: newValue 
-        });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.UPDATE, path);
-      }
+      const response = await fetch(`/api/admin/reviews/${review.id}/toggle`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${auth.token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to toggle review');
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reviews'] })
   });
 
   const deleteReview = useMutation({
     mutationFn: async (id: string) => {
-      const path = `reviews/${id}`;
-      try {
-        await deleteDoc(doc(db, 'reviews', id));
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, path);
-      }
+      const response = await fetch(`/api/admin/reviews/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${auth.token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to delete review');
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reviews'] })
   });
@@ -478,28 +479,23 @@ function GalleryManager({ auth }: { auth: AuthState }) {
   const { data: gallery, isLoading } = useQuery<GalleryItem[]>({
     queryKey: ['admin-gallery'],
     queryFn: async () => {
-      const path = 'gallery';
-      try {
-        const querySnapshot = await getDocs(collection(db, path));
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
-      } catch (error) {
-        handleFirestoreError(error, OperationType.LIST, path);
-        return [];
-      }
+      const response = await fetch('/api/gallery');
+      if (!response.ok) throw new Error('Failed to fetch gallery');
+      return response.json();
     }
   });
 
   const addImage = useMutation({
     mutationFn: async (item: typeof newImage) => {
-      const path = 'gallery';
-      try {
-        await addDoc(collection(db, path), {
-          ...item,
-          createdAt: serverTimestamp()
-        });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.CREATE, path);
-      }
+      const response = await fetch('/api/admin/gallery', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${auth.token}`
+        },
+        body: JSON.stringify(item)
+      });
+      if (!response.ok) throw new Error('Failed to add image');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-gallery'] });
@@ -509,12 +505,13 @@ function GalleryManager({ auth }: { auth: AuthState }) {
 
   const deleteImage = useMutation({
     mutationFn: async (id: string) => {
-      const path = `gallery/${id}`;
-      try {
-        await deleteDoc(doc(db, 'gallery', id));
-      } catch (error) {
-        handleFirestoreError(error, OperationType.DELETE, path);
-      }
+      const response = await fetch(`/api/admin/gallery/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${auth.token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to delete image');
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-gallery'] })
   });

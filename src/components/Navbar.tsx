@@ -6,6 +6,7 @@ import { cn } from '../lib/utils';
 import Container from './ui/Container';
 import { useAdminAuth } from '../lib/auth';
 import { useSetting } from '../lib/settings';
+import { useConfig } from '../hooks/useConfig';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,13 @@ export default function Navbar() {
   const { user, isAdmin } = useAdminAuth();
   const navigate = useNavigate();
   const { value: appLogo } = useSetting('app_logo');
+  const { businessPhone } = useConfig();
+
+  const triggerAICall = (e: React.MouseEvent) => {
+    // We allow the default action (making the call) 
+    // while still triggering the AI overlay for multi-modal context.
+    window.dispatchEvent(new CustomEvent('trigger-ai-call'));
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,10 +31,10 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: 'Serviços', href: '#services' },
-    { name: 'Sobre', href: '#about' },
-    { name: 'Galeria', href: '#gallery' },
-    { name: 'Avaliações', href: '#reviews' },
+    { name: 'Services', href: '#services' },
+    { name: 'About', href: '#about' },
+    { name: 'Gallery', href: '#gallery' },
+    { name: 'Reviews', href: '#reviews' },
   ];
 
   return (
@@ -72,7 +80,7 @@ export default function Navbar() {
                 target="_blank"
                 className="text-[13px] font-bold text-blue-600 flex items-center gap-2 uppercase tracking-wider hover:text-blue-700 bg-blue-50 px-3 py-2 rounded-lg border border-blue-100 transition-all"
               >
-                <LayoutDashboard size={14} /> Painel
+                <LayoutDashboard size={14} /> Dashboard
               </Link>
             ) : (
               <Link 
@@ -85,16 +93,20 @@ export default function Navbar() {
             )}
 
             <a 
-              href="tel:+14753413699"
-              className="text-[13px] font-bold text-slate-900 flex items-center gap-2"
+              href={`tel:${businessPhone.replace(/\D/g, '')}`}
+              onClick={triggerAICall}
+              className="text-[13px] font-bold text-slate-900 flex items-center gap-2 group/phone"
             >
-              <Phone size={16} className="text-blue-600" /> (475) 341-3699
+              <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover/phone:bg-blue-600 group-hover/phone:text-white transition-all">
+                <Phone size={14} />
+              </div>
+              {businessPhone}
             </a>
             <a 
               href="#quote" 
               className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold text-sm hover:bg-blue-700 transition-all shadow-md shadow-blue-600/10 active:scale-95"
             >
-              Orçamento Grátis
+              Free Estimate
             </a>
           </div>
 
@@ -136,7 +148,7 @@ export default function Navbar() {
                     className="block text-blue-600 font-bold text-lg flex items-center gap-2 bg-blue-50 px-4 py-3 rounded-xl"
                     onClick={() => setIsOpen(false)}
                   >
-                    <LayoutDashboard size={20} /> Painel Administrativo
+                    <LayoutDashboard size={20} /> Admin Dashboard
                   </Link>
                 ) : (
                   <Link 
@@ -152,17 +164,27 @@ export default function Navbar() {
 
               <div className="pt-8 border-t border-slate-50 space-y-6">
                 <a 
-                  href="tel:+14753413699" 
-                  className="flex items-center gap-4 text-slate-900 font-bold"
+                  href={`tel:${businessPhone.replace(/\D/g, '')}`} 
+                  onClick={(e) => {
+                    setIsOpen(false);
+                    triggerAICall(e);
+                  }}
+                  className="flex items-center gap-4 text-slate-900 font-bold bg-slate-50 p-4 rounded-2xl border border-slate-100"
                 >
-                  <Phone size={20} className="text-blue-600" /> Ligar (475) 341-3699
+                  <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                    <Phone size={24} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Ligar para IA</p>
+                    <p className="text-lg">{businessPhone}</p>
+                  </div>
                 </a>
                 <a 
                   href="#quote" 
-                  className="block text-center bg-blue-600 text-white py-5 rounded-2xl font-bold shadow-lg shadow-blue-600/10"
+                  className="block text-center bg-blue-600 text-white py-5 rounded-2xl font-bold shadow-lg shadow-blue-600/10 active:scale-[0.98] transition-all"
                   onClick={() => setIsOpen(false)}
                 >
-                  Peça seu Orçamento Gratuito
+                  Get Your Free Quote
                 </a>
               </div>
             </div>

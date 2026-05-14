@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, Trash2, Download } from 'lucide-react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, auth, handleFirestoreError, OperationType } from '../../lib/firebase';
-import { cn } from '../../lib/utils';
+import { cn, compressImage } from '../../lib/utils';
 import { useSetting } from '../../lib/settings';
 
 interface LogoUploadProps {
@@ -36,18 +36,25 @@ export default function LogoUpload({ onLogoChange, className }: LogoUploadProps)
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 750 * 1024) {
-        alert("O logotipo deve ter menos de 750KB para garantir a sincronização em nuvem.");
+      // Allow up to 10MB input, we will compress it anyway
+      if (file.size > 10 * 1024 * 1024) {
+        alert("A imagem é muito grande. Escolha um arquivo com menos de 10MB.");
         return;
       }
       
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64 = reader.result as string;
-        saveToFirestore(base64);
+        try {
+          const compressed = await compressImage(base64, 800, 0.6);
+          saveToFirestore(compressed);
+        } catch (error) {
+          console.error("Compression error:", error);
+          saveToFirestore(base64);
+        }
       };
       reader.readAsDataURL(file);
       onLogoChange?.(file);

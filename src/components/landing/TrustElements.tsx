@@ -5,23 +5,23 @@ export default function TrustElements() {
   const features = [
     { 
       icon: Shield, 
-      title: "Totalmente Seguro", 
-      desc: "Equipe licenciada e segurada"
+      title: "Fully Secure", 
+      desc: "Licensed & Insured Team"
     },
     { 
       icon: Clock, 
-      title: "Chegada Confiável", 
-      desc: "Sempre pontual, todas as vezes"
+      title: "Reliable Arrival", 
+      desc: "Always on time, every time"
     },
     { 
       icon: UserCheck, 
-      title: "Antecedentes Verificados", 
-      desc: "Profissionais rigorosamente filtrados"
+      title: "Background Checked", 
+      desc: "Rigorously vetted pros"
     },
     { 
       icon: Star, 
-      title: "Serviço 5 Estrelas", 
-      desc: "Satisfação garantida"
+      title: "5-Star Service", 
+      desc: "Satisfaction guaranteed"
     }
   ];
 

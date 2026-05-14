@@ -3,6 +3,7 @@ import { MessageSquare, Send, X, Bot, User, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from '@google/genai';
 import { cn } from '../lib/utils';
+import { useConfig } from '../hooks/useConfig';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -17,6 +18,7 @@ export default function AIChatWidget() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { businessPhone } = useConfig();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,7 +51,7 @@ export default function AIChatWidget() {
         1. If they ask about prices, tell them to use our "Quote Request" form for a free estimate. 
         2. Never invent specific prices.
         3. Be brief and focused on conversion.
-        4. Redirect complex scheduling questions to our call line: (475) 341-3699.
+        4. Redirect complex scheduling questions to our call line: ${businessPhone}.
         
         Current Message: ${userMessage}
       `;
@@ -59,10 +61,10 @@ export default function AIChatWidget() {
         contents: prompt,
       });
 
-      const responseText = result.text || "I'm sorry, I'm having trouble connecting. Please give us a call at (475) 341-3699!";
+      const responseText = result.text || `I'm sorry, I'm having trouble connecting. Please give us a call at ${businessPhone}!`;
       setMessages(prev => [...prev, { role: 'assistant', content: responseText }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I'm taking a quick break. Feel free to use our quote form or call us!" }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, I'm taking a quick break. Feel free to use our quote form or call us at ${businessPhone}!` }]);
     } finally {
       setIsLoading(false);
     }

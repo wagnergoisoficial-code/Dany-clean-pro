@@ -39,13 +39,13 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
         body: JSON.stringify({ username, password })
       });
 
-      if (!res.ok) throw new Error('Credenciais inválidas');
+      if (!res.ok) throw new Error('Invalid credentials');
 
       const data = await res.json();
       onLogin(data.token, data.user);
       navigate('/admin/dashboard');
     } catch (err) {
-      setError('Usuário ou senha incorretos. Tente admin / admin123');
+      setError('Incorrect username or password. Try admin / admin123');
     } finally {
       setLoading(false);
     }
@@ -67,8 +67,8 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
               <div className="w-20 h-20 bg-white/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 backdrop-blur-md border border-white/30 shadow-xl">
                 <Lock size={36} />
               </div>
-              <h1 className="text-3xl font-display font-bold">Painel Admin</h1>
-              <p className="text-blue-100/80 text-sm mt-3 font-medium uppercase tracking-widest text-[10px]">Acesso Seguro</p>
+              <h1 className="text-3xl font-display font-bold">Admin Panel</h1>
+              <p className="text-blue-100/80 text-sm mt-3 font-medium uppercase tracking-widest text-[10px]">Secure Access</p>
             </div>
           </div>
 
@@ -79,7 +79,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
               className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-100 py-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 hover:border-blue-100 transition-all active:scale-[0.98] shadow-sm disabled:opacity-50"
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 text-blue-600" />
-              Entrar com Google
+              Sign in with Google
             </button>
 
             <div className="relative">
@@ -87,7 +87,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
                 <div className="w-full border-t border-slate-100"></div>
               </div>
               <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
-                <span className="bg-white px-4 text-slate-300">Ou use conta do sistema</span>
+                <span className="bg-white px-4 text-slate-300">Or use system account</span>
               </div>
             </div>
 
@@ -100,7 +100,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
               )}
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Usuário</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Username</label>
                 <div className="relative group">
                   <User size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                   <input 
@@ -115,7 +115,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Senha</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Password</label>
                 <div className="relative group">
                   <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                   <input 
@@ -138,14 +138,14 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Entrar no Dashboard</span>
+                    <span>Enter Dashboard</span>
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </button>
               
               <div className="flex items-center justify-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest pt-2">
-                <ShieldCheck size={14} className="text-green-500" /> Apenas Pessoal Autorizado
+                <ShieldCheck size={14} className="text-green-500" /> Authorized Personnel Only
               </div>
             </form>
           </div>

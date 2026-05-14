@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Image as ImageIcon, Upload, Trash2, Download } from 'lucide-react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, auth, handleFirestoreError, OperationType } from '../../lib/firebase';
-import { cn } from '../../lib/utils';
+import { cn, compressImage } from '../../lib/utils';
 import { useSetting } from '../../lib/settings';
 
 interface HeroCoverUploaderProps {
@@ -34,17 +34,26 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 750 * 1024) {
-        alert("A imagem de capa deve ter menos de 750KB para garantir a sincronização em nuvem.");
+      // Allow up to 10MB input, we will compress it
+      if (file.size > 10 * 1024 * 1024) {
+        alert("A imagem é muito grande. Escolha um arquivo com menos de 10MB.");
         return;
       }
+      setIsSaving(true);
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64 = reader.result as string;
-        saveToFirestore(base64);
+        try {
+          // Compress to max 1200px width with quality reduction
+          const compressed = await compressImage(base64, 1200, 0.7);
+          await saveToFirestore(compressed);
+        } catch (error) {
+          console.error("Compression error:", error);
+          await saveToFirestore(base64);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -107,7 +116,7 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
                {isSaving && (
                  <div className="px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg flex items-center gap-2 text-[10px] font-black uppercase tracking-widest animate-pulse">
                    <div className="w-2 h-2 rounded-full bg-white border-2 border-white/30 border-t-transparent animate-spin" />
-                   Salvando...
+                   Saving...
                  </div>
                )}
                <div className="px-4 py-2 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-white/20 flex items-center gap-2">
@@ -121,18 +130,18 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
             {isSaving && (
               <div className="absolute top-6 right-6 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg flex items-center gap-2 text-[10px] font-black uppercase tracking-widest animate-pulse z-20">
                 <div className="w-2 h-2 rounded-full bg-white border-2 border-white/30 border-t-transparent animate-spin" />
-                Salvando...
+                Saving...
               </div>
             )}
             <div className="w-16 h-16 rounded-3xl bg-white shadow-xl shadow-slate-200 flex items-center justify-center text-slate-400 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-500">
                <Upload size={28} />
             </div>
             <div>
-              <p className="text-lg font-display font-bold text-slate-900">Upload da Capa da Hero</p>
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400 mt-1">Recomendado: 1920x1080 (Máx 5MB)</p>
+              <p className="text-lg font-display font-bold text-slate-900">Upload Hero Cover</p>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400 mt-1">Recommended: 1920x1080 (High Qual)</p>
             </div>
             <button className="mt-2 bg-blue-600 text-white px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-blue-600/20">
-               Escolher Imagem de Capa
+               Select Cover Image
             </button>
           </div>
         )}
@@ -151,13 +160,13 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
         <div className="flex justify-between items-center mt-4 px-4">
            <div className="flex items-center gap-2">
               <ImageIcon size={14} className="text-blue-600" />
-              <span className="text-[11px] font-bold text-slate-500">Experiência de Website Personalizada</span>
+              <span className="text-[11px] font-bold text-slate-500">Customized Website Experience</span>
            </div>
            <button 
              onClick={handleDownload}
              className="text-[11px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 flex items-center gap-2"
            >
-             Baixar Capa Atual <Download size={14} />
+             Download Current Cover <Download size={14} />
            </button>
         </div>
       )}

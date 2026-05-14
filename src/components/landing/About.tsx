@@ -31,23 +31,23 @@ export default function About() {
           <div className="space-y-10">
             <div className="space-y-6">
               <h3 className="text-4xl md:text-5xl font-display font-bold text-slate-900 leading-tight">
-                Nascidos em Connecticut, <br />
-                Dedicados à Sua Casa.
+                Born in Connecticut, <br />
+                Dedicated to Your Home.
               </h3>
               <p className="text-slate-500 text-lg leading-relaxed font-medium">
-                A Dany Clean Pro começou como um pequeno objetivo familiar: fornecer serviços de limpeza de alta qualidade com um toque pessoal e confiável. Hoje, já ajudamos milhares de famílias em todo o condado de Fairfield a recuperar seu tempo.
+                Dany Clean Pro started with a simple family goal: to provide high-quality cleaning services with a personal, reliable touch. Today, we've helped thousands of families across Fairfield County reclaim their time.
               </p>
               <p className="text-slate-500 text-lg leading-relaxed font-medium">
-                Não somos uma enorme franquia corporativa. Somos seus vizinhos. Cada limpeza que realizamos é tratada com o mesmo cuidado que dedicamos às nossas próprias casas.
+                We're not a massive corporate franchise. We're your neighbors. Every clean we perform is treated with the same care we give our own homes.
               </p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-x-10 gap-y-8 pt-4">
               {[
-                { icon: Award, title: "Qualidade em Primeiro Lugar", desc: "Um checklist detalhado para cada visita." },
-                { icon: Users, title: "Equipe de Confiança", desc: "Profissionais com antecedentes verificados." },
-                { icon: Heart, title: "Eco-Friendly", desc: "Produtos seguros para pets e crianças." },
-                { icon: CheckCircle2, title: "Garantia de 100%", desc: "Não gostou? Refazemos a limpeza gratuitamente." }
+                { icon: Award, title: "Quality First", desc: "A detailed checklist for every single visit." },
+                { icon: Users, title: "Trusted Team", desc: "Background checked professionals." },
+                { icon: Heart, title: "Eco-Friendly", desc: "Safe products for pets and children." },
+                { icon: CheckCircle2, title: "100% Guarantee", desc: "Didn't love it? We'll re-clean for free." }
               ].map((item, i) => (
                 <div key={i} className="flex gap-4">
                   <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
