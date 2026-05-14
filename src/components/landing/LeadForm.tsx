@@ -12,13 +12,48 @@ export default function LeadForm() {
 
   const mutation = useMutation({
     mutationFn: async (formData: any) => {
-      const response = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      if (!response.ok) throw new Error('Failed to submit form');
-      return response.json();
+      try {
+        const response = await fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        
+        if (!response.ok) {
+          // If API fails, try direct Firestore fallback if config exists
+          if (db && typeof db.type === 'string') {
+            await addDoc(collection(db, 'leads'), {
+              ...formData,
+              createdAt: serverTimestamp(),
+              source: 'direct-firestore-fallback'
+            });
+            return { success: true };
+          }
+          throw new Error('Server unreachable');
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          return await response.json();
+        }
+        return { success: true }; // Assume success if code was 200 but not JSON
+      } catch (err) {
+        console.warn('API submission failed, attempting direct Firestore:', err);
+        // Direct Firestore fallback
+        try {
+          if (db && typeof db.type === 'string') {
+            await addDoc(collection(db, 'leads'), {
+              ...formData,
+              createdAt: serverTimestamp(),
+              source: 'direct-firestore-retry'
+            });
+            return { success: true };
+          }
+        } catch (fsErr) {
+          console.error("Firestore fallback also failed:", fsErr);
+        }
+        throw err;
+      }
     },
     onSuccess: () => {
       setSubmitted(true);

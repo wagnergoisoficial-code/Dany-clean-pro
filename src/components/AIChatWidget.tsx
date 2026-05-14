@@ -48,6 +48,12 @@ export default function AIChatWidget() {
       });
 
       if (!response.ok) throw new Error('AI failed');
+      
+      const contentType = response.headers.get("content-type");
+      if (!contentType || contentType.indexOf("application/json") === -1) {
+        throw new Error('Not JSON');
+      }
+
       const data = await response.json();
       const responseText = data.text || `Please call us at ${businessPhone} for assistance!`;
       setMessages(prev => [...prev, { role: 'assistant', content: responseText }]);

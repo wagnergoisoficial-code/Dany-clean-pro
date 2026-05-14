@@ -7,13 +7,23 @@ export function useConfig() {
 
   useEffect(() => {
     fetch('/api/config')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Not found');
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          return res.json();
+        } else {
+          throw new Error('Not JSON');
+        }
+      })
       .then(data => {
-        if (data.businessPhone) {
+        if (data && data.businessPhone) {
           setConfig(data);
         }
       })
-      .catch(err => console.error('Failed to load business config:', err));
+      .catch(err => {
+        console.warn('API config unavailable, using defaults');
+      });
   }, []);
 
   return config;

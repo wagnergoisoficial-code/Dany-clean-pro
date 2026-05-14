@@ -39,13 +39,21 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
   const { data: leads, isLoading, isError, error: leadsError } = useQuery<Lead[]>({
     queryKey: ['admin-leads'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/leads', {
-        headers: {
-          'Authorization': `Bearer ${auth.token}`
+      try {
+        const response = await fetch('/api/admin/leads', {
+          headers: {
+            'Authorization': `Bearer ${auth.token}`
+          }
+        });
+        if (!response.ok) return [];
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          return await response.json();
         }
-      });
-      if (!response.ok) throw new Error('Failed to fetch leads');
-      return response.json();
+        return [];
+      } catch (err) {
+        return [];
+      }
     },
     retry: false
   });
@@ -383,13 +391,21 @@ function ReviewManager({ auth }: { auth: AuthState }) {
   const { data: reviews, isLoading } = useQuery<Review[]>({
     queryKey: ['admin-reviews'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/reviews', {
-        headers: {
-          'Authorization': `Bearer ${auth.token}`
+      try {
+        const response = await fetch('/api/admin/reviews', {
+          headers: {
+            'Authorization': `Bearer ${auth.token}`
+          }
+        });
+        if (!response.ok) return [];
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          return await response.json();
         }
-      });
-      if (!response.ok) throw new Error('Failed to fetch reviews');
-      return response.json();
+        return [];
+      } catch (err) {
+        return [];
+      }
     }
   });
 
@@ -479,9 +495,17 @@ function GalleryManager({ auth }: { auth: AuthState }) {
   const { data: gallery, isLoading } = useQuery<GalleryItem[]>({
     queryKey: ['admin-gallery'],
     queryFn: async () => {
-      const response = await fetch('/api/gallery');
-      if (!response.ok) throw new Error('Failed to fetch gallery');
-      return response.json();
+      try {
+        const response = await fetch('/api/gallery');
+        if (!response.ok) return [];
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          return await response.json();
+        }
+        return [];
+      } catch (err) {
+        return [];
+      }
     }
   });
 

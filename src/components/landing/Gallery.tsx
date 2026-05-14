@@ -18,9 +18,19 @@ export default function Gallery() {
   const { data: galleryItems, isLoading } = useQuery<GalleryItem[]>({
     queryKey: ['gallery'],
     queryFn: async () => {
-      const response = await fetch('/api/gallery');
-      if (!response.ok) throw new Error('Failed to fetch gallery');
-      return response.json();
+      try {
+        const response = await fetch('/api/gallery');
+        if (!response.ok) return [];
+        
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          return await response.json();
+        }
+        return [];
+      } catch (err) {
+        console.warn('Gallery API unavailable');
+        return [];
+      }
     }
   });
 
