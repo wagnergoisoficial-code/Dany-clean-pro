@@ -82,7 +82,7 @@ export default function HeroSection() {
           >
             <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] lg:rounded-[5.5rem] overflow-hidden shadow-2xl z-10 border-[8px] lg:border-[16px] border-white bg-slate-50">
               <img 
-                src={heroCover || "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=1200"} 
+                src={heroCover || "https://images.unsplash.com/photo-1556911220-e15024029581?auto=format&fit=crop&q=80&w=1200"} 
                 alt="Spotless home environment" 
                 className="w-full h-full object-cover transition-all duration-700"
               />
