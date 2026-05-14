@@ -47,8 +47,12 @@ export { db, auth };
 
 // Validation check
 async function testConnection() {
+  // Only test if db is a real Firestore instance
+  if (!db || typeof db.type !== 'string') return;
+  
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
+    const docRef = doc(db, 'test', 'connection');
+    await getDocFromServer(docRef);
     console.log("Firebase connection established successfully.");
   } catch (error) {
     if (error instanceof Error && error.message.includes('the client is offline')) {

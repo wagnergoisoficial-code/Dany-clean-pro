@@ -26,96 +26,18 @@ export default function AIVoiceCall({ onClose }: AIVoiceCallProps) {
   }, []);
 
   const startCall = async () => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
-    if (!apiKey) {
-      console.warn("AIVoiceCall: VITE_GEMINI_API_KEY is missing. Voice features disabled for security.");
+    // Note: VITE_GEMINI_API_KEY is disabled for security. 
+    // Voice features require a secure backend proxy or temporary session tokens.
+    if (true) {
+      console.warn("AIVoiceCall: Voice features are disabled for security during deployment.");
       setLastModelResponse('Voice features are temporarily unavailable. Please call us!');
       setStatus('ended');
       return;
     }
 
     try {
-      const ai = new GoogleGenAI({ apiKey });
-      
-      const sessionPromise = ai.live.connect({
-        model: "gemini-3.1-flash-live-preview",
-        config: {
-          responseModalities: [Modality.AUDIO],
-          speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zephyr" } },
-          },
-          systemInstruction: `
-            You are "Dany Assistant", a friendly AI voice representative for Dany Clean Pro.
-            Your goal is to help the user schedule a cleaning appointment.
-            
-            Key Information:
-            - Company: Dany Clean Pro (Connecticut)
-            - Services: Regular, Deep, Move-Out, Commercial.
-            - Location: Fairfield County (Stamford, Greenwich, etc.)
-            
-            Conversation Flow:
-            1. Greet the user warmly.
-            2. Ask what kind of cleaning they need.
-            3. Ask for their location and approximate house size (bedrooms/bathrooms).
-            4. Ask for a preferred date.
-            5. Use the "bookLead" tool to record the appointment once you have: Name, Service, and Date.
-            
-            Be concise and professional. Speak like a real human assistant.
-          `,
-          tools: [{
-            functionDeclarations: [{
-              name: "bookLead",
-              description: "Book a cleaning appointment for the customer",
-              parameters: {
-                type: "object" as any,
-                properties: {
-                  name: { type: "string" as any, description: "Customer name" },
-                  service_type: { type: "string" as any, description: "Type of service (Regular, Deep, Move-Out)" },
-                  preferred_date: { type: "string" as any, description: "Date/Time requested" },
-                  phone: { type: "string" as any, description: "Customer phone number" }
-                },
-                required: ["name", "service_type", "preferred_date"]
-              }
-            }]
-          }]
-        },
-        callbacks: {
-          onopen: () => {
-            setStatus('connected');
-            setupAudioRecording();
-          },
-          onmessage: async (message: any) => {
-            // Handle Audio Out
-            if (message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data) {
-              playPCMAudio(message.serverContent.modelTurn.parts[0].inlineData.data);
-            }
-
-            // Handle Transcripts
-            if (message.serverContent?.modelTurn?.parts?.[0]?.text) {
-              setLastModelResponse(message.serverContent.modelTurn.parts[0].text);
-            }
-
-            // Handle Tool Calls
-            if (message.toolCall) {
-              const call = message.toolCall.functionCalls[0];
-              if (call.name === 'bookLead') {
-                handleBooking(call.args);
-                sessionRef.current?.sendToolResponse({
-                  functionResponses: [{
-                    id: call.id,
-                    response: { success: true, message: "Appointment recorded. I'll let the user know now." }
-                  }]
-                });
-              }
-            }
-          },
-          onclose: () => setStatus('ended'),
-          onerror: (err) => console.error("Live API Error:", err)
-        }
-      });
-
-      sessionRef.current = await sessionPromise;
+      // Implementation stubbed for security.
+      console.log("Call attempt blocked by security policy.");
     } catch (err) {
       console.error("Failed to start call:", err);
       onClose();

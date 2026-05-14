@@ -15,7 +15,7 @@ const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  console.warn("JWT_SECRET is not set. Using a fallback for development ONLY. In production, this WILL fail.");
+  console.warn("JWT_SECRET is not set. Ensure it is configured in your environment variables for production.");
 }
 
 // --- TWILIO INITIALIZATION ---
