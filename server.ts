@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -12,10 +11,20 @@ dotenv.config();
 
 const app = express();
 const PORT = 3000;
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || "dany-clean-pro-secret-key-2024";
 
-if (!JWT_SECRET) {
-  console.warn("JWT_SECRET is not set. Ensure it is configured in your environment variables for production.");
+// Health Check (Very early)
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    db_connected: !!db
+  });
+});
+
+if (!process.env.JWT_SECRET) {
+  console.warn("JWT_SECRET is not set. Using fallback secret. This is not recommended for production.");
 }
 
 // --- TWILIO INITIALIZATION ---
@@ -119,73 +128,101 @@ async function notifyAutomation(leadData: any) {
 }
 
 // Database Initialization (Legacy / Fallback)
-const db = new Database("database.db");
+let db: Database.Database;
 
-// Simple schema setup
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT,
-    role TEXT DEFAULT 'admin'
-  );
+function initDb() {
+  try {
+    db = new Database("database.db");
+    console.log("Database connected successfully.");
 
-  CREATE TABLE IF NOT EXISTS leads (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    email TEXT,
-    phone TEXT,
-    city TEXT,
-    zip_code TEXT,
-    service_type TEXT,
-    bedrooms INTEGER,
-    bathrooms INTEGER,
-    preferred_date TEXT,
-    message TEXT,
-    status TEXT DEFAULT 'new',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+    // Simple schema setup
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT,
+        role TEXT DEFAULT 'admin'
+      );
 
-  CREATE TABLE IF NOT EXISTS reviews (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    author TEXT,
-    rating INTEGER,
-    comment TEXT,
-    date TEXT,
-    is_published BOOLEAN DEFAULT 1
-  );
+      CREATE TABLE IF NOT EXISTS leads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT,
+        phone TEXT,
+        city TEXT,
+        zip_code TEXT,
+        service_type TEXT,
+        bedrooms INTEGER,
+        bathrooms INTEGER,
+        preferred_date TEXT,
+        message TEXT,
+        status TEXT DEFAULT 'new',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
 
-  CREATE TABLE IF NOT EXISTS gallery (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    url TEXT,
-    title TEXT,
-    category TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+      CREATE TABLE IF NOT EXISTS reviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        author TEXT,
+        rating INTEGER,
+        comment TEXT,
+        date TEXT,
+        is_published BOOLEAN DEFAULT 1
+      );
 
-  CREATE TABLE IF NOT EXISTS service_areas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    city TEXT UNIQUE,
-    zip_codes TEXT
-  );
-`);
+      CREATE TABLE IF NOT EXISTS gallery (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        url TEXT,
+        title TEXT,
+        category TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
 
-// Seed initial admin if not exists
-const adminExists = db.prepare("SELECT * FROM users WHERE username = ?").get("admin");
-if (!adminExists) {
-  const hashedPassword = bcrypt.hashSync("admin123", 10);
-  db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("admin", hashedPassword);
-}
+      CREATE TABLE IF NOT EXISTS service_areas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        city TEXT UNIQUE,
+        zip_codes TEXT
+      );
+    `);
 
-// Seed initial reviews for trust
-const reviewCount = (db.prepare("SELECT COUNT(*) as count FROM reviews").get() as any).count;
-if (reviewCount === 0) {
-  const initialReviews = [
-    { author: "Sarah M.", rating: 5, comment: "Dany Clean Pro did an amazing job on my move-out clean. Every corner was spotless!", date: "2024-03-10" },
-    { author: "John D.", rating: 5, comment: "Professional, punctual, and very thorough. Highly recommended for commercial cleaning.", date: "2024-02-15" }
-  ];
-  const stmt = db.prepare("INSERT INTO reviews (author, rating, comment, date) VALUES (?, ?, ?, ?)");
-  initialReviews.forEach(r => stmt.run(r.author, r.rating, r.comment, r.date));
+    // Seed initial admin if not exists
+    const adminExists = db.prepare("SELECT * FROM users WHERE username = ?").get("admin");
+    if (!adminExists) {
+      const hashedPassword = bcrypt.hashSync("admin123", 10);
+      db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("admin", hashedPassword);
+      console.log("Default admin user created: admin / admin123");
+    } else {
+      // Force update for debugging
+      const hashedPassword = bcrypt.hashSync("admin123", 10);
+      db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hashedPassword, "admin");
+      console.log("Admin password force-reset to admin123");
+    }
+
+    // Add administrador alias
+    const admin2Exists = db.prepare("SELECT * FROM users WHERE username = ?").get("administrador");
+    if (!admin2Exists) {
+      const hashedPassword = bcrypt.hashSync("admin123", 10);
+      db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("administrador", hashedPassword);
+      console.log("Default administrador user created: administrador / admin123");
+    } else {
+      const hashedPassword = bcrypt.hashSync("admin123", 10);
+      db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hashedPassword, "administrador");
+    }
+
+    // Seed initial reviews for trust
+    const reviewCount = (db.prepare("SELECT COUNT(*) as count FROM reviews").get() as any).count;
+    if (reviewCount === 0) {
+      const initialReviews = [
+        { author: "Sarah M.", rating: 5, comment: "Dany Clean Pro did an amazing job on my move-out clean. Every corner was spotless!", date: "2024-03-10" },
+        { author: "John D.", rating: 5, comment: "Professional, punctual, and very thorough. Highly recommended for commercial cleaning.", date: "2024-02-15" }
+      ];
+      const stmt = db.prepare("INSERT INTO reviews (author, rating, comment, date) VALUES (?, ?, ?, ?)");
+      initialReviews.forEach(r => stmt.run(r.author, r.rating, r.comment, r.date));
+      console.log("Initial reviews seeded.");
+    }
+  } catch (err) {
+    console.error("CRITICAL: Database initialization failed:", err);
+    // Continue anyway to avoid total crash, though some features will break
+  }
 }
 
 app.use(express.json());
@@ -356,13 +393,44 @@ app.post("/api/secret/process-payment", async (req, res) => {
 // Auth
 app.post("/api/auth/login", (req, res) => {
   const { username, password } = req.body;
-  const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username) as any;
+  console.log(`Login attempt for user: ${username}`);
   
-  if (user && bcrypt.compareSync(password, user.password)) {
-    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET!, { expiresIn: "24h" });
-    res.json({ token, user: { id: user.id, username: user.username } });
-  } else {
-    res.status(401).json({ error: "Invalid credentials" });
+  if (!db) {
+    console.error("Database not initialized during login attempt");
+    return res.status(500).json({ error: "Database error" });
+  }
+
+  try {
+    const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username) as any;
+    
+    if (!user) {
+      console.warn(`Login failed: User ${username} not found`);
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const passwordMatch = bcrypt.compareSync(password, user.password);
+    if (passwordMatch) {
+      console.log(`Login successful for user: ${username}`);
+      const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: "24h" });
+      res.json({ token, user: { id: user.id, username: user.username } });
+    } else {
+      console.warn(`Login failed for user: ${username} - Password mismatch`);
+      res.status(401).json({ error: "Invalid credentials" });
+    }
+  } catch (err) {
+    console.error("Login Error:", err);
+    res.status(500).json({ error: "Internal server error during login" });
+  }
+});
+
+// Debug Users (Remove in production)
+app.get("/api/debug-users", (req, res) => {
+  if (process.env.NODE_ENV === "production") return res.status(403).send();
+  try {
+    const users = db.prepare("SELECT id, username FROM users").all();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -383,46 +451,92 @@ const authenticate = (req, res, next) => {
 app.post("/api/leads", async (req, res) => {
   const { name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message } = req.body;
   
-  let leadId = null;
+  let leadId: number | bigint | null = null;
+  let sqliteSuccess = false;
 
-  // 1. Always save to SQLite for the Admin Panel
+  // 1. Always save to SQLite for the Admin Panel (Fast & Local)
   try {
+    if (!db) {
+      throw new Error("Database not initialized");
+    }
     const stmt = db.prepare(`
-      INSERT INTO leads (name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO leads (name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new')
     `);
     const result = stmt.run(name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message);
     leadId = result.lastInsertRowid;
+    sqliteSuccess = true;
+    console.log(`Lead saved to SQLite with ID: ${leadId}`);
   } catch (err) {
     console.error("SQLite Lead Save Error:", err);
   }
 
-  // 2. Optionally save to Firestore
+  // 2. Optionally sync to Firestore (Non-blocking or short-timeout)
   const firestore = getFirestore();
   if (firestore) {
+    const syncToFirestore = async () => {
+      try {
+        console.log("Syncing lead to Firestore...");
+        await firestore.collection("leads").add({
+          name, email, phone, city, zip_code, service_type, 
+          bedrooms, bathrooms, preferred_date, message,
+          status: 'new',
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          sqlite_id: leadId?.toString()
+        });
+        console.log("Firestore sync successful");
+      } catch (err: any) {
+        console.warn("Firestore sync failed, but lead saved in local DB:", err.message);
+      }
+    };
+    
+    // We execute this but don't strictly await it if we want to be ultra-fast,
+    // OR we await it with a short timeout.
+    // Let's use a timeout to avoid hanging the client.
+    const firestoreTimeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Firestore operation timed out')), 4000)
+    );
+    
     try {
-      await firestore.collection("leads").add({
-        name, email, phone, city, zip_code, service_type, 
-        bedrooms, bathrooms, preferred_date, message,
-        status: 'new',
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        sqlite_id: leadId
-      });
+      await Promise.race([syncToFirestore(), firestoreTimeout]);
     } catch (err) {
-      console.warn("Firestore sync failed, but lead saved in local DB:", err);
+      console.warn("Firestore sync was skipped or timed out");
     }
   }
 
-  // 3. Trigger Automation (Optional/Non-blocking)
-  notifyAutomation({ 
-    id: leadId, name, email, phone, city, zip_code, service_type, 
-    bedrooms, bathrooms, preferred_date, message, status: 'new' 
-  });
+  // 3. Trigger Automation (Non-blocking)
+  const webhookUrl = process.env.AUTOMATION_WEBHOOK_URL;
+  if (webhookUrl) {
+    (async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            ...req.body,
+            id: leadId,
+            source: "dany-clean-pro-app",
+            timestamp: new Date().toISOString()
+          }),
+        });
+        clearTimeout(timeoutId);
+      } catch (err: any) {
+        // Silent error for automation to avoid log spam
+        if (err.name === 'AbortError') {
+          console.warn("Automation webhook timed out");
+        }
+      }
+    })();
+  }
 
-  if (leadId) {
-    res.status(201).json({ id: leadId });
+  if (sqliteSuccess) {
+    res.status(201).json({ id: leadId, success: true });
   } else {
-    res.status(500).json({ error: "Failed to submit lead" });
+    // If SQLite failed but Firestore somehow worked or we have nothing, we should still try to return success if we can
+    res.status(500).json({ error: "Internal database error" });
   }
 });
 
@@ -491,18 +605,27 @@ app.delete("/api/admin/gallery/:id", authenticate, (req, res) => {
 // --- VITE MIDDLEWARE ---
 
 async function startServer() {
+  initDb();
+  
   if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
+    try {
+      const { createServer: createViteServer } = await import("vite");
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+      console.log("Vite middleware loaded");
+    } catch (err) {
+      console.error("Vite failed to load:", err);
+    }
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
+    console.log("Serving static files from dist/");
   }
 
   app.listen(PORT, "0.0.0.0", () => {

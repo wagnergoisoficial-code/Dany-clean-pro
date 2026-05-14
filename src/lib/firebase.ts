@@ -110,6 +110,14 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     // Suppress console spam
     return;
   }
+  
+  // Also suppress common benign errors if not in dev
+  if (!import.meta.env.DEV) {
+    if (errorMessage.includes('not found') || errorMessage.includes('permission')) {
+      return;
+    }
+  }
+
   lastErrorTime = now;
 
   const errInfo: FirestoreErrorInfo = {

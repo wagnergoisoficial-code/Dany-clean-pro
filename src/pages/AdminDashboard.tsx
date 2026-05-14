@@ -39,36 +39,70 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
   const { data: leads, isLoading, isError, error: leadsError } = useQuery<Lead[]>({
     queryKey: ['admin-leads'],
     queryFn: async () => {
+      // Priority 1: API
       try {
         const response = await fetch('/api/admin/leads', {
           headers: {
             'Authorization': `Bearer ${auth.token}`
           }
         });
-        if (!response.ok) return [];
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-          return await response.json();
+        if (response.ok) {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") !== -1) {
+            return await response.json();
+          }
         }
-        return [];
       } catch (err) {
-        return [];
+        console.warn('Admin Leads API unavailable, trying direct Firestore');
       }
+
+      // Priority 2: Direct Firestore
+      try {
+        if (db && typeof db.type === 'string') {
+          const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
+          const snapshot = await getDocs(q);
+          return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          } as any)) as Lead[];
+        }
+      } catch (err) {
+        handleFirestoreError(err, OperationType.LIST, 'leads');
+      }
+
+      return [];
     },
     retry: false
   });
 
   const updateLeadStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string, status: string }) => {
-      const response = await fetch(`/api/admin/leads/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.token}`
-        },
-        body: JSON.stringify({ status })
-      });
-      if (!response.ok) throw new Error('Failed to update lead');
+      try {
+        const response = await fetch(`/api/admin/leads/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${auth.token}`
+          },
+          body: JSON.stringify({ status })
+        });
+        if (response.ok) return;
+      } catch (err) {
+        console.warn('Update Lead API failed, trying direct Firestore');
+      }
+
+      // Firestore fallback
+      try {
+        if (db && typeof db.type === 'string') {
+          const docRef = doc(db, 'leads', id);
+          await updateDoc(docRef, { status });
+          return;
+        }
+      } catch (err) {
+        handleFirestoreError(err, OperationType.UPDATE, `leads/${id}`);
+      }
+      
+      throw new Error('Failed to update lead status');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-leads'] });
@@ -209,6 +243,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                     <table className="w-full text-left">
                       <thead className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         <tr>
+                          <th className="px-6 py-4">Date</th>
                           <th className="px-6 py-4">Client</th>
                           <th className="px-6 py-4">Service</th>
                           <th className="px-6 py-4">Location</th>
@@ -218,9 +253,16 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {isLoading ? (
-                          <tr><td colSpan={5} className="text-center py-12 text-slate-400">Loading leads...</td></tr>
+                          <tr><td colSpan={6} className="text-center py-12 text-slate-400">Loading leads...</td></tr>
                         ) : leads?.slice(0, 5).map((lead) => (
                           <tr key={lead.id} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="px-6 py-4 text-[10px] text-slate-400 font-mono">
+                              {(() => {
+                                const date = (lead as any).createdAt && (lead as any).createdAt.toDate ? (lead as any).createdAt.toDate() : 
+                                             (lead as any).createdAt ? new Date((lead as any).createdAt) : null;
+                                return date ? date.toLocaleDateString() : 'N/A';
+                              })()}
+                            </td>
                             <td className="px-6 py-4">
                                <p className="font-bold text-slate-900 text-sm">{lead.name}</p>
                                <p className="text-xs text-slate-500">{lead.phone}</p>
@@ -345,8 +387,11 @@ function LeadsList({ auth, leads, updateLeadStatus }: { auth: AuthState, leads: 
               {leads?.map((lead) => (
                 <tr key={lead.id} className="hover:bg-slate-50/50">
                   <td className="px-6 py-4 text-xs text-slate-400">
-                    {(lead as any).createdAt && (lead as any).createdAt.toDate ? (lead as any).createdAt.toDate().toLocaleDateString() : 
-                     (lead as any).createdAt ? new Date((lead as any).createdAt).toLocaleDateString() : 'N/A'}
+                    {(() => {
+                      const date = (lead as any).createdAt && (lead as any).createdAt.toDate ? (lead as any).createdAt.toDate() : 
+                                   (lead as any).createdAt ? new Date((lead as any).createdAt) : null;
+                      return date ? date.toLocaleString() : 'N/A';
+                    })()}
                   </td>
                   <td className="px-6 py-4">
                      <p className="font-bold text-slate-900 text-sm">{lead.name}</p>

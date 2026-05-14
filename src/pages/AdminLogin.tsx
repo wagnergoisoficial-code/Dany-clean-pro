@@ -10,7 +10,25 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [serverStatus, setServerStatus] = useState<'checking' | 'up' | 'down'>('checking');
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    console.log('Checking system health...');
+    fetch('/api/health')
+      .then(res => {
+        console.log('Health check response status:', res.status);
+        if (res.ok) {
+          setServerStatus('up');
+        } else {
+          setServerStatus('down');
+        }
+      })
+      .catch(err => {
+        console.error('Health check fetch failed:', err);
+        setServerStatus('down');
+      });
+  }, []);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -69,6 +87,13 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
               </div>
               <h1 className="text-3xl font-display font-bold">Admin Panel</h1>
               <p className="text-blue-100/80 text-sm mt-3 font-medium uppercase tracking-widest text-[10px]">Secure Access</p>
+              
+              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+                <div className={`w-1.5 h-1.5 rounded-full ${serverStatus === 'up' ? 'bg-green-400 animate-pulse' : serverStatus === 'down' ? 'bg-red-400' : 'bg-slate-400'}`} />
+                <span className="text-[8px] font-black uppercase tracking-widest text-white/70">
+                  System: {serverStatus === 'up' ? 'Online' : serverStatus === 'down' ? 'Offline' : 'Checking...'}
+                </span>
+              </div>
             </div>
           </div>
 
