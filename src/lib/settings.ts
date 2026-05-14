@@ -7,6 +7,19 @@ export function useSetting(settingId: string, defaultValue: string | null = null
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If db is mocked/empty, don't try to use it
+    if (!db || typeof db.doc !== 'function' && typeof db.collection !== 'function') {
+      // Fallback logic
+      const legacyKey = settingId === 'app_logo' ? 'app-logo' : 
+                       settingId === 'hero_cover' ? 'hero-cover' : null;
+      if (legacyKey) {
+        const saved = localStorage.getItem(legacyKey);
+        if (saved) setValue(saved);
+      }
+      setLoading(false);
+      return;
+    }
+
     const docRef = doc(db, 'settings', settingId);
     
     // Use onSnapshot for real-time updates

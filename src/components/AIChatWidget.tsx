@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Send, X, Bot, User, Sparkles } from 'lucide-react';
+import { MessageSquare, Send, X, Bot, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from '@google/genai';
 import { cn } from '../lib/utils';
 import { useConfig } from '../hooks/useConfig';
 
@@ -36,32 +35,21 @@ export default function AIChatWidget() {
     setIsLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
-      const model = "gemini-3-flash-preview";
-      
       const prompt = `
         You are a helpful and professional customer service assistant for "Dany Clean Pro", 
         a family-owned cleaning company in Connecticut.
-        
-        Services: Regular Cleaning, Deep Cleaning, Move-In/Out, Commercial, Vacation Homes, Post-Construction.
-        Areas: Stamford, Greenwich, Norwalk, Bridgeport, Danbury, and Fairfield County.
-        Tone: Professional, friendly, trust-building, and helpful.
-        
-        Rules:
-        1. If they ask about prices, tell them to use our "Quote Request" form for a free estimate. 
-        2. Never invent specific prices.
-        3. Be brief and focused on conversion.
-        4. Redirect complex scheduling questions to our call line: ${businessPhone}.
-        
-        Current Message: ${userMessage}
+        User message: ${userMessage}
       `;
 
-      const result = await ai.models.generateContent({
-        model,
-        contents: prompt,
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
       });
 
-      const responseText = result.text || `I'm sorry, I'm having trouble connecting. Please give us a call at ${businessPhone}!`;
+      if (!response.ok) throw new Error('AI failed');
+      const data = await response.json();
+      const responseText = data.text || `Please call us at ${businessPhone} for assistance!`;
       setMessages(prev => [...prev, { role: 'assistant', content: responseText }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, I'm taking a quick break. Feel free to use our quote form or call us at ${businessPhone}!` }]);

@@ -1,12 +1,49 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfig from '../../firebase-applet-config.json';
+const firebaseConfig = {
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+};
 
-const app = initializeApp(firebaseConfig);
-const dbId = (firebaseConfig as any).firestoreDatabaseId || undefined;
-export const db = getFirestore(app, dbId);
-export const auth = getAuth(app);
+// Check if we have the minimal config needed
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.warn("Firebase configuration is missing. Ensure VITE_FIREBASE_API_KEY and VITE_FIREBASE_PROJECT_ID are set.");
+}
+
+let app;
+let db: any;
+let auth: any;
+
+try {
+  if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+    app = initializeApp(firebaseConfig);
+    const dbId = import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined;
+    db = getFirestore(app, dbId);
+    auth = getAuth(app);
+  } else {
+    throw new Error("Firebase config missing");
+  }
+} catch (err) {
+  console.warn("Firebase could not be initialized. Using mock services.", err);
+  // Mock Firebase to prevent crashes in the UI
+  app = {} as any;
+  db = {} as any;
+  auth = {
+    onAuthStateChanged: (cb: any) => {
+      cb(null);
+      return () => {};
+    },
+    signOut: async () => {},
+    currentUser: null
+  } as any;
+}
+
+export { db, auth };
 
 // Validation check
 async function testConnection() {

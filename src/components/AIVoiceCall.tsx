@@ -26,8 +26,17 @@ export default function AIVoiceCall({ onClose }: AIVoiceCallProps) {
   }, []);
 
   const startCall = async () => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      console.warn("AIVoiceCall: VITE_GEMINI_API_KEY is missing. Voice features disabled for security.");
+      setLastModelResponse('Voice features are temporarily unavailable. Please call us!');
+      setStatus('ended');
+      return;
+    }
+
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+      const ai = new GoogleGenAI({ apiKey });
       
       const sessionPromise = ai.live.connect({
         model: "gemini-3.1-flash-live-preview",

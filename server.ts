@@ -12,7 +12,11 @@ dotenv.config();
 
 const app = express();
 const PORT = 3000;
-const JWT_SECRET = process.env.JWT_SECRET || "dany-clean-pro-secret-key-2024";
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.warn("JWT_SECRET is not set. Using a fallback for development ONLY. In production, this WILL fail.");
+}
 
 // --- TWILIO INITIALIZATION ---
 const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN 
@@ -57,7 +61,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 
 function getFirebaseAdmin() {
   if (!firebaseAdmin) {
-    const projectId = process.env.FIREBASE_PROJECT_ID || "limpeza-pro-autopilot";
+    const projectId = process.env.FIREBASE_PROJECT_ID;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
@@ -74,7 +78,7 @@ function getFirebaseAdmin() {
         console.error("Failed to initialize Firebase Admin:", err);
       }
     } else {
-      console.warn("Firebase Admin not fully configured. Some server-side features may be limited.");
+      console.warn("Firebase Admin not fully configured. Ensure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY are set.");
     }
   }
   return firebaseAdmin;
@@ -290,6 +294,26 @@ app.post("/api/voice/process", async (req, res) => {
   }
 });
 
+// AI Chat Proxy (Secure)
+app.post("/api/chat", async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+  if (!process.env.GEMINI_API_KEY) return res.status(500).json({ error: "AI not configured" });
+
+  try {
+    const { GoogleGenAI } = await import("@google/genai");
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const result = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: prompt
+    });
+    res.json({ text: result.text || "I'm sorry, I couldn't process that." });
+  } catch (err) {
+    console.error("Chat error:", err);
+    res.status(500).json({ error: "Failed to process chat" });
+  }
+});
+
 // AI Tool: Book Lead
 app.post("/api/ai/book-lead", async (req, res) => {
   const { name, phone, email, service_type, preferred_date, city } = req.body;
@@ -327,7 +351,7 @@ app.post("/api/auth/login", (req, res) => {
   const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username) as any;
   
   if (user && bcrypt.compareSync(password, user.password)) {
-    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: "24h" });
+    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET!, { expiresIn: "24h" });
     res.json({ token, user: { id: user.id, username: user.username } });
   } else {
     res.status(401).json({ error: "Invalid credentials" });
@@ -339,6 +363,7 @@ const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
   try {
+    if (!JWT_SECRET) return res.status(500).json({ error: "Server misconfigured: JWT_SECRET missing" });
     req.user = jwt.verify(token, JWT_SECRET);
     next();
   } catch (err) {
