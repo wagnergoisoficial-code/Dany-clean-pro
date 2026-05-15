@@ -16,19 +16,39 @@ export default function Reviews() {
   const { data: reviews, isLoading } = useQuery<Review[]>({
     queryKey: ['reviews'],
     queryFn: async () => {
-      try {
-        const response = await fetch('/api/reviews');
-        if (!response.ok) return [];
-        
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-          return await response.json();
+      const isProd = window.location.hostname === 'danycleanpro.com' || 
+                     window.location.hostname === 'www.danycleanpro.com' ||
+                     window.location.hostname.includes('netlify.app');
+
+      if (!isProd) {
+        try {
+          const response = await fetch('/api/reviews');
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+              return await response.json();
+            }
+          }
+        } catch (err) {
+          console.warn('Reviews API unavailable');
         }
-        return [];
-      } catch (err) {
-        console.warn('Reviews API unavailable');
-        return [];
       }
+
+      // Firestore fallback
+      try {
+        if (db && db.type !== 'mock') {
+          const q = query(collection(db, 'reviews'), where('isPublished', '==', true));
+          const snapshot = await getDocs(q);
+          return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as any;
+        }
+      } catch (err) {
+        console.error('Firestore reviews fetch failed:', err);
+      }
+      
+      return [];
     }
   });
 

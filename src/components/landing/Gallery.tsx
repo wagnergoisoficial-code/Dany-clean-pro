@@ -18,19 +18,39 @@ export default function Gallery() {
   const { data: galleryItems, isLoading } = useQuery<GalleryItem[]>({
     queryKey: ['gallery'],
     queryFn: async () => {
-      try {
-        const response = await fetch('/api/gallery');
-        if (!response.ok) return [];
-        
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-          return await response.json();
+      const isProd = window.location.hostname === 'danycleanpro.com' || 
+                     window.location.hostname === 'www.danycleanpro.com' ||
+                     window.location.hostname.includes('netlify.app');
+
+      if (!isProd) {
+        try {
+          const response = await fetch('/api/gallery');
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+              return await response.json();
+            }
+          }
+        } catch (err) {
+          console.warn('Gallery API unavailable');
         }
-        return [];
-      } catch (err) {
-        console.warn('Gallery API unavailable');
-        return [];
       }
+
+      // Firestore fallback
+      try {
+        if (db && db.type !== 'mock') {
+          const q = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'));
+          const snapshot = await getDocs(q);
+          return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as any;
+        }
+      } catch (err) {
+        console.error('Firestore gallery fetch failed:', err);
+      }
+      
+      return [];
     }
   });
 

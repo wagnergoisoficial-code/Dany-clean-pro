@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from './firebase';
+import { db, handleFirestoreError, OperationType, isFirebaseReady } from './firebase';
 
 export function useSetting(settingId: string, defaultValue: string | null = null) {
   const [value, setValue] = useState<string | null>(defaultValue);
@@ -8,7 +8,7 @@ export function useSetting(settingId: string, defaultValue: string | null = null
 
   useEffect(() => {
     // If db is mocked/empty, don't try to use it
-    if (!db || typeof db.doc !== 'function' && typeof db.collection !== 'function') {
+    if (!isFirebaseReady()) {
       // Fallback logic
       const legacyKey = settingId === 'app_logo' ? 'app-logo' : 
                        settingId === 'hero_cover' ? 'hero-cover' : null;

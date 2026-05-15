@@ -457,49 +457,100 @@ function LeadsList({ auth, leads, updateLeadStatus }: { auth: AuthState, leads: 
 
 function ReviewManager({ auth }: { auth: AuthState }) {
   const queryClient = useQueryClient();
+  const isProd = window.location.hostname === 'danycleanpro.com' || 
+                 window.location.hostname === 'www.danycleanpro.com' ||
+                 window.location.hostname.includes('netlify.app');
+
   const { data: reviews, isLoading } = useQuery<Review[]>({
     queryKey: ['admin-reviews'],
     queryFn: async () => {
-      try {
-        const response = await fetch('/api/admin/reviews', {
-          headers: {
-            'Authorization': `Bearer ${auth.token}`
+      if (!isProd) {
+        try {
+          const response = await fetch('/api/admin/reviews', {
+            headers: {
+              'Authorization': `Bearer ${auth.token}`
+            }
+          });
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+              return await response.json();
+            }
           }
-        });
-        if (!response.ok) return [];
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-          return await response.json();
+        } catch (err) {
+          console.warn('Admin Reviews API unavailable');
         }
-        return [];
-      } catch (err) {
-        return [];
       }
+
+      // Firestore
+      try {
+        if (isFirebaseReady()) {
+          const q = query(collection(db, 'reviews'), orderBy('date', 'desc'));
+          const snapshot = await getDocs(q);
+          return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as any;
+        }
+      } catch (err) {
+        console.error('Firestore reviews fetch failed:', err);
+      }
+      return [];
     }
   });
 
   const toggleReview = useMutation({
     mutationFn: async (review: any) => {
-      const response = await fetch(`/api/admin/reviews/${review.id}/toggle`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${auth.token}`
+      const isPublished = review.isPublished !== undefined ? review.isPublished : review.is_published;
+      const newStatus = !isPublished;
+
+      if (!isProd) {
+        try {
+          const response = await fetch(`/api/admin/reviews/${review.id}/toggle`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${auth.token}`
+            }
+          });
+          if (response.ok) return;
+        } catch (err) {
+          console.warn('Toggle Review API failed');
         }
-      });
-      if (!response.ok) throw new Error('Failed to toggle review');
+      }
+
+      // Firestore
+      if (isFirebaseReady()) {
+        const docRef = doc(db, 'reviews', review.id);
+        await updateDoc(docRef, { isPublished: newStatus });
+        return;
+      }
+      throw new Error('Failed to toggle review');
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reviews'] })
   });
 
   const deleteReview = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/admin/reviews/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${auth.token}`
+      if (!isProd) {
+        try {
+          const response = await fetch(`/api/admin/reviews/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${auth.token}`
+            }
+          });
+          if (response.ok) return;
+        } catch (err) {
+          console.warn('Delete Review API failed');
         }
-      });
-      if (!response.ok) throw new Error('Failed to delete review');
+      }
+
+      // Firestore
+      if (isFirebaseReady()) {
+        await deleteDoc(doc(db, 'reviews', id));
+        return;
+      }
+      throw new Error('Failed to delete review');
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-reviews'] })
   });
@@ -560,35 +611,71 @@ function ReviewManager({ auth }: { auth: AuthState }) {
 function GalleryManager({ auth }: { auth: AuthState }) {
   const queryClient = useQueryClient();
   const [newImage, setNewImage] = useState({ url: '', title: '', category: 'Residential' });
+  const isProd = window.location.hostname === 'danycleanpro.com' || 
+                 window.location.hostname === 'www.danycleanpro.com' ||
+                 window.location.hostname.includes('netlify.app');
 
   const { data: gallery, isLoading } = useQuery<GalleryItem[]>({
     queryKey: ['admin-gallery'],
     queryFn: async () => {
-      try {
-        const response = await fetch('/api/gallery');
-        if (!response.ok) return [];
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-          return await response.json();
+      if (!isProd) {
+        try {
+          const response = await fetch('/api/gallery');
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+              return await response.json();
+            }
+          }
+        } catch (err) {
+          console.warn('Admin Gallery API unavailable');
         }
-        return [];
-      } catch (err) {
-        return [];
       }
+
+      // Firestore
+      try {
+        if (isFirebaseReady()) {
+          const q = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'));
+          const snapshot = await getDocs(q);
+          return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as any;
+        }
+      } catch (err) {
+        console.error('Firestore gallery fetch failed:', err);
+      }
+      return [];
     }
   });
 
   const addImage = useMutation({
     mutationFn: async (item: typeof newImage) => {
-      const response = await fetch('/api/admin/gallery', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.token}`
-        },
-        body: JSON.stringify(item)
-      });
-      if (!response.ok) throw new Error('Failed to add image');
+      if (!isProd) {
+        try {
+          const response = await fetch('/api/admin/gallery', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${auth.token}`
+            },
+            body: JSON.stringify(item)
+          });
+          if (response.ok) return;
+        } catch (err) {
+          console.warn('Add Image API failed');
+        }
+      }
+
+      // Firestore
+      if (isFirebaseReady()) {
+        await addDoc(collection(db, 'gallery'), {
+          ...item,
+          createdAt: serverTimestamp()
+        });
+        return;
+      }
+      throw new Error('Failed to add image');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-gallery'] });
@@ -598,13 +685,26 @@ function GalleryManager({ auth }: { auth: AuthState }) {
 
   const deleteImage = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/admin/gallery/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${auth.token}`
+      if (!isProd) {
+        try {
+          const response = await fetch(`/api/admin/gallery/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${auth.token}`
+            }
+          });
+          if (response.ok) return;
+        } catch (err) {
+          console.warn('Delete Image API failed');
         }
-      });
-      if (!response.ok) throw new Error('Failed to delete image');
+      }
+
+      // Firestore
+      if (isFirebaseReady()) {
+        await deleteDoc(doc(db, 'gallery', id));
+        return;
+      }
+      throw new Error('Failed to delete image');
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-gallery'] })
   });
