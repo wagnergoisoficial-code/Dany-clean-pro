@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Send, CheckCircle, ArrowRight } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../../lib/firebase';
+import { db, handleFirestoreError, OperationType, isFirebaseReady } from '../../lib/firebase';
 import { cn } from '../../lib/utils';
 import { useConfig } from '../../hooks/useConfig';
 
@@ -14,11 +14,31 @@ export default function LeadForm() {
     mutationFn: async (formData: any) => {
       // 10s Timeout logic
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timed out')), 10000)
+        setTimeout(() => reject(new Error('Lead submission timed out. Please try again or call us.')), 10000)
       );
 
       const submissionPromise = (async () => {
         try {
+          // Detect if we are on a static host (Netlify) where /api doesn't exist
+          const isStaticHost = window.location.hostname.includes('netlify.app') || 
+                               window.location.hostname === 'danycleanpro.com' ||
+                               window.location.hostname === 'www.danycleanpro.com';
+
+          // In production/static host, we prefer direct Firestore to avoid 404/timeouts from dead API routes
+          if (isStaticHost && isFirebaseReady()) {
+             console.log('Static host detected, using direct Firestore submission');
+             const docRef = await addDoc(collection(db, 'leads'), {
+               ...formData,
+               bedrooms: Number(formData.bedrooms) || formData.bedrooms,
+               bathrooms: Number(formData.bathrooms) || formData.bathrooms,
+               status: 'new',
+               createdAt: serverTimestamp(),
+               source: 'direct-client-firestore-prod'
+             });
+             return { success: true, id: docRef.id };
+          }
+
+          // Fallback or Dev mode: try API first
           const response = await fetch('/api/leads', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -35,13 +55,15 @@ export default function LeadForm() {
           }
           return { success: true };
         } catch (err) {
-          console.warn('API submission failed, attempting direct Firestore fallback:', err);
+          console.warn('Primary submission failed, attempting direct Firestore fallback:', err);
           
-          // Direct Firestore fallback (only if db is not a mock)
-          if (db && db.type !== 'mock') {
+          // Final direct Firestore fallback
+          if (isFirebaseReady()) {
             try {
               const docRef = await addDoc(collection(db, 'leads'), {
                 ...formData,
+                bedrooms: Number(formData.bedrooms) || formData.bedrooms,
+                bathrooms: Number(formData.bathrooms) || formData.bathrooms,
                 status: 'new',
                 createdAt: serverTimestamp(),
                 source: 'direct-client-firestore-fallback'
@@ -53,7 +75,6 @@ export default function LeadForm() {
             }
           }
           
-          // If we are here, both fetch AND firestore failed or were unavailable
           throw err;
         }
       })();

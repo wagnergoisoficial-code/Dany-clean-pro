@@ -22,15 +22,23 @@ let app: any;
 let db: any;
 let auth: any;
 
+// Helper to check if we are truly connected
+export const isFirebaseReady = () => {
+  return db && db.type !== 'mock';
+};
+
 try {
   if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     app = initializeApp(firebaseConfig);
     // CRITICAL: Must use the specific database ID provisioned by AI Studio
-    const dbId = firebaseAppletConfig.firestoreDatabaseId || import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined;
+    // If we are on danycleanpro.com, we might be using a different setup, or it might be the same.
+    // However, our code MUST respect the config file if it exists.
+    const dbId = (firebaseAppletConfig as any).firestoreDatabaseId || import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined;
     db = getFirestore(app, dbId);
     auth = getAuth(app);
+    console.log("Firebase initialized with project:", firebaseConfig.projectId, "and DB:", dbId || '(default)');
   } else {
-    throw new Error("Firebase config missing");
+    throw new Error("Firebase config missing API Key or Project ID");
   }
 } catch (err) {
   console.warn("Firebase could not be initialized. Using mock services.", err);

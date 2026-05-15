@@ -25,7 +25,7 @@ import { Lead, AuthState, Review, GalleryItem } from '../types';
 import { cn } from '../lib/utils';
 import { User as FirebaseUser } from 'firebase/auth';
 import { collection, query, orderBy, getDocs, doc, updateDoc, addDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import { db, handleFirestoreError, OperationType, isFirebaseReady } from '../lib/firebase';
 import LogoUpload from '../components/ui/LogoUpload';
 import HeroCoverUploader from '../components/hero/HeroCoverUploader';
 
@@ -36,29 +36,38 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Detect production environment
+  const isProd = window.location.hostname === 'danycleanpro.com' || 
+                 window.location.hostname === 'www.danycleanpro.com' ||
+                 window.location.hostname.includes('netlify.app');
+
   const { data: leads, isLoading, isError, error: leadsError } = useQuery<Lead[]>({
     queryKey: ['admin-leads'],
     queryFn: async () => {
-      // Priority 1: API
-      try {
-        const response = await fetch('/api/admin/leads', {
-          headers: {
-            'Authorization': `Bearer ${auth.token}`
+      // On production, skip the dead API to avoid 10s wait loops or 404 confusion
+      if (!isProd) {
+        try {
+          const response = await fetch('/api/admin/leads', {
+            headers: {
+              'Authorization': `Bearer ${auth.token}`
+            }
+          });
+          if (response.ok) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+              return await response.json();
+            }
           }
-        });
-        if (response.ok) {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.indexOf("application/json") !== -1) {
-            return await response.json();
-          }
+        } catch (err) {
+          console.warn('Admin Leads API unavailable, trying direct Firestore');
         }
-      } catch (err) {
-        console.warn('Admin Leads API unavailable, trying direct Firestore');
+      } else {
+        console.log('Production mode: fetching leads directly from Firestore');
       }
 
-      // Priority 2: Direct Firestore
+      // Final: Direct Firestore
       try {
-        if (db && typeof db.type === 'string') {
+        if (isFirebaseReady()) {
           const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
           const snapshot = await getDocs(q);
           return snapshot.docs.map(doc => ({
@@ -77,23 +86,25 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
 
   const updateLeadStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string, status: string }) => {
-      try {
-        const response = await fetch(`/api/admin/leads/${id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${auth.token}`
-          },
-          body: JSON.stringify({ status })
-        });
-        if (response.ok) return;
-      } catch (err) {
-        console.warn('Update Lead API failed, trying direct Firestore');
+      if (!isProd) {
+        try {
+          const response = await fetch(`/api/admin/leads/${id}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${auth.token}`
+            },
+            body: JSON.stringify({ status })
+          });
+          if (response.ok) return;
+        } catch (err) {
+          console.warn('Update Lead API failed, trying direct Firestore');
+        }
       }
 
-      // Firestore fallback
+      // Firestore branch
       try {
-        if (db && typeof db.type === 'string') {
+        if (isFirebaseReady()) {
           const docRef = doc(db, 'leads', id);
           await updateDoc(docRef, { status });
           return;
@@ -173,7 +184,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                </div>
                <div className="w-px h-3 bg-slate-200 mx-1" />
                <div className="flex items-center gap-1.5" title="Cloud Database (Firestore Status)">
-                  <div className={cn("w-1.5 h-1.5 rounded-full", (db && db.type !== 'mock') ? "bg-green-500" : "bg-amber-500")} />
+                  <div className={cn("w-1.5 h-1.5 rounded-full", isFirebaseReady() ? "bg-green-500" : "bg-amber-500")} />
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Cloud DB</span>
                </div>
              </div>
