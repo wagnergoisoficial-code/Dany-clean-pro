@@ -18,7 +18,9 @@ import {
   Star,
   User as UserIcon,
   Globe,
-  Camera
+  Camera,
+  Menu,
+  X
 } from 'lucide-react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Lead, AuthState, Review, GalleryItem } from '../types';
@@ -35,6 +37,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Detect production environment
   const isProd = window.location.hostname === 'danycleanpro.com' || 
@@ -136,7 +139,58 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden backdrop-blur-sm"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar Drawer */}
+      <aside className={cn(
+        "fixed inset-y-0 left-0 w-72 bg-white z-50 lg:hidden transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl",
+        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+           <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">D</div>
+            <span className="text-slate-900 font-bold">Dany <span className="text-blue-600">Admin</span></span>
+           </div>
+           <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+              <X size={20} />
+           </button>
+        </div>
+        <nav className="flex-grow p-4 space-y-1">
+          {sidebarLinks.map((link) => (
+            <Link 
+              key={link.path}
+              to={link.path}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-4 rounded-xl transition-all text-sm font-bold",
+                location.pathname === link.path ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+              )}
+            >
+              <link.icon size={20} />
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-slate-100">
+           <button 
+             onClick={() => {
+                setIsMobileMenuOpen(false);
+                onLogout();
+             }}
+             className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-red-600 hover:bg-red-50 transition-all text-sm font-bold"
+           >
+             <LogOut size={20} /> Logout
+           </button>
+        </div>
+      </aside>
+
+      {/* Desktop Sidebar (Persistent) */}
       <aside className="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col">
         <div className="p-6 border-b border-slate-100">
            <div className="flex items-center gap-2">
@@ -171,25 +225,27 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
 
       {/* Main Content */}
       <main className="flex-grow flex flex-col min-w-0">
-        <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0">
-          <h2 className="text-lg font-bold text-slate-900">
-            Welcome back, {fbUser?.displayName || auth.user?.username || 'Admin'}!
-          </h2>
-          <div className="flex items-center gap-4">
-             {/* Connection Diagnostics */}
-             <div className="flex items-center gap-2 mr-3 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100 hidden md:flex">
-               <div className="flex items-center gap-1.5" title="Site Backend (API Status)">
-                  <div className={cn("w-1.5 h-1.5 rounded-full", isError ? "bg-red-500" : "bg-green-500")} />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Local DB</span>
-               </div>
-               <div className="w-px h-3 bg-slate-200 mx-1" />
-               <div className="flex items-center gap-1.5" title="Cloud Database (Firestore Status)">
+        <header className="bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex justify-between items-center shrink-0 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <button 
+              className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-50 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate max-w-[150px] sm:max-w-none">
+              Hello, {fbUser?.displayName?.split(' ')[0] || auth.user?.username || 'Admin'}!
+            </h2>
+          </div>
+          
+          <div className="flex items-center gap-2 sm:gap-4">
+             {/* Connection Diagnostics - More compact on mobile */}
+             <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-full border border-slate-100">
+                  <div className={cn("w-1.5 h-1.5 rounded-full", leadsError ? "bg-red-500" : "bg-green-500")} />
                   <div className={cn("w-1.5 h-1.5 rounded-full", isFirebaseReady() ? "bg-green-500" : "bg-amber-500")} />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Cloud DB</span>
-               </div>
              </div>
 
-             <div className="text-right hidden sm:block">
+             <div className="text-right hidden md:block">
                <p className="text-xs font-black uppercase tracking-widest text-blue-600">
                  {fbUser ? 'Authenticated via Firebase' : 'Legacy Session'}
                </p>
@@ -208,7 +264,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
           </div>
         </header>
 
-        <div className="p-8 overflow-y-auto">
+        <div className="p-4 sm:p-8 overflow-y-auto">
           {/* Debug Info */}
           {(process.env.NODE_ENV !== 'production' || fbUser) && (
             <div className="mb-4 p-4 bg-slate-100 rounded-xl text-[10px] font-mono whitespace-pre-wrap break-all">
@@ -240,9 +296,9 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
 
           <Routes>
             <Route index element={
-              <div className="space-y-8">
+              <div className="space-y-4 sm:space-y-8">
                 {/* Stats Grid */}
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                   {stats.map((stat, i) => (
                     <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
                        <div className="flex justify-between items-start mb-4">
@@ -267,10 +323,10 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                     <table className="w-full text-left">
                       <thead className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         <tr>
-                          <th className="px-6 py-4">Date</th>
+                          <th className="px-6 py-4 hidden md:table-cell">Date</th>
                           <th className="px-6 py-4">Client</th>
-                          <th className="px-6 py-4">Service</th>
-                          <th className="px-6 py-4">Location</th>
+                          <th className="px-6 py-4 hidden sm:table-cell">Service</th>
+                          <th className="px-6 py-4 hidden lg:table-cell">Location</th>
                           <th className="px-6 py-4">Status</th>
                           <th className="px-6 py-4">Action</th>
                         </tr>
@@ -280,7 +336,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                           <tr><td colSpan={6} className="text-center py-12 text-slate-400">Loading leads...</td></tr>
                         ) : leads?.slice(0, 5).map((lead) => (
                           <tr key={lead.id} className="hover:bg-slate-50/50 transition-colors">
-                            <td className="px-6 py-4 text-[10px] text-slate-400 font-mono">
+                            <td className="px-6 py-4 text-[10px] text-slate-400 font-mono hidden md:table-cell">
                               {(() => {
                                 const date = (lead as any).createdAt && (lead as any).createdAt.toDate ? (lead as any).createdAt.toDate() : 
                                              (lead as any).createdAt ? new Date((lead as any).createdAt) : null;
@@ -291,11 +347,11 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
                                <p className="font-bold text-slate-900 text-sm">{lead.name}</p>
                                <p className="text-xs text-slate-500">{lead.phone}</p>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-6 py-4 hidden sm:table-cell">
                                <p className="text-sm text-slate-600">{lead.service_type}</p>
                                <p className="text-[10px] text-slate-400 uppercase font-bold">{lead.bedrooms}B / {lead.bathrooms}Ba</p>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-6 py-4 hidden lg:table-cell">
                                <p className="text-sm text-slate-600">{lead.city}</p>
                                <p className="text-[10px] text-slate-400 uppercase font-bold">ZIP: {lead.zip_code}</p>
                             </td>
@@ -394,34 +450,34 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
 
 function LeadsList({ auth, leads, updateLeadStatus }: { auth: AuthState, leads: Lead[], updateLeadStatus: any }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
-      <h3 className="font-bold text-2xl text-slate-900 mb-6">Manage All Leads</h3>
-      <div className="overflow-x-auto">
-          <table className="w-full text-left">
+    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 sm:p-8">
+      <h3 className="font-bold text-xl sm:text-2xl text-slate-900 mb-6">Manage All Leads</h3>
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <table className="w-full text-left min-w-[500px] sm:min-w-full">
             <thead className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               <tr>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Client</th>
-                <th className="px-12 py-4">Details</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Action</th>
+                <th className="px-4 sm:px-6 py-4 hidden sm:table-cell">Date</th>
+                <th className="px-4 sm:px-6 py-4">Client</th>
+                <th className="px-4 sm:px-12 py-4 hidden md:table-cell">Details</th>
+                <th className="px-4 sm:px-6 py-4">Status</th>
+                <th className="px-4 sm:px-6 py-4">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {leads?.map((lead) => (
                 <tr key={lead.id} className="hover:bg-slate-50/50">
-                  <td className="px-6 py-4 text-xs text-slate-400">
+                  <td className="px-4 sm:px-6 py-4 text-xs text-slate-400 hidden sm:table-cell">
                     {(() => {
                       const date = (lead as any).createdAt && (lead as any).createdAt.toDate ? (lead as any).createdAt.toDate() : 
                                    (lead as any).createdAt ? new Date((lead as any).createdAt) : null;
                       return date ? date.toLocaleString() : 'N/A';
                     })()}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-4">
                      <p className="font-bold text-slate-900 text-sm">{lead.name}</p>
                      <p className="text-xs text-slate-500">{lead.email}</p>
                   </td>
-                  <td className="px-12 py-4">
+                  <td className="px-4 sm:px-12 py-4 hidden md:table-cell">
                      <p className="text-xs text-slate-900 font-medium">{lead.service_type}</p>
                      <p className="text-[10px] text-slate-400 italic">"{lead.message}"</p>
                   </td>
@@ -460,7 +516,7 @@ function ReviewManager({ auth }: { auth: AuthState }) {
   const isProd = window.location.hostname === 'danycleanpro.com' || 
                  window.location.hostname === 'www.danycleanpro.com' ||
                  window.location.hostname.includes('netlify.app');
-
+ 
   const { data: reviews, isLoading } = useQuery<Review[]>({
     queryKey: ['admin-reviews'],
     queryFn: async () => {
@@ -556,8 +612,8 @@ function ReviewManager({ auth }: { auth: AuthState }) {
   });
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
-      <h3 className="font-bold text-2xl text-slate-900 mb-6">Review Moderation</h3>
+    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 sm:p-8">
+      <h3 className="font-bold text-xl sm:text-2xl text-slate-900 mb-6">Review Moderation</h3>
       {isLoading ? (
         <div className="text-slate-400 italic">Loading reviews...</div>
       ) : (
@@ -567,18 +623,18 @@ function ReviewManager({ auth }: { auth: AuthState }) {
             const isPublished = review.isPublished !== undefined ? review.isPublished : review.is_published;
             return (
               <div key={review.id} className={cn(
-                "p-6 rounded-2xl border transition-all",
+                "p-4 sm:p-6 rounded-2xl border transition-all",
                 isPublished ? "bg-white border-slate-100" : "bg-slate-50 border-slate-200 opacity-60"
               )}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-bold text-slate-900">{review.author}</span>
+                <div className="flex justify-between items-start gap-4">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="font-bold text-slate-900 truncate">{review.author}</span>
                       <div className="flex text-amber-500">
-                        {[...Array(review.rating)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
+                        {[...Array(review.rating)].map((_, i) => <Star key={i} size={10} fill="currentColor" />)}
                       </div>
                     </div>
-                    <p className="text-sm text-slate-600 mb-2">{review.comment}</p>
+                    <p className="text-xs sm:text-sm text-slate-600 mb-2 truncate-2-lines">{review.comment}</p>
                     <span className="text-[10px] font-bold text-slate-400 uppercase">{review.date}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -710,24 +766,24 @@ function GalleryManager({ auth }: { auth: AuthState }) {
   });
 
   return (
-    <div className="space-y-8">
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
-        <h3 className="font-bold text-2xl text-slate-900 mb-6">Add New Gallery Image</h3>
-        <div className="grid md:grid-cols-4 gap-4">
+    <div className="space-y-4 sm:space-y-8">
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 sm:p-8">
+        <h3 className="font-bold text-xl sm:text-2xl text-slate-900 mb-6">Add New Gallery Image</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <input 
-            className="md:col-span-2 bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl text-sm"
-            placeholder="Image URL (Unsplash or direct link)"
+            className="md:col-span-2 bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl text-sm w-full"
+            placeholder="Image URL"
             value={newImage.url}
             onChange={(e) => setNewImage({...newImage, url: e.target.value})}
           />
           <input 
-            className="bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl text-sm"
+            className="bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl text-sm w-full"
             placeholder="Title"
             value={newImage.title}
             onChange={(e) => setNewImage({...newImage, title: e.target.value})}
           />
           <select 
-            className="bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl text-sm"
+            className="bg-slate-50 border border-slate-100 px-4 py-3 rounded-xl text-sm w-full"
             value={newImage.category}
             onChange={(e) => setNewImage({...newImage, category: e.target.value})}
           >
@@ -740,13 +796,13 @@ function GalleryManager({ auth }: { auth: AuthState }) {
         <button 
           onClick={() => addImage.mutate(newImage)}
           disabled={!newImage.url}
-          className="mt-6 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all disabled:opacity-50"
+          className="mt-6 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all disabled:opacity-50 w-full md:w-auto"
         >
           <Plus size={18} /> Add to Gallery
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {isLoading ? (
           <div className="col-span-full py-12 text-center text-slate-400">Loading gallery...</div>
         ) : gallery?.map((item) => (

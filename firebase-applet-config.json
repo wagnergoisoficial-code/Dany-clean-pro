@@ -1,10 +1,10 @@
 {
-  "projectId": "limpeza-pro-autopilot",
-  "appId": "1:605754551182:web:2bde230f9b08439105d2df",
-  "apiKey": "AIzaSyAphF9fvXPl8peAzhyR9QwzsIJWIuiPZVM",
-  "authDomain": "limpeza-pro-autopilot.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-7cfe7216-2c55-4a33-b003-8792920ce046",
-  "storageBucket": "limpeza-pro-autopilot.firebasestorage.app",
-  "messagingSenderId": "605754551182",
+  "projectId": "REDACTED",
+  "appId": "REDACTED",
+  "apiKey": "REDACTED",
+  "authDomain": "REDACTED",
+  "firestoreDatabaseId": "REDACTED",
+  "storageBucket": "REDACTED",
+  "messagingSenderId": "REDACTED",
   "measurementId": ""
 }
