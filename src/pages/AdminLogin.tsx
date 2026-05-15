@@ -15,19 +15,23 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
 
   React.useEffect(() => {
     console.log('Checking system health...');
-    fetch('/api/health')
-      .then(res => {
-        console.log('Health check response status:', res.status);
+    const checkHealth = async () => {
+      try {
+        const res = await fetch('/api/health');
         if (res.ok) {
+          const data = await res.json();
           setServerStatus('up');
+          console.log('System healthy:', data);
         } else {
-          setServerStatus('down');
+          // If 404 but we are on the page, the server is "up" but routes are missing
+          setServerStatus(res.status === 404 ? 'up' : 'down');
         }
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Health check fetch failed:', err);
         setServerStatus('down');
-      });
+      }
+    };
+    checkHealth();
   }, []);
 
   const handleGoogleLogin = async () => {

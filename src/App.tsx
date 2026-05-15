@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Home from './pages/Home';
@@ -9,6 +9,48 @@ import { AuthState } from './types';
 import { auth as firebaseAuth } from './lib/firebase';
 import AIVoiceCall from './components/AIVoiceCall';
 import { AnimatePresence } from 'motion/react';
+import { AlertCircle } from 'lucide-react';
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+          <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-10 text-center space-y-6">
+            <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+              <AlertCircle size={40} />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-slate-900">Something went wrong</h1>
+              <p className="text-slate-600">The application encountered an unexpected error. Please try refreshing the page.</p>
+            </div>
+            <button 
+              onClick={() => window.location.reload()}
+              className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const queryClient = new QueryClient();
 
@@ -66,39 +108,41 @@ export default function App() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AnimatePresence>
-          {isVoiceCallOpen && <AIVoiceCall onClose={() => setIsVoiceCallOpen(false)} />}
-        </AnimatePresence>
-        <Routes>
-          {/* Public Routes */}
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-          </Route>
-          
-          {/* Private Admin Routes */}
-          <Route 
-            path="/admin/login" 
-            element={!hasAccess ? <AdminLogin onLogin={login} /> : <Navigate to="/admin/dashboard" />} 
-          />
-          <Route 
-            path="/admin/dashboard/*" 
-            element={hasAccess ? (
-              <AdminDashboard 
-                auth={auth} 
-                fbUser={fbUser}
-                onLogout={async () => {
-                   await firebaseAuth.signOut();
-                   logout(); // Clear old auth state too
-                }} 
-              />
-            ) : <Navigate to="/admin/login" />} 
-          />
-          
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AnimatePresence>
+            {isVoiceCallOpen && <AIVoiceCall onClose={() => setIsVoiceCallOpen(false)} />}
+          </AnimatePresence>
+          <Routes>
+            {/* Public Routes */}
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+            </Route>
+            
+            {/* Private Admin Routes */}
+            <Route 
+              path="/admin/login" 
+              element={!hasAccess ? <AdminLogin onLogin={login} /> : <Navigate to="/admin/dashboard" />} 
+            />
+            <Route 
+              path="/admin/dashboard/*" 
+              element={hasAccess ? (
+                <AdminDashboard 
+                  auth={auth} 
+                  fbUser={fbUser}
+                  onLogout={async () => {
+                     await firebaseAuth.signOut();
+                     logout(); // Clear old auth state too
+                  }} 
+                />
+              ) : <Navigate to="/admin/login" />} 
+            />
+            
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

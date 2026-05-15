@@ -1,17 +1,18 @@
 export interface Lead {
-  id: number;
+  id: number | string;
   name: string;
   email: string;
   phone: string;
   city: string;
-  zip_code: string;
+  zip_code?: string;
   service_type: string;
-  bedrooms: number;
-  bathrooms: number;
-  preferred_date: string;
-  message: string;
+  bedrooms: number | string;
+  bathrooms: number | string;
+  preferred_date?: string;
+  message?: string;
   status: 'new' | 'contacted' | 'scheduled' | 'completed' | 'cancelled';
-  created_at: string;
+  createdAt?: any;
+  created_at?: string;
 }
 
 export interface Review {

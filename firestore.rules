@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // 0. Global Safety Net
     match /{document=**} {
       allow read, write: if false;
@@ -11,7 +11,7 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isAdmin() {
       return isSignedIn() && (
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
@@ -19,16 +19,8 @@ service cloud.firestore {
       );
     }
 
-    function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
     function incoming() {
       return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
     }
 
     // 2. Collection Specific Rules
@@ -37,9 +29,9 @@ service cloud.firestore {
     match /settings/{settingId} {
       allow read: if true;
       allow write: if isAdmin() && isValidSettings(incoming());
-      
+
       function isValidSettings(data) {
-        return data.keys().hasAll(['value']) && 
+        return data.keys().hasAll(['value']) &&
                data.keys().size() == 1 &&
                (data.value == null || (data.value is string && data.value.size() <= 1048576));
       }
@@ -54,11 +46,10 @@ service cloud.firestore {
 
       function isValidReview(data) {
         return data.keys().hasAll(['author', 'rating', 'comment', 'date', 'isPublished']) &&
-               data.keys().size() == 5 &&
                data.author is string && data.author.size() <= 100 &&
                data.rating is number && data.rating >= 1 && data.rating <= 5 &&
                data.comment is string && data.comment.size() <= 1000 &&
-               data.isPublished == false; // Users can only create UNPUBLISHED reviews
+               data.isPublished == false;
       }
     }
 
@@ -69,7 +60,6 @@ service cloud.firestore {
 
       function isValidGallery(data) {
         return data.keys().hasAll(['url', 'title', 'category', 'createdAt']) &&
-               data.keys().size() == 4 &&
                data.url is string && data.url.size() <= 1000 &&
                data.title is string && data.title.size() <= 200 &&
                data.category is string && data.category.size() <= 100 &&
@@ -77,16 +67,23 @@ service cloud.firestore {
       }
     }
 
-    // Leads: Anyone can create, Admin read/write
+    // Leads: Anyone can create with required core fields. Admin read/update/delete.
+    // CHANGED for Phase 0:
+    //   - Removed exact keys().size() match (was rejecting valid writes with optional fields)
+    //   - Removed bedrooms/bathrooms/zip_code from required (they're optional)
+    //   - Added non-empty checks on name/email/phone
     match /leads/{leadId} {
-      allow create: if true && isValidLead(incoming());
+      allow create: if isValidLead(incoming());
       allow read, update, delete: if isAdmin();
 
       function isValidLead(data) {
-        return data.keys().hasAll(['name', 'email', 'phone', 'city', 'service_type', 'bedrooms', 'bathrooms', 'status', 'createdAt']) &&
-               data.name is string && data.name.size() <= 100 &&
-               data.email is string && data.email.size() <= 100 &&
-               data.phone is string && data.phone.size() <= 30 &&
+        return data.keys().hasAll(['name', 'email', 'phone', 'city', 'service_type', 'status', 'createdAt']) &&
+               data.keys().size() <= 15 &&
+               data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+               data.email is string && data.email.size() > 0 && data.email.size() <= 100 &&
+               data.phone is string && data.phone.size() > 0 && data.phone.size() <= 30 &&
+               data.city is string && data.city.size() <= 100 &&
+               data.service_type is string && data.service_type.size() <= 100 &&
                data.status == 'new' &&
                data.createdAt == request.time;
       }

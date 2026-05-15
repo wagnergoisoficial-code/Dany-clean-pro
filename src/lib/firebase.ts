@@ -1,14 +1,16 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import firebaseAppletConfig from '../../firebase-applet-config.json';
 
+// Use the provisioned config directly if available
 const firebaseConfig = {
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  projectId: firebaseAppletConfig.projectId || import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  appId: firebaseAppletConfig.appId || import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: firebaseAppletConfig.apiKey || import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: firebaseAppletConfig.authDomain || import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  storageBucket: firebaseAppletConfig.storageBucket || import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: firebaseAppletConfig.messagingSenderId || import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
 };
 
 // Check if we have the minimal config needed
@@ -23,7 +25,8 @@ let auth: any;
 try {
   if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     app = initializeApp(firebaseConfig);
-    const dbId = import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined;
+    // CRITICAL: Must use the specific database ID provisioned by AI Studio
+    const dbId = firebaseAppletConfig.firestoreDatabaseId || import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined;
     db = getFirestore(app, dbId);
     auth = getAuth(app);
   } else {
@@ -32,8 +35,12 @@ try {
 } catch (err) {
   console.warn("Firebase could not be initialized. Using mock services.", err);
   // Mock Firebase to prevent crashes in the UI
-  app = {} as any;
-  db = {} as any;
+  app = { name: '[MOCK]' } as any;
+  db = { 
+    type: 'mock', 
+    _databaseId: { projectId: 'mock-id' },
+    firestoreGuid: 'mock-guid'
+  } as any;
   auth = {
     onAuthStateChanged: (cb: any) => {
       cb(null);
@@ -49,7 +56,7 @@ export { db, auth };
 // Validation check
 async function testConnection() {
   // Only test if db is a real Firestore instance
-  if (!db || typeof db.type !== 'string') return;
+  if (!db || db.type === 'mock') return;
   
   try {
     const docRef = doc(db, 'test', 'connection');
@@ -107,17 +114,9 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   // Check for configuration/permission loops
   const now = Date.now();
   if (now - lastErrorTime < ERROR_SPAM_THRESHOLD) {
-    // Suppress console spam
     return;
   }
   
-  // Also suppress common benign errors if not in dev
-  if (!import.meta.env.DEV) {
-    if (errorMessage.includes('not found') || errorMessage.includes('permission')) {
-      return;
-    }
-  }
-
   lastErrorTime = now;
 
   const errInfo: FirestoreErrorInfo = {
@@ -139,10 +138,13 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 
   console.error('Firestore Error: ', JSON.stringify(errInfo));
 
-  // If it's a database not found error, don't throw to avoid white screen
-  if (errorMessage.includes('not found') || errorMessage.includes('permission')) {
+  // DO NOT THROW in production or for common benign errors
+  // Throwing here is what causes "White Screen" if not caught by ErrorBoundary
+  if (!import.meta.env.DEV || errorMessage.includes('not found') || errorMessage.includes('permission')) {
     return;
   }
 
-  throw new Error(JSON.stringify(errInfo));
+  // We only throw in dev for real unexpected errors to help developer, 
+  // but we should probably just return even then to be safe.
+  // throw new Error(JSON.stringify(errInfo));
 }

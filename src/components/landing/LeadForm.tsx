@@ -35,17 +35,25 @@ export default function LeadForm() {
           }
           return { success: true };
         } catch (err) {
-          console.warn('API submission failed, attempting direct Firestore:', err);
-          // Direct Firestore fallback
-          if (db && typeof db.type === 'string') {
-            const docRef = await addDoc(collection(db, 'leads'), {
-              ...formData,
-              status: 'new',
-              createdAt: serverTimestamp(),
-              source: 'direct-client-firestore'
-            });
-            return { success: true, id: docRef.id };
+          console.warn('API submission failed, attempting direct Firestore fallback:', err);
+          
+          // Direct Firestore fallback (only if db is not a mock)
+          if (db && db.type !== 'mock') {
+            try {
+              const docRef = await addDoc(collection(db, 'leads'), {
+                ...formData,
+                status: 'new',
+                createdAt: serverTimestamp(),
+                source: 'direct-client-firestore-fallback'
+              });
+              return { success: true, id: docRef.id };
+            } catch (fsErr) {
+              console.error('Firestore fallback also failed:', fsErr);
+              throw fsErr;
+            }
           }
+          
+          // If we are here, both fetch AND firestore failed or were unavailable
           throw err;
         }
       })();
@@ -57,15 +65,16 @@ export default function LeadForm() {
     },
     onError: (error: any) => {
       console.error("Submission error details:", error);
+      // We don't need a separate state, mutation.isError handles it
     }
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (mutation.isPending) return;
+    
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
-    
-    // Ensure all numeric fields are properly typed if needed, but strings are fine for firestore
     mutation.mutate(data);
   };
 
@@ -168,12 +177,18 @@ export default function LeadForm() {
         type="submit"
         disabled={mutation.isPending}
         className={cn(
-          "w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 active:scale-[0.98] mt-4",
+          "w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 active:scale-[0.98] mt-4 relative",
           mutation.isPending && "opacity-70 cursor-not-allowed"
         )}
       >
-        {mutation.isPending ? "Connecting with Professional..." : (
-          <>Check Availability <ArrowRight size={20} /></>
+        <span className={cn("flex items-center gap-3 transition-opacity", mutation.isPending ? "opacity-0" : "opacity-100")}>
+          Check Availability <ArrowRight size={20} />
+        </span>
+        
+        {mutation.isPending && (
+          <span className="absolute inset-0 flex items-center justify-center animate-pulse">
+            Connecting with Professional...
+          </span>
         )}
       </button>
 

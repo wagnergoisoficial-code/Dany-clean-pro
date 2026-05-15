@@ -165,6 +165,19 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
             Welcome back, {fbUser?.displayName || auth.user?.username || 'Admin'}!
           </h2>
           <div className="flex items-center gap-4">
+             {/* Connection Diagnostics */}
+             <div className="flex items-center gap-2 mr-3 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100 hidden md:flex">
+               <div className="flex items-center gap-1.5" title="Site Backend (API Status)">
+                  <div className={cn("w-1.5 h-1.5 rounded-full", isError ? "bg-red-500" : "bg-green-500")} />
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Local DB</span>
+               </div>
+               <div className="w-px h-3 bg-slate-200 mx-1" />
+               <div className="flex items-center gap-1.5" title="Cloud Database (Firestore Status)">
+                  <div className={cn("w-1.5 h-1.5 rounded-full", (db && db.type !== 'mock') ? "bg-green-500" : "bg-amber-500")} />
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Cloud DB</span>
+               </div>
+             </div>
+
              <div className="text-right hidden sm:block">
                <p className="text-xs font-black uppercase tracking-widest text-blue-600">
                  {fbUser ? 'Authenticated via Firebase' : 'Legacy Session'}

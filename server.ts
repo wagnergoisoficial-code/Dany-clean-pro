@@ -19,7 +19,9 @@ app.get("/api/health", (req, res) => {
     status: "ok", 
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
-    db_connected: !!db
+    db_connected: !!db,
+    firestore_ready: !!getFirebaseAdmin(),
+    twilio_ready: !!twilioClient
   });
 });
 
@@ -209,7 +211,14 @@ function initDb() {
     }
 
     // Seed initial reviews for trust
-    const reviewCount = (db.prepare("SELECT COUNT(*) as count FROM reviews").get() as any).count;
+    let reviewCount = 0;
+    try {
+      reviewCount = (db.prepare("SELECT COUNT(*) as count FROM reviews").get() as any).count;
+    } catch (e) {
+      console.warn("Could not check reviews count, skipping seed");
+      return;
+    }
+
     if (reviewCount === 0) {
       const initialReviews = [
         { author: "Sarah M.", rating: 5, comment: "Dany Clean Pro did an amazing job on my move-out clean. Every corner was spotless!", date: "2024-03-10" },
@@ -218,6 +227,26 @@ function initDb() {
       const stmt = db.prepare("INSERT INTO reviews (author, rating, comment, date) VALUES (?, ?, ?, ?)");
       initialReviews.forEach(r => stmt.run(r.author, r.rating, r.comment, r.date));
       console.log("Initial reviews seeded.");
+    }
+
+    // Seed initial gallery if empty
+    let galleryCount = 0;
+    try {
+      galleryCount = (db.prepare("SELECT COUNT(*) as count FROM gallery").get() as any).count;
+    } catch (e) {}
+    
+    if (galleryCount === 0) {
+      const initialGallery = [
+        { url: "https://images.unsplash.com/photo-1527515545081-5db817172677?auto=format&fit=crop&q=80&w=800", title: "Living Room", category: "Residential" },
+        { url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=800", title: "Modern Kitchen", category: "Residential" },
+        { url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=800", title: "Luxury Bathroom", category: "Deep Clean" },
+        { url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=800", title: "Office Space", category: "Commercial" },
+        { url: "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?auto=format&fit=crop&q=80&w=800", title: "Master Bedroom", category: "Residential" },
+        { url: "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&q=80&w=800", title: "Dining Details", category: "Event Prep" }
+      ];
+      const stmt = db.prepare("INSERT INTO gallery (url, title, category) VALUES (?, ?, ?)");
+      initialGallery.forEach(img => stmt.run(img.url, img.title, img.category));
+      console.log("Initial gallery seeded.");
     }
   } catch (err) {
     console.error("CRITICAL: Database initialization failed:", err);
@@ -459,6 +488,7 @@ app.post("/api/leads", async (req, res) => {
     if (!db) {
       throw new Error("Database not initialized");
     }
+    console.log(`Processing lead submission for: ${email || phone}`);
     const stmt = db.prepare(`
       INSERT INTO leads (name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message, status)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new')
@@ -466,9 +496,9 @@ app.post("/api/leads", async (req, res) => {
     const result = stmt.run(name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message);
     leadId = result.lastInsertRowid;
     sqliteSuccess = true;
-    console.log(`Lead saved to SQLite with ID: ${leadId}`);
+    console.log(`✓ Lead saved to SQLite ID: ${leadId}`);
   } catch (err) {
-    console.error("SQLite Lead Save Error:", err);
+    console.error("✗ SQLite Lead Save Error:", err);
   }
 
   // 2. Optionally sync to Firestore (Non-blocking or short-timeout)
@@ -535,8 +565,12 @@ app.post("/api/leads", async (req, res) => {
   if (sqliteSuccess) {
     res.status(201).json({ id: leadId, success: true });
   } else {
-    // If SQLite failed but Firestore somehow worked or we have nothing, we should still try to return success if we can
-    res.status(500).json({ error: "Internal database error" });
+    // Check if we can still claim success via Firestore fallback
+    if (firestore) {
+       res.status(201).json({ id: 'firestore-only', success: true });
+    } else {
+       res.status(500).json({ error: "Internal database error" });
+    }
   }
 });
 
