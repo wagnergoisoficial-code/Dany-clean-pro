@@ -20,13 +20,13 @@ export default function LeadForm() {
       const submissionPromise = (async () => {
         try {
           // Detect if we are on a static host (Netlify) where /api doesn't exist
-          const isStaticHost = window.location.hostname.includes('netlify.app') || 
-                               window.location.hostname === 'danycleanpro.com' ||
-                               window.location.hostname === 'www.danycleanpro.com';
+          const isProdDomain = window.location.hostname === 'danycleanpro.com' || 
+                               window.location.hostname === 'www.danycleanpro.com' ||
+                               window.location.hostname.includes('netlify.app');
 
-          // In production/static host, we prefer direct Firestore to avoid 404/timeouts from dead API routes
-          if (isStaticHost && isFirebaseReady()) {
-             console.log('Static host detected, using direct Firestore submission');
+          // In production/static host, we prefer direct Firestore
+          if (isProdDomain && isFirebaseReady()) {
+             console.log('Production domain detected, using direct Firestore submission');
              const docRef = await addDoc(collection(db, 'leads'), {
                ...formData,
                bedrooms: Number(formData.bedrooms) || formData.bedrooms,

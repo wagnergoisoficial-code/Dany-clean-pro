@@ -1,10 +1,10 @@
 {
-  "projectId": "REDACTED",
+  "projectId": "limpeza-pro-autopilot",
   "appId": "REDACTED",
   "apiKey": "REDACTED",
-  "authDomain": "REDACTED",
-  "firestoreDatabaseId": "REDACTED",
-  "storageBucket": "REDACTED",
+  "authDomain": "limpeza-pro-autopilot.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "limpeza-pro-autopilot.firebasestorage.app",
   "messagingSenderId": "REDACTED",
   "measurementId": ""
 }
