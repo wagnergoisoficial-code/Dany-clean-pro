@@ -3,27 +3,23 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 
 // Helper to get config value from environment variables
-const getEnvVar = (key: string): string | undefined => {
-  const fullKey = `VITE_FIREBASE_${key.toUpperCase()}`;
-  return import.meta.env[fullKey];
-};
-
 const firebaseConfig = {
-  apiKey: getEnvVar('API_KEY'),
-  authDomain: getEnvVar('AUTH_DOMAIN'),
-  projectId: getEnvVar('PROJECT_ID'),
-  storageBucket: getEnvVar('STORAGE_BUCKET'),
-  messagingSenderId: getEnvVar('MESSAGING_SENDER_ID'),
-  appId: getEnvVar('APP_ID'),
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 console.log('--- Firebase Audit ---');
 console.log('Project ID:', firebaseConfig.projectId || 'MISSING');
-console.log('API Key:', firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 6)}...` : 'MISSING');
+console.log('API Key Present:', !!firebaseConfig.apiKey);
 console.log('Mode:', import.meta.env.MODE);
 console.log('---------------------');
 
-const dbId = getEnvVar('DATABASE_ID') || undefined;
+const dbId = import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined;
 
 // Check if we have the minimal config needed
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
