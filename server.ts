@@ -422,7 +422,7 @@ app.post("/api/secret/process-payment", async (req, res) => {
 // Auth
 app.post("/api/auth/login", (req, res) => {
   const { username, password } = req.body;
-  console.log(`Login attempt for user: ${username}`);
+  console.log(`Login attempt - Username: "${username}", Password: "${password?.substring(0, 2)}***"`);
   
   if (!db) {
     console.error("Database not initialized during login attempt");

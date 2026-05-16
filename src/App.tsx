@@ -93,8 +93,8 @@ export default function App() {
     });
   }, []);
 
-  const isAdmin = fbUser?.email?.toLowerCase() === 'wagnergoisoficial@gmail.com';
-  const hasAccess = isAdmin || !!auth.token;
+  const isAdminByEmail = fbUser?.email?.toLowerCase() === 'wagnergoisoficial@gmail.com';
+  const hasAccess = isAdminByEmail || !!auth.token;
 
   if (fbLoading) {
     return (
