@@ -19,26 +19,28 @@ export default function LeadForm() {
 
       const submissionPromise = (async () => {
         try {
-          // Detect if we are on a static host (Netlify) where /api doesn't exist
-          const isProdDomain = window.location.hostname === 'danycleanpro.com' || 
-                               window.location.hostname === 'www.danycleanpro.com' ||
-                               window.location.hostname.includes('netlify.app');
-
-          // In production/static host, we prefer direct Firestore
-          if (isProdDomain && isFirebaseReady()) {
-             console.log('Production domain detected, using direct Firestore submission');
-             const docRef = await addDoc(collection(db, 'leads'), {
-               ...formData,
-               bedrooms: Number(formData.bedrooms) || formData.bedrooms,
-               bathrooms: Number(formData.bathrooms) || formData.bathrooms,
-               status: 'new',
-               createdAt: serverTimestamp(),
-               source: 'direct-client-firestore-prod'
-             });
-             return { success: true, id: docRef.id };
+          // Rule 1: Always prioritize direct Firestore if initialized
+          if (isFirebaseReady()) {
+             console.log('LeadForm: Firebase ready - attempting direct Firestore submission');
+             try {
+               const docRef = await addDoc(collection(db, 'leads'), {
+                 ...formData,
+                 bedrooms: Number(formData.bedrooms) || formData.bedrooms,
+                 bathrooms: Number(formData.bathrooms) || formData.bathrooms,
+                 status: 'new',
+                 createdAt: serverTimestamp(),
+                 source: 'direct-client-firestore-priority'
+               });
+               console.log('LeadForm: Firestore submission successful, ID:', docRef.id);
+               return { success: true, id: docRef.id };
+             } catch (fsErr) {
+               console.warn('LeadForm: Firestore submission failed, falling back to API:', fsErr);
+               // Fall through to API fallback
+             }
           }
 
-          // Fallback or Dev mode: try API first
+          // Fallback: use API if Firebase is not ready or failed
+          console.log('LeadForm: Using API submission fallback');
           const response = await fetch('/api/leads', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -55,26 +57,7 @@ export default function LeadForm() {
           }
           return { success: true };
         } catch (err) {
-          console.warn('Primary submission failed, attempting direct Firestore fallback:', err);
-          
-          // Final direct Firestore fallback
-          if (isFirebaseReady()) {
-            try {
-              const docRef = await addDoc(collection(db, 'leads'), {
-                ...formData,
-                bedrooms: Number(formData.bedrooms) || formData.bedrooms,
-                bathrooms: Number(formData.bathrooms) || formData.bathrooms,
-                status: 'new',
-                createdAt: serverTimestamp(),
-                source: 'direct-client-firestore-fallback'
-              });
-              return { success: true, id: docRef.id };
-            } catch (fsErr) {
-              console.error('Firestore fallback also failed:', fsErr);
-              throw fsErr;
-            }
-          }
-          
+          console.warn('Primary submission failed:', err);
           throw err;
         }
       })();

@@ -45,3 +45,32 @@ export interface AuthState {
     username: string;
   } | null;
 }
+
+export interface Customer {
+  id: string;
+  leadId?: string;
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+  city?: string;
+  zip_code?: string;
+  notes?: string;
+  totalBookings?: number;
+  lastServiceDate?: any;
+  status: 'active' | 'inactive';
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface TimelineEvent {
+  id: string;
+  type: 'customer_created' | 'customer_updated' | 'notes_updated' | 'status_changed' | 'converted_from_lead' | 'system';
+  title: string;
+  description: string;
+  customerId: string;
+  relatedLeadId?: string;
+  metadata?: Record<string, any>;
+  createdAt: any;
+  createdBy?: string;
+}

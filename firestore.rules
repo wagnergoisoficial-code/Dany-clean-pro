@@ -94,5 +94,38 @@ service cloud.firestore {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow write: if isAdmin();
     }
+
+    // Customers: Admin only. No delete allowed.
+    match /customers/{customerId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && isValidCustomer(incoming()) && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidCustomer(incoming()) && incoming().updatedAt == request.time;
+      allow delete: if false;
+
+      function isValidCustomer(data) {
+        return data.keys().hasAll(['name', 'phone', 'status', 'createdAt', 'updatedAt']) &&
+               data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+               data.phone is string && data.phone.size() > 0 && data.phone.size() <= 30 &&
+               (data.status == 'active' || data.status == 'inactive') &&
+               (data.email == null || data.email is string) &&
+               (data.leadId == null || data.leadId is string);
+      }
+
+      // Customer Timeline: Admin only. Read and Create only (Append-only).
+      match /timeline/{eventId} {
+        allow read: if isAdmin();
+        allow create: if isAdmin() && isValidTimelineEvent(incoming(), customerId);
+        allow update, delete: if false;
+
+        function isValidTimelineEvent(data, pathCustomerId) {
+          return data.keys().hasAll(['type', 'title', 'description', 'customerId', 'createdAt']) &&
+                 data.type in ['customer_created', 'customer_updated', 'notes_updated', 'status_changed', 'converted_from_lead', 'system'] &&
+                 data.title is string && data.title.size() <= 200 &&
+                 data.description is string && data.description.size() <= 2000 &&
+                 data.customerId == pathCustomerId &&
+                 data.createdAt == request.time;
+        }
+      }
+    }
   }
 }
