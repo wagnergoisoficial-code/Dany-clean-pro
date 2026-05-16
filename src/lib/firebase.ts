@@ -1,51 +1,26 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseAppletConfig from '../../firebase-applet-config.json';
 
-// Helper to get config value with fallback
-const getConfig = (key: string, configVal: string | undefined): string | undefined => {
-  const envKey = `VITE_FIREBASE_${key.toUpperCase()}`;
-  const envVal = import.meta.env[envKey];
-  
-  // If config value is missing or a placeholder, use ENV
-  if (!configVal || configVal === 'REDACTED' || configVal.includes('AIza***')) {
-    return envVal;
-  }
-  
-  // In production, we might prefer ENV if available
-  const isProd = import.meta.env.PROD;
-  if (isProd && envVal) {
-    return envVal;
-  }
-
-  return configVal;
+// Helper to get config value from import.meta.env
+const getEnvVar = (key: string): string | undefined => {
+  return import.meta.env[`VITE_FIREBASE_${key.toUpperCase()}`];
 };
 
-// Use the provisioned config directly if available, falling back to ENV
 const firebaseConfig = {
-  projectId: getConfig('PROJECT_ID', firebaseAppletConfig.projectId),
-  appId: getConfig('APP_ID', firebaseAppletConfig.appId),
-  apiKey: getConfig('API_KEY', firebaseAppletConfig.apiKey),
-  authDomain: getConfig('AUTH_DOMAIN', firebaseAppletConfig.authDomain),
-  storageBucket: getConfig('STORAGE_BUCKET', firebaseAppletConfig.storageBucket),
-  messagingSenderId: getConfig('MESSAGING_SENDER_ID', firebaseAppletConfig.messagingSenderId),
+  apiKey: getEnvVar('API_KEY'),
+  authDomain: getEnvVar('AUTH_DOMAIN'),
+  projectId: getEnvVar('PROJECT_ID'),
+  storageBucket: getEnvVar('STORAGE_BUCKET'),
+  messagingSenderId: getEnvVar('MESSAGING_SENDER_ID'),
+  appId: getEnvVar('APP_ID'),
 };
 
-// Database ID resolution
-const getDbId = (): string | undefined => {
-  const envDbId = import.meta.env.VITE_FIREBASE_DATABASE_ID;
-  const configDbId = (firebaseAppletConfig as any).firestoreDatabaseId;
-  
-  if (configDbId && configDbId !== 'REDACTED') {
-    return configDbId;
-  }
-  return envDbId || undefined;
-};
+const dbId = getEnvVar('DATABASE_ID') || undefined;
 
 // Check if we have the minimal config needed
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.warn("Firebase configuration is missing. Ensure VITE_FIREBASE_API_KEY and VITE_FIREBASE_PROJECT_ID are set.");
+  console.warn("Firebase configuration is missing or incomplete. Ensure VITE_FIREBASE_API_KEY and VITE_FIREBASE_PROJECT_ID are set in environment variables.");
 }
 
 let app: any;
@@ -62,8 +37,7 @@ try {
     app = initializeApp(firebaseConfig);
     // CRITICAL: Must use the specific database ID provisioned by AI Studio
     // If we are on danycleanpro.com, we might be using a different setup, or it might be the same.
-    // However, our code MUST respect the config file if it exists.
-    const dbId = getDbId();
+    // However, our code MUST respect the environment variable if it exists.
     db = getFirestore(app, dbId);
     auth = getAuth(app);
     console.log("Firebase initialized with project:", firebaseConfig.projectId, "and DB:", dbId || '(default)');
