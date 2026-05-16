@@ -18,16 +18,17 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
     const checkHealth = async () => {
       try {
         const res = await fetch('/api/health');
-        if (res.ok) {
+        const contentType = res.headers.get('content-type');
+        if (res.ok && contentType && contentType.includes('application/json')) {
           const data = await res.json();
           setServerStatus('up');
           console.log('System healthy:', data);
         } else {
-          // If 404 but we are on the page, the server is "up" but routes are missing
-          setServerStatus(res.status === 404 ? 'up' : 'down');
+          // If HTML returned or 404, the custom backend is not there (expected on Netlify)
+          setServerStatus('down');
+          console.log('Backend server not detected (this is normal for static hosting)');
         }
       } catch (err) {
-        console.error('Health check fetch failed:', err);
         setServerStatus('down');
       }
     };
@@ -61,13 +62,24 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
         body: JSON.stringify({ username, password })
       });
 
-      if (!res.ok) throw new Error('Invalid credentials');
+      if (!res.ok) {
+        // Detect if we got a 404/HTML (backend offline) vs 401 (wrong password)
+        const contentType = res.headers.get('content-type');
+        if (res.status === 404 || (contentType && contentType.includes('text/html'))) {
+          throw new Error('SYSTEM_OFFLINE');
+        }
+        throw new Error('INVALID_CREDENTIALS');
+      }
 
       const data = await res.json();
       onLogin(data.token, data.user);
       navigate('/admin/dashboard');
-    } catch (err) {
-      setError('Incorrect username or password. Try admin / admin123');
+    } catch (err: any) {
+      if (err.message === 'SYSTEM_OFFLINE') {
+        setError('O servidor de banco de dados não está disponível neste ambiente. Por favor, use "Sign in with Google" para acessar o painel.');
+      } else {
+        setError('Usuário ou senha incorretos.');
+      }
     } finally {
       setLoading(false);
     }

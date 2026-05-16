@@ -4,7 +4,8 @@ import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 
 // Helper to get config value from environment variables
 const getEnvVar = (key: string): string | undefined => {
-  return import.meta.env[`VITE_FIREBASE_${key.toUpperCase()}`];
+  const fullKey = `VITE_FIREBASE_${key.toUpperCase()}`;
+  return import.meta.env[fullKey];
 };
 
 const firebaseConfig = {
@@ -16,15 +17,11 @@ const firebaseConfig = {
   appId: getEnvVar('APP_ID'),
 };
 
-console.log('Firebase Configuration Metadata:');
-console.log('- Project ID:', firebaseConfig.projectId || 'MISSING');
-console.log('- API Key present:', !!firebaseConfig.apiKey);
-if (firebaseConfig.apiKey) {
-  console.log('- API Key Hint:', firebaseConfig.apiKey.substring(0, 5) + '...' + firebaseConfig.apiKey.substring(firebaseConfig.apiKey.length - 4));
-  console.log('- API Key Length:', firebaseConfig.apiKey.length);
-}
-console.log('- Env Mode:', import.meta.env.MODE);
-console.log('- Is Dev:', import.meta.env.DEV);
+console.log('--- Firebase Audit ---');
+console.log('Project ID:', firebaseConfig.projectId || 'MISSING');
+console.log('API Key:', firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 6)}...` : 'MISSING');
+console.log('Mode:', import.meta.env.MODE);
+console.log('---------------------');
 
 const dbId = getEnvVar('DATABASE_ID') || undefined;
 
