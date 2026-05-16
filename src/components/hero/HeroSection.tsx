@@ -6,32 +6,16 @@ import { useSetting } from '../../lib/settings';
 
 export default function HeroSection() {
   const { value: heroCover } = useSetting('hero_cover');
-  const [imgSrc, setImgSrc] = React.useState<string>("");
-  
-  // Chain of Responsibility for image loading
-  const LOCAL_FALLBACK = "/hero-fallback.jpg";
-  const EXTERNAL_FALLBACK = "https://images.unsplash.com/photo-1556911220-e15024029581?auto=format&fit=crop&q=80&w=1200";
+  const [isImageError, setIsImageError] = React.useState(false);
 
+  // Reset error state if heroCover changes (e.g. user updates it in CMS)
   React.useEffect(() => {
-    // Priority: 1. CMS (heroCover), 2. Local fallback, 3. External fallback
-    if (heroCover) {
-      setImgSrc(heroCover);
-    } else {
-      // If no CMS cover, try local first
-      setImgSrc(LOCAL_FALLBACK);
-    }
+    setIsImageError(false);
   }, [heroCover]);
 
   const handleImageError = () => {
-    if (imgSrc === heroCover) {
-      console.warn("CMS Hero image failed, trying local fallback.");
-      setImgSrc(LOCAL_FALLBACK);
-    } else if (imgSrc === LOCAL_FALLBACK) {
-      console.warn("Local hero-fallback.jpg not found, using external Unsplash fallback.");
-      setImgSrc(EXTERNAL_FALLBACK);
-    } else {
-      console.error("All hero image fallbacks failed.");
-    }
+    console.warn("Hero image failed to load or is missing. Using internal CSS fallback.");
+    setIsImageError(true);
   };
 
   const trustPoints = [
@@ -107,14 +91,44 @@ export default function HeroSection() {
             transition={{ duration: 1, delay: 0.2 }}
             className="flex-1 relative w-full mb-8 lg:mb-0"
           >
-            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] lg:rounded-[5.5rem] overflow-hidden shadow-2xl z-10 border-[8px] lg:border-[16px] border-white bg-slate-100">
-              {imgSrc && (
+            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] lg:rounded-[5.5rem] overflow-hidden shadow-2xl z-10 border-[8px] lg:border-[16px] border-white bg-slate-100 flex items-center justify-center">
+              {heroCover && !isImageError ? (
                 <img 
-                  src={imgSrc} 
+                  src={heroCover} 
                   alt="Spotless home environment" 
                   onError={handleImageError}
                   className="w-full h-full object-cover transition-all duration-700"
                 />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-700 flex flex-col items-center justify-center p-12 text-center text-white relative overflow-hidden">
+                  {/* Decorative pattern for the fallback */}
+                  <div 
+                    className="absolute inset-0 opacity-10 pointer-events-none" 
+                    style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} 
+                  />
+                  
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="w-24 h-24 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-8 shadow-inner"
+                  >
+                     <ShieldCheck size={48} className="text-white" />
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                  >
+                    <h3 className="text-3xl font-display font-bold mb-4 tracking-tight">Professional Home Cleaning</h3>
+                    <p className="text-blue-100 font-medium max-w-[280px]">Premium service delivering spotless results to every corner of your home.</p>
+                  </motion.div>
+                  
+                  {/* Floating elements inside fallback */}
+                  <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+                  <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl" />
+                </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
               
