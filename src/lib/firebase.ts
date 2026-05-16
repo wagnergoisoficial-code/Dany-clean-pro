@@ -16,10 +16,15 @@ const firebaseConfig = {
   appId: getEnvVar('APP_ID'),
 };
 
-console.log('Firebase Init - Project:', firebaseConfig.projectId, 'Key exists:', !!firebaseConfig.apiKey);
-if (firebaseConfig.apiKey && firebaseConfig.apiKey.length > 5) {
-  console.log('Key hint:', firebaseConfig.apiKey.substring(0, 5) + '...');
+console.log('Firebase Configuration Metadata:');
+console.log('- Project ID:', firebaseConfig.projectId || 'MISSING');
+console.log('- API Key present:', !!firebaseConfig.apiKey);
+if (firebaseConfig.apiKey) {
+  console.log('- API Key Hint:', firebaseConfig.apiKey.substring(0, 5) + '...' + firebaseConfig.apiKey.substring(firebaseConfig.apiKey.length - 4));
+  console.log('- API Key Length:', firebaseConfig.apiKey.length);
 }
+console.log('- Env Mode:', import.meta.env.MODE);
+console.log('- Is Dev:', import.meta.env.DEV);
 
 const dbId = getEnvVar('DATABASE_ID') || undefined;
 

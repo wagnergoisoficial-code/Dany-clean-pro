@@ -16,23 +16,46 @@ const JWT_SECRET = process.env.JWT_SECRET || "dany-clean-pro-secret-key-2024";
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// --- API ROUTES ---
+
 // Health Check (Very early)
 app.get("/api/health", (req, res) => {
-  console.log('[GET] /api/health - Status: 200');
+  console.log('[GET] /api/health - Request received');
   res.json({ 
     status: "ok", 
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
     db_ready: !!db,
+    db_error: dbInitError,
     firebase_admin_ready: !!getFirebaseAdmin(),
-    jwt_configured: !!process.env.JWT_SECRET || !!JWT_SECRET
+    jwt_configured: !!process.env.JWT_SECRET || !!JWT_SECRET,
+    uptime: process.uptime()
+  });
+});
+
+// Debug Env (Dev Only)
+app.get("/api/debug-env", (req, res) => {
+  if (process.env.NODE_ENV === "production" && !req.query.force) {
+    return res.status(403).json({ error: "Forbidden in production" });
+  }
+  
+  const envKeys = Object.keys(process.env).filter(k => k.startsWith('VITE_FIREBASE_') || k.startsWith('FIREBASE_'));
+  const sanitizedEnv = envKeys.reduce((acc, key) => {
+    const val = process.env[key] || '';
+    acc[key] = val.length > 5 ? `${val.substring(0, 5)}... (len: ${val.length})` : `(len: ${val.length})`;
+    return acc;
+  }, {} as any);
+  
+  res.json({
+    node_env: process.env.NODE_ENV,
+    sanitized_env: sanitizedEnv
   });
 });
 
 // Auth
 app.post("/api/auth/login", (req, res) => {
   const { username, password } = req.body;
-  console.log(`[POST] /api/auth/login - Username: "${username}"`);
+  console.log(`[POST] /api/auth/login - Attempt for user: "${username}"`);
   
   if (!db) {
     console.error("CRITICAL: Database not initialized during login attempt");
@@ -178,11 +201,13 @@ async function notifyAutomation(leadData: any) {
 
 // Database Initialization (Legacy / Fallback)
 let db: Database.Database;
+let dbInitError: string | null = null;
 
 function initDb() {
   try {
     db = new Database("database.db");
     console.log("Database connected successfully.");
+    dbInitError = null;
 
     // Simple schema setup
     db.exec(`
@@ -296,6 +321,7 @@ function initDb() {
     }
   } catch (err) {
     console.error("CRITICAL: Database initialization failed:", err);
+    dbInitError = err instanceof Error ? err.message : String(err);
     // Continue anyway to avoid total crash, though some features will break
   }
 }
