@@ -15,14 +15,23 @@ const JWT_SECRET = process.env.JWT_SECRET || "dany-clean-pro-secret-key-2024";
 
 // Health Check (Very early)
 app.get("/api/health", (req, res) => {
+  console.log('Health check requested');
   res.json({ 
     status: "ok", 
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
-    db_connected: !!db,
-    firestore_ready: !!getFirebaseAdmin(),
-    twilio_ready: !!twilioClient
+    db_ready: !!db,
+    firebase_admin_ready: !!getFirebaseAdmin(),
+    jwt_configured: !!process.env.JWT_SECRET || !!JWT_SECRET
   });
+});
+
+// Middleware for logging (Debugging)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    console.log(`[API ${req.method}] ${req.path}`);
+  }
+  next();
 });
 
 if (!process.env.JWT_SECRET) {
@@ -188,26 +197,25 @@ function initDb() {
 
     // Seed initial admin if not exists
     const adminExists = db.prepare("SELECT * FROM users WHERE username = ?").get("admin");
+    const adminPass = "admin123";
+    const hashedPassword = bcrypt.hashSync(adminPass, 10);
+    
     if (!adminExists) {
-      const hashedPassword = bcrypt.hashSync("admin123", 10);
       db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("admin", hashedPassword);
-      console.log("Default admin user created: admin / admin123");
+      console.log(`Default admin user created: admin / ${adminPass}`);
     } else {
-      // Force update for debugging
-      const hashedPassword = bcrypt.hashSync("admin123", 10);
       db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hashedPassword, "admin");
-      console.log("Admin password force-reset to admin123");
+      console.log(`Admin password updated/verified: admin / ${adminPass}`);
     }
 
     // Add administrador alias
     const admin2Exists = db.prepare("SELECT * FROM users WHERE username = ?").get("administrador");
     if (!admin2Exists) {
-      const hashedPassword = bcrypt.hashSync("admin123", 10);
       db.prepare("INSERT INTO users (username, password) VALUES (?, ?)").run("administrador", hashedPassword);
-      console.log("Default administrador user created: administrador / admin123");
+      console.log(`Default administrador user created: administrador / ${adminPass}`);
     } else {
-      const hashedPassword = bcrypt.hashSync("admin123", 10);
       db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hashedPassword, "administrador");
+      console.log(`Administrador password updated/verified: administrador / ${adminPass}`);
     }
 
     // Seed initial reviews for trust
@@ -422,10 +430,10 @@ app.post("/api/secret/process-payment", async (req, res) => {
 // Auth
 app.post("/api/auth/login", (req, res) => {
   const { username, password } = req.body;
-  console.log(`Login attempt - Username: "${username}", Password: "${password?.substring(0, 2)}***"`);
+  console.log(`Login attempt - Username: "${username}"`);
   
   if (!db) {
-    console.error("Database not initialized during login attempt");
+    console.error("CRITICAL: Database not initialized during login attempt");
     return res.status(500).json({ error: "Database error" });
   }
 
@@ -433,21 +441,23 @@ app.post("/api/auth/login", (req, res) => {
     const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username) as any;
     
     if (!user) {
-      console.warn(`Login failed: User ${username} not found`);
+      console.warn(`Login failed: User "${username}" not found in database`);
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    console.log(`Found user in DB: ${user.username}, comparing passwords...`);
     const passwordMatch = bcrypt.compareSync(password, user.password);
+    
     if (passwordMatch) {
-      console.log(`Login successful for user: ${username}`);
+      console.log(`✓ Login SUCCESS for user: ${username}`);
       const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: "24h" });
       res.json({ token, user: { id: user.id, username: user.username } });
     } else {
-      console.warn(`Login failed for user: ${username} - Password mismatch`);
+      console.warn(`✗ Login FAILED for user: ${username} - Password mismatch`);
       res.status(401).json({ error: "Invalid credentials" });
     }
   } catch (err) {
-    console.error("Login Error:", err);
+    console.error("Login Exception:", err);
     res.status(500).json({ error: "Internal server error during login" });
   }
 });
