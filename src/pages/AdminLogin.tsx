@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
 import { motion } from 'motion/react';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
 export default function AdminLogin({ onLogin }: { onLogin: (token: string, user: any) => void }) {
@@ -14,7 +14,6 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    console.log('Checking system health...');
     const checkHealth = async () => {
       try {
         const res = await fetch('/api/health');
@@ -22,11 +21,8 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
         if (res.ok && contentType && contentType.includes('application/json')) {
           const data = await res.json();
           setServerStatus('up');
-          console.log('System healthy:', data);
         } else {
-          // If HTML returned or 404, the custom backend is not there (expected on Netlify)
           setServerStatus('down');
-          console.log('Backend server not detected (this is normal for static hosting)');
         }
       } catch (err) {
         setServerStatus('down');
@@ -41,10 +37,8 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // App.tsx handles the state change and navigation
     } catch (err: any) {
-      setError('Google Sign-In failed. Please try again.');
-      console.error(err);
+      setError('Google Sign-In failed: ' + (err.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -56,30 +50,37 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      if (serverStatus === 'up') {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
 
-      if (!res.ok) {
-        // Detect if we got a 404/HTML (backend offline) vs 401 (wrong password)
-        const contentType = res.headers.get('content-type');
-        if (res.status === 404 || (contentType && contentType.includes('text/html'))) {
-          throw new Error('SYSTEM_OFFLINE');
+        if (res.ok) {
+          const data = await res.json();
+          onLogin(data.token, data.user);
+          navigate('/admin/dashboard');
+          return;
         }
-        throw new Error('INVALID_CREDENTIALS');
       }
 
-      const data = await res.json();
-      onLogin(data.token, data.user);
-      navigate('/admin/dashboard');
-    } catch (err: any) {
-      if (err.message === 'SYSTEM_OFFLINE') {
-        setError('O servidor de banco de dados não está disponível neste ambiente. Por favor, use "Sign in with Google" para acessar o painel.');
-      } else {
-        setError('Usuário ou senha incorretos.');
+      // Fallback: Firebase Auth (Directly for Netlify)
+      // If user provided just "admin", we try to treat it as admin@danycleanpro.com or whatever email is registered
+      const email = username.includes('@') ? username : `${username}@admin.com`;
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        onLogin('fb-token', { id: userCredential.user.uid, username: userCredential.user.email });
+        navigate('/admin/dashboard');
+      } catch (fbErr: any) {
+        if (serverStatus === 'down') {
+          setError('Credenciais inválidas ou conta não encontrada no Firebase.');
+        } else {
+          setError('Usuário ou senha incorretos.');
+        }
       }
+    } catch (err: any) {
+      setError('Falha na autenticação. Tente novamente ou use Google Login.');
     } finally {
       setLoading(false);
     }

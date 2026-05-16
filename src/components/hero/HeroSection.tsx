@@ -6,6 +6,33 @@ import { useSetting } from '../../lib/settings';
 
 export default function HeroSection() {
   const { value: heroCover } = useSetting('hero_cover');
+  const [imgSrc, setImgSrc] = React.useState<string>("");
+  
+  // Chain of Responsibility for image loading
+  const LOCAL_FALLBACK = "/hero-fallback.jpg";
+  const EXTERNAL_FALLBACK = "https://images.unsplash.com/photo-1556911220-e15024029581?auto=format&fit=crop&q=80&w=1200";
+
+  React.useEffect(() => {
+    // Priority: 1. CMS (heroCover), 2. Local fallback, 3. External fallback
+    if (heroCover) {
+      setImgSrc(heroCover);
+    } else {
+      // If no CMS cover, try local first
+      setImgSrc(LOCAL_FALLBACK);
+    }
+  }, [heroCover]);
+
+  const handleImageError = () => {
+    if (imgSrc === heroCover) {
+      console.warn("CMS Hero image failed, trying local fallback.");
+      setImgSrc(LOCAL_FALLBACK);
+    } else if (imgSrc === LOCAL_FALLBACK) {
+      console.warn("Local hero-fallback.jpg not found, using external Unsplash fallback.");
+      setImgSrc(EXTERNAL_FALLBACK);
+    } else {
+      console.error("All hero image fallbacks failed.");
+    }
+  };
 
   const trustPoints = [
     "Verified Professionals",
@@ -80,12 +107,15 @@ export default function HeroSection() {
             transition={{ duration: 1, delay: 0.2 }}
             className="flex-1 relative w-full mb-8 lg:mb-0"
           >
-            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] lg:rounded-[5.5rem] overflow-hidden shadow-2xl z-10 border-[8px] lg:border-[16px] border-white bg-slate-50">
-              <img 
-                src={heroCover || "https://images.unsplash.com/photo-1556911220-e15024029581?auto=format&fit=crop&q=80&w=1200"} 
-                alt="Spotless home environment" 
-                className="w-full h-full object-cover transition-all duration-700"
-              />
+            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] lg:rounded-[5.5rem] overflow-hidden shadow-2xl z-10 border-[8px] lg:border-[16px] border-white bg-slate-100">
+              {imgSrc && (
+                <img 
+                  src={imgSrc} 
+                  alt="Spotless home environment" 
+                  onError={handleImageError}
+                  className="w-full h-full object-cover transition-all duration-700"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
               
               {/* Floating Quality Card */}
