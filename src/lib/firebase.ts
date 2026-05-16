@@ -1,40 +1,26 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseAppletConfig from '../../firebase-applet-config.json';
 
-// Helper to get config value with fallback to ENV
-const getConfig = (key: string, configVal: string | undefined): string | undefined => {
-  const envKey = `VITE_FIREBASE_${key.toUpperCase()}`;
-  const envVal = import.meta.env[envKey];
-  
-  // If we are in prod (Netlify), we MUST use envVal
-  if (import.meta.env.PROD) {
-    return envVal || configVal;
-  }
-  
-  // In dev, prefer config file if available and valid
-  if (configVal && !configVal.includes('REDACTED') && !configVal.includes('AIza***')) {
-    return configVal;
-  }
-
-  return envVal;
+// Helper to get config value from environment variables
+const getEnvVar = (key: string): string | undefined => {
+  return import.meta.env[`VITE_FIREBASE_${key.toUpperCase()}`];
 };
 
 const firebaseConfig = {
-  apiKey: getConfig('API_KEY', firebaseAppletConfig.apiKey),
-  authDomain: getConfig('AUTH_DOMAIN', firebaseAppletConfig.authDomain),
-  projectId: getConfig('PROJECT_ID', firebaseAppletConfig.projectId),
-  storageBucket: getConfig('STORAGE_BUCKET', firebaseAppletConfig.storageBucket),
-  messagingSenderId: getConfig('MESSAGING_SENDER_ID', firebaseAppletConfig.messagingSenderId),
-  appId: getConfig('APP_ID', firebaseAppletConfig.appId),
+  apiKey: getEnvVar('API_KEY'),
+  authDomain: getEnvVar('AUTH_DOMAIN'),
+  projectId: getEnvVar('PROJECT_ID'),
+  storageBucket: getEnvVar('STORAGE_BUCKET'),
+  messagingSenderId: getEnvVar('MESSAGING_SENDER_ID'),
+  appId: getEnvVar('APP_ID'),
 };
 
-const dbId = getConfig('DATABASE_ID', (firebaseAppletConfig as any).firestoreDatabaseId);
+const dbId = getEnvVar('DATABASE_ID') || undefined;
 
 // Check if we have the minimal config needed
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.warn("Firebase configuration is missing or incomplete. Ensure VITE_FIREBASE_API_KEY and VITE_FIREBASE_PROJECT_ID are set.");
+  console.warn("Firebase configuration is missing or incomplete. Ensure VITE_FIREBASE_API_KEY and VITE_FIREBASE_PROJECT_ID are set in environment variables.");
 }
 
 let app: any;
