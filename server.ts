@@ -13,9 +13,12 @@ const app = express();
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "dany-clean-pro-secret-key-2024";
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Health Check (Very early)
 app.get("/api/health", (req, res) => {
-  console.log('Health check requested');
+  console.log('[GET] /api/health - Status: 200');
   res.json({ 
     status: "ok", 
     timestamp: new Date().toISOString(),
@@ -26,10 +29,45 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Auth
+app.post("/api/auth/login", (req, res) => {
+  const { username, password } = req.body;
+  console.log(`[POST] /api/auth/login - Username: "${username}"`);
+  
+  if (!db) {
+    console.error("CRITICAL: Database not initialized during login attempt");
+    return res.status(500).json({ error: "Database error" });
+  }
+
+  try {
+    const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username) as any;
+    
+    if (!user) {
+      console.warn(`Login failed: User "${username}" not found in database`);
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    console.log(`Found user in DB: ${user.username}, comparing passwords...`);
+    const passwordMatch = bcrypt.compareSync(password, user.password);
+    
+    if (passwordMatch) {
+      console.log(`✓ Login SUCCESS for user: ${username}`);
+      const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: "24h" });
+      res.json({ token, user: { id: user.id, username: user.username } });
+    } else {
+      console.warn(`✗ Login FAILED for user: ${username} - Password mismatch`);
+      res.status(401).json({ error: "Invalid credentials" });
+    }
+  } catch (err) {
+    console.error("Login Exception:", err);
+    res.status(500).json({ error: "Internal server error during login" });
+  }
+});
+
 // Middleware for logging (Debugging)
 app.use((req, res, next) => {
   if (req.path.startsWith('/api')) {
-    console.log(`[API ${req.method}] ${req.path}`);
+    console.log(`[API REQUEST] ${req.method} ${req.path}`);
   }
   next();
 });
@@ -262,9 +300,6 @@ function initDb() {
   }
 }
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 // --- API ROUTES ---
 
 // Config Endpoint (Public)
@@ -427,41 +462,6 @@ app.post("/api/secret/process-payment", async (req, res) => {
   res.json({ message: "Request processed securely" });
 });
 
-// Auth
-app.post("/api/auth/login", (req, res) => {
-  const { username, password } = req.body;
-  console.log(`Login attempt - Username: "${username}"`);
-  
-  if (!db) {
-    console.error("CRITICAL: Database not initialized during login attempt");
-    return res.status(500).json({ error: "Database error" });
-  }
-
-  try {
-    const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username) as any;
-    
-    if (!user) {
-      console.warn(`Login failed: User "${username}" not found in database`);
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    console.log(`Found user in DB: ${user.username}, comparing passwords...`);
-    const passwordMatch = bcrypt.compareSync(password, user.password);
-    
-    if (passwordMatch) {
-      console.log(`✓ Login SUCCESS for user: ${username}`);
-      const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: "24h" });
-      res.json({ token, user: { id: user.id, username: user.username } });
-    } else {
-      console.warn(`✗ Login FAILED for user: ${username} - Password mismatch`);
-      res.status(401).json({ error: "Invalid credentials" });
-    }
-  } catch (err) {
-    console.error("Login Exception:", err);
-    res.status(500).json({ error: "Internal server error during login" });
-  }
-});
-
 // Debug Users (Remove in production)
 app.get("/api/debug-users", (req, res) => {
   if (process.env.NODE_ENV === "production") return res.status(403).send();
@@ -488,6 +488,7 @@ const authenticate = (req, res, next) => {
 
 // Leads
 app.post("/api/leads", async (req, res) => {
+  console.log(`[POST] /api/leads - From: ${req.body.email || req.body.phone}`);
   const { name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message } = req.body;
   
   let leadId: number | bigint | null = null;
@@ -651,6 +652,12 @@ app.delete("/api/admin/gallery/:id", authenticate, (req, res) => {
 async function startServer() {
   initDb();
   
+  // API 404 Catch-all (to prevent falling through to SPA index.html)
+  app.all("/api/*", (req, res) => {
+    console.warn(`[404] API Route not found: ${req.method} ${req.path}`);
+    res.status(404).json({ error: `API route not found: ${req.method} ${req.path}` });
+  });
+
   if (process.env.NODE_ENV !== "production") {
     try {
       const { createServer: createViteServer } = await import("vite");

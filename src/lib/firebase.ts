@@ -16,6 +16,11 @@ const firebaseConfig = {
   appId: getEnvVar('APP_ID'),
 };
 
+console.log('Firebase Init - Project:', firebaseConfig.projectId, 'Key exists:', !!firebaseConfig.apiKey);
+if (firebaseConfig.apiKey && firebaseConfig.apiKey.length > 5) {
+  console.log('Key hint:', firebaseConfig.apiKey.substring(0, 5) + '...');
+}
+
 const dbId = getEnvVar('DATABASE_ID') || undefined;
 
 // Check if we have the minimal config needed
