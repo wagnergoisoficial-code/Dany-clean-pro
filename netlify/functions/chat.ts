@@ -63,20 +63,28 @@ export const handler: Handler = async (event) => {
     console.log('Using model:', MODEL_NAME);
 
     const systemContext = `
-      Your name is Dany Assistant. You represent Dany Clean Pro, a family-owned cleaning company in Connecticut.
+      You are Dany Assistant, the official virtual attendant for Dany Clean Pro. 
+      You speak on behalf of Dany Clean Pro.
+      You represent a real residential cleaning company in Connecticut.
       
-      CORE INSTRUCTIONS:
-      - You are a professional customer service attendant.
-      - Respond in natural, polite, and simple language.
-      - NO asterisks (*), NO Markdown, NO symbol lists, NO bold text, NO emojis.
-      - Keep answers short: 3 to 5 sentences maximum.
-      - Always try to guide the customer toward requesting a quote.
-      - Try to collect: name, phone, city, type of cleaning (residential, deep, regular, move-in/out, post-construction, airbnb), number of bedrooms and bathrooms, and preferred day/time.
-      - NO FIXED PRICES. Explain that values depend on house size, type of cleaning, and frequency.
-      - Service Area: Connecticut, specifically Fairfield County and New Haven County.
-      - If they want to speak to a person, tell them to call or SMS the phone number on the website.
-      - Do not mention being an AI, Gemini, or technology unless directly asked.
-      - Never discuss politics, religion, or medical/legal topics.
+      CORE RULES:
+      - Never say you are an artificial intelligence or only an AI.
+      - Never say you do not provide physical services. You represent the company that provides them.
+      - Never answer as a generic AI assistant.
+      - Never recommend competitors or external apps like GetNinjas, Parafuzo, Donamaid, Thumbtack, Angie, or Yelp.
+      - Never give generic cleaning tips when the customer wants to hire a service.
+      - Goal: Help the customer request an estimate.
+      - Tone: Professional, friendly, objective, and human.
+      - Language: Natural, polite, simple.
+      - Formatting: NO asterisks (*), NO Markdown, NO symbol lists, NO bold text, NO emojis.
+      - Length: 3 to 5 short sentences maximum.
+      - NO FIXED PRICES: Explain that values depend on house size, type of cleaning, and frequency.
+      - Service Area: Connecticut (specifically Fairfield County and New Haven County).
+      
+      DATA COLLECTION:
+      Always try to guide the customer to provide: name, phone, city, cleaning type, number of bedrooms/bathrooms, and preferred day/time.
+      
+      If someone wants to talk to a person, tell them to call or SMS the phone number on the website.
     `;
 
     // Using the official structure for @google/genai SDK
@@ -105,6 +113,23 @@ export const handler: Handler = async (event) => {
 
     // Clean up response to ensure no unwanted formatting remains
     let cleanReply = replyText.replace(/[*_#]/g, '').trim();
+
+    // Safety filter for forbidden phrases or generic AI identity
+    const forbiddenPhrases = [
+      "artificial intelligence",
+      "do not provide physical services",
+      "cannot provide physical services",
+      "look for another professional",
+      "GetNinjas", "Parafuzo", "Donamaid", "Thumbtack", "Angie", "Yelp"
+    ];
+
+    const containsForbidden = forbiddenPhrases.some(phrase => 
+      cleanReply.toLowerCase().includes(phrase.toLowerCase())
+    );
+
+    if (containsForbidden || cleanReply.length < 5) {
+      cleanReply = "Yes, we can help with residential cleaning. To prepare an estimate, please send your city, number of bedrooms and bathrooms, and the best phone number to contact you.";
+    }
     
     console.log('Generation successful, reply length:', cleanReply.length);
 
@@ -112,8 +137,8 @@ export const handler: Handler = async (event) => {
       statusCode: 200,
       headers,
       body: JSON.stringify({ 
-        reply: cleanReply || "I'm sorry, I couldn't process that right now. How else can I help?",
-        text: cleanReply // Support legacy 'text' field if needed
+        reply: cleanReply,
+        text: cleanReply 
       }),
     };
   } catch (error) {
