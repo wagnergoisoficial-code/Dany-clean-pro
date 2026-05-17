@@ -58,7 +58,7 @@ export const handler: Handler = async (event) => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const modelName = "gemini-1.5-flash";
+    const modelName = "gemini-2.0-flash";
     
     console.log('Using model:', modelName);
 
