@@ -13,7 +13,7 @@ export default function AIChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hi! I\'m Dany, your cleaning assistant. How can I help you today?' }
+    { role: 'assistant', content: 'Hi, my name is Jennifer. I’m the virtual assistant for Dany Clean Pro. How can I help you today?' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -90,7 +90,7 @@ export default function AIChatWidget() {
                   <Bot size={24} className="absolute pointer-events-none" />
                 </div>
                 <div>
-                  <h4 className="font-bold">Dany Assistant</h4>
+                  <h4 className="font-bold">Jennifer Assistant</h4>
                   <p className="text-[10px] text-blue-100 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                     Online & Ready to Help
@@ -122,7 +122,7 @@ export default function AIChatWidget() {
                       <>
                         <img 
                           src="/avatar.png" 
-                          alt="Dany" 
+                          alt="Jennifer" 
                           className="w-full h-full object-cover"
                           onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
                         />
@@ -178,8 +178,8 @@ export default function AIChatWidget() {
         <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full z-10" />
         <MessageSquare size={32} />
         {/* Tooltip */}
-        <div className="absolute right-20 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap whitespace-nowrap">
-          Questions? Ask Dany!
+        <div className="absolute right-20 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+          Questions? Ask Jennifer!
         </div>
       </motion.button>
     </div>
