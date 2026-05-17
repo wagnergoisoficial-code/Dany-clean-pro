@@ -79,25 +79,42 @@ export const handler: Handler = async (event) => {
       - Never discuss politics, religion, or medical/legal topics.
     `;
 
-    // Using the same simplified pattern as server.ts to ensure compatibility
+    // Using the official structure for @google/genai SDK
     const response = await (ai as any).models.generateContent({
       model: modelName,
-      contents: userMessage,
-      config: {
-        systemInstruction: systemContext,
+      systemInstruction: systemContext,
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: userMessage }]
+        }
+      ],
+      generationConfig: {
         temperature: 0.5,
+        maxOutputTokens: 250,
       },
     });
 
+    // Extracting text from @google/genai response structure
+    let replyText = "";
+    if (response && response.text) {
+      replyText = response.text;
+    } else if (response && response.candidates && response.candidates[0]?.content?.parts?.[0]?.text) {
+      replyText = response.candidates[0].content.parts[0].text;
+    }
+
     // Clean up response to ensure no unwanted formatting remains
-    let cleanReply = (response.text || "").replace(/[*_#]/g, '').trim();
+    let cleanReply = replyText.replace(/[*_#]/g, '').trim();
     
-    console.log('Generation successful');
+    console.log('Generation successful, reply length:', cleanReply.length);
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ reply: cleanReply || "I'm sorry, I couldn't process that right now. How else can I help?" }),
+      body: JSON.stringify({ 
+        reply: cleanReply || "I'm sorry, I couldn't process that right now. How else can I help?",
+        text: cleanReply // Support legacy 'text' field if needed
+      }),
     };
   } catch (error) {
     console.error('Chat function error:', error);

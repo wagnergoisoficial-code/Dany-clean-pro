@@ -439,8 +439,10 @@ app.post("/api/voice/process", async (req, res) => {
 
 // AI Chat Proxy (Secure)
 app.post("/api/chat", async (req, res) => {
-  const { prompt } = req.body;
-  if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+  const { prompt, message } = req.body;
+  const userMessage = message || prompt;
+  
+  if (!userMessage) return res.status(400).json({ error: "Message is required" });
   if (!process.env.GEMINI_API_KEY) return res.status(500).json({ error: "AI not configured" });
 
   try {
@@ -448,9 +450,13 @@ app.post("/api/chat", async (req, res) => {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const result = await ai.models.generateContent({
       model: "gemini-1.5-flash",
-      contents: prompt
+      contents: userMessage
     });
-    res.json({ text: result.text || "I'm sorry, I couldn't process that." });
+    const reply = result.text || "I'm sorry, I couldn't process that.";
+    res.json({ 
+      text: reply,
+      reply: reply 
+    });
   } catch (err) {
     console.error("Chat error:", err);
     res.status(500).json({ error: "Failed to process chat" });
