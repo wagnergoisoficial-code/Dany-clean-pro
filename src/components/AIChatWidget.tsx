@@ -35,16 +35,13 @@ export default function AIChatWidget() {
     setIsLoading(true);
 
     try {
-      const prompt = `
-        You are a helpful and professional customer service assistant for "Dany Clean Pro", 
-        a family-owned cleaning company in Connecticut.
-        User message: ${userMessage}
-      `;
-
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage })
+        body: JSON.stringify({ 
+          message: userMessage,
+          history: messages 
+        })
       });
 
       if (!response.ok) throw new Error('AI failed');
