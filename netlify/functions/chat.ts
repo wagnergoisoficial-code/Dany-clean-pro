@@ -58,9 +58,9 @@ export const handler: Handler = async (event) => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const modelName = "gemini-2.0-flash";
+    const MODEL_NAME = "gemini-3-flash-preview";
     
-    console.log('Using model:', modelName);
+    console.log('Using model:', MODEL_NAME);
 
     const systemContext = `
       Your name is Dany Assistant. You represent Dany Clean Pro, a family-owned cleaning company in Connecticut.
@@ -81,7 +81,7 @@ export const handler: Handler = async (event) => {
 
     // Using the official structure for @google/genai SDK
     const response = await (ai as any).models.generateContent({
-      model: modelName,
+      model: MODEL_NAME,
       systemInstruction: systemContext,
       contents: [
         {
