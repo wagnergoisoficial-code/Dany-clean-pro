@@ -29,9 +29,14 @@ export const handler: Handler = async (event) => {
   }
 
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
     const body = JSON.parse(event.body || '{}');
     const userMessage = body.message || body.prompt;
 
+    console.log('--- Chat Function Debug ---');
+    console.log('Has GEMINI_API_KEY:', !!apiKey);
+    console.log('Message received:', !!userMessage);
+    
     if (!userMessage) {
       return {
         statusCode: 400,
@@ -40,8 +45,6 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-
     if (!apiKey) {
       console.error('GEMINI_API_KEY is missing in environment variables');
       return {
@@ -49,19 +52,15 @@ export const handler: Handler = async (event) => {
         headers,
         body: JSON.stringify({ 
           error: 'AI assistant is currently in maintenance mode.',
-          details: 'API configuration missing'
+          details: 'API configuration missing on server'
         }),
       };
     }
 
-    const ai = new GoogleGenAI({
-      apiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        }
-      }
-    });
+    const ai = new GoogleGenAI({ apiKey });
+    const modelName = "gemini-1.5-flash";
+    
+    console.log('Using model:', modelName);
 
     const systemContext = `
       Your name is Dany Assistant. You represent Dany Clean Pro, a family-owned cleaning company in Connecticut.
@@ -80,8 +79,9 @@ export const handler: Handler = async (event) => {
       - Never discuss politics, religion, or medical/legal topics.
     `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+    // Using the same simplified pattern as server.ts to ensure compatibility
+    const response = await (ai as any).models.generateContent({
+      model: modelName,
       contents: userMessage,
       config: {
         systemInstruction: systemContext,
@@ -92,6 +92,8 @@ export const handler: Handler = async (event) => {
     // Clean up response to ensure no unwanted formatting remains
     let cleanReply = (response.text || "").replace(/[*_#]/g, '').trim();
     
+    console.log('Generation successful');
+
     return {
       statusCode: 200,
       headers,
@@ -104,7 +106,7 @@ export const handler: Handler = async (event) => {
       headers,
       body: JSON.stringify({ 
         error: 'Sorry, I\'m having trouble processing your request right now.',
-        details: error instanceof Error ? error.message : String(error)
+        details: error instanceof Error ? error.message : 'Unknown error'
       }),
     };
   }
