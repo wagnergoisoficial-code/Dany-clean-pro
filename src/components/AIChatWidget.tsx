@@ -77,8 +77,17 @@ export default function AIChatWidget() {
             {/* Header */}
             <div className="bg-blue-600 p-4 text-white flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <Bot size={24} />
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden border border-white/30">
+                  <img 
+                    src="/avatar.png" 
+                    alt="Dany" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      // Parent div will show the icon if image fails
+                    }}
+                  />
+                  <Bot size={24} className="absolute pointer-events-none" />
                 </div>
                 <div>
                   <h4 className="font-bold">Dany Assistant</h4>
@@ -104,10 +113,22 @@ export default function AIChatWidget() {
                   msg.role === 'user' ? "flex-row-reverse" : "flex-row"
                 )}>
                   <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
+                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden",
                     msg.role === 'user' ? "bg-blue-600 text-white" : "bg-white border border-slate-200 text-slate-400 shadow-sm"
                   )}>
-                    {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+                    {msg.role === 'user' ? (
+                      <User size={16} />
+                    ) : (
+                      <>
+                        <img 
+                          src="/avatar.png" 
+                          alt="Dany" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                        />
+                        <Bot size={16} className="absolute pointer-events-none" />
+                      </>
+                    )}
                   </div>
                   <div className={cn(
                     "px-4 py-3 rounded-2xl text-sm max-w-[80%]",

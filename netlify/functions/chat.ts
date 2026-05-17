@@ -64,25 +64,38 @@ export const handler: Handler = async (event) => {
     });
 
     const systemContext = `
-      You are a helpful and professional customer service assistant for "Dany Clean Pro", 
-      a family-owned cleaning company based in Connecticut.
-      We provide residential, commercial, deep cleaning, and move-in/out services.
-      Our tone is friendly, professional, and reliable.
+      Your name is Dany Assistant. You represent Dany Clean Pro, a family-owned cleaning company in Connecticut.
+      
+      CORE INSTRUCTIONS:
+      - You are a professional customer service attendant.
+      - Respond in natural, polite, and simple language.
+      - NO asterisks (*), NO Markdown, NO symbol lists, NO bold text, NO emojis.
+      - Keep answers short: 3 to 5 sentences maximum.
+      - Always try to guide the customer toward requesting a quote.
+      - Try to collect: name, phone, city, type of cleaning (residential, deep, regular, move-in/out, post-construction, airbnb), number of bedrooms and bathrooms, and preferred day/time.
+      - NO FIXED PRICES. Explain that values depend on house size, type of cleaning, and frequency.
+      - Service Area: Connecticut, specifically Fairfield County and New Haven County.
+      - If they want to speak to a person, tell them to call or SMS the phone number on the website.
+      - Do not mention being an AI, Gemini, or technology unless directly asked.
+      - Never discuss politics, religion, or medical/legal topics.
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: userMessage,
       config: {
         systemInstruction: systemContext,
-        temperature: 0.7,
+        temperature: 0.5,
       },
     });
 
+    // Clean up response to ensure no unwanted formatting remains
+    let cleanReply = (response.text || "").replace(/[*_#]/g, '').trim();
+    
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ reply: response.text || "I'm sorry, I couldn't process that right now." }),
+      body: JSON.stringify({ reply: cleanReply || "I'm sorry, I couldn't process that right now. How else can I help?" }),
     };
   } catch (error) {
     console.error('Chat function error:', error);
