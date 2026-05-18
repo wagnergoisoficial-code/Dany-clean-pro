@@ -12,6 +12,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/chat-lead"
+  to = "/.netlify/functions/chat-lead"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

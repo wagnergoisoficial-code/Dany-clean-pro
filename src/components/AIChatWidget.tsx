@@ -16,8 +16,81 @@ export default function AIChatWidget() {
     { role: 'assistant', content: 'Hi, my name is Jennifer. I’m the virtual assistant for Dany Clean Pro. How can I help you today?' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [chatSessionId] = useState(() => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
+  const [leadSaved, setLeadSaved] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { businessPhone } = useConfig();
+
+  // Helper to detect lead info (name and phone)
+  const detectAndSaveLead = async (userMessage: string, chatHistory: Message[]) => {
+    if (leadSaved) return;
+
+    console.log('AI lead detection triggered');
+
+    // Try to find a phone number (10+ digits)
+    const phoneRegex = /(\+?\d{1,4}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/g;
+    const phoneMatch = userMessage.match(phoneRegex);
+    
+    if (phoneMatch) {
+      const detectedPhone = phoneMatch[0];
+      console.log('Potential phone detected:', detectedPhone);
+      
+      // Heuristic for name: if it's a "My name is X" pattern or if it's a short message
+      let detectedName = "";
+      const namePattern = /(?:my name is|me chamo|mi nombre es|me llamo|soy|sou)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i;
+      const nameMatch = userMessage.match(namePattern);
+      
+      if (nameMatch) {
+        detectedName = nameMatch[1];
+      } else if (userMessage.length < 100) {
+        // If no explicit pattern, try to find a capitalized name near the start
+        const simpleNameMatch = userMessage.match(/(?:Hi|Hello|Oi|Olá|Hola|Greetings),?\s+(?:I'm|I am|Sou|Soy)?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
+        if (simpleNameMatch) {
+          detectedName = simpleNameMatch[1];
+        } else {
+          // Fallback: search history for name if not in current message
+          const historyText = chatHistory.map(m => m.content).join(' ');
+          const historyNameMatch = historyText.match(namePattern);
+          if (historyNameMatch) {
+            detectedName = historyNameMatch[1];
+          }
+        }
+      }
+
+      console.log('Detected name:', detectedName);
+
+      if (detectedPhone && detectedName && detectedName.length > 1) {
+        try {
+          console.log('Calling /api/chat-lead', { detectedName, detectedPhone });
+          const response = await fetch('/api/chat-lead', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chatSessionId,
+              name: detectedName,
+              phone: detectedPhone,
+              initialMessage: userMessage,
+              source: "AI Chat (Jennifer)"
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              setLeadSaved(true);
+              console.log('AI lead saved', data.leadId);
+            } else {
+              console.log('AI lead save failed', data.error);
+            }
+          } else {
+            console.log('AI lead save failed', response.statusText);
+          }
+        } catch (error) {
+          console.error('AI lead save failed', error);
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -33,6 +106,9 @@ export default function AIChatWidget() {
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
+
+    // Try to detect lead info in the background
+    detectAndSaveLead(userMessage, messages);
 
     try {
       const response = await fetch('/api/chat', {
