@@ -35,33 +35,39 @@ export default function AIChatWidget() {
       const detectedPhone = phoneMatch[0];
       console.log('Potential phone detected:', detectedPhone);
       
-      // Heuristic for name: if it's a "My name is X" pattern or if it's a short message
+      // Heuristic for name
       let detectedName = "";
-      const namePattern = /(?:my name is|me chamo|mi nombre es|me llamo|soy|sou)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i;
+      // Match patterns like "my name is X", "I am X", etc.
+      const namePattern = /(?:my name is|me chamo|mi nombre es|me llamo|soy|sou|i am|i'm)\s+([^.?!,]{2,100})/i;
       const nameMatch = userMessage.match(namePattern);
       
       if (nameMatch) {
-        detectedName = nameMatch[1];
+        detectedName = nameMatch[1].trim();
       } else if (userMessage.length < 100) {
         // If no explicit pattern, try to find a capitalized name near the start
-        const simpleNameMatch = userMessage.match(/(?:Hi|Hello|Oi|Olá|Hola|Greetings),?\s+(?:I'm|I am|Sou|Soy)?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
+        const simpleNameMatch = userMessage.match(/(?:Hi|Hello|Oi|Olá|Hola|Greetings),?\s+(?:I'm|I am|Sou|Soy|I'm)?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
         if (simpleNameMatch) {
-          detectedName = simpleNameMatch[1];
+          detectedName = simpleNameMatch[1].trim();
         } else {
           // Fallback: search history for name if not in current message
-          const historyText = chatHistory.map(m => m.content).join(' ');
+          const historyText = chatHistory.map(m => m.role === 'user' ? m.content : '').join(' | ');
           const historyNameMatch = historyText.match(namePattern);
           if (historyNameMatch) {
-            detectedName = historyNameMatch[1];
+            detectedName = historyNameMatch[1].trim();
           }
         }
+      }
+
+      // Final cleanup: remove "and my phone" if it got caught in the name capture group
+      if (detectedName) {
+        detectedName = detectedName.split(/\s+(?:and|my|phone|is)\b/i)[0].trim();
       }
 
       console.log('Detected name:', detectedName);
 
       if (detectedPhone && detectedName && detectedName.length > 1) {
         try {
-          console.log('Calling /api/chat-lead', { detectedName, detectedPhone });
+          console.log('Found complete lead - Calling /api/chat-lead', { detectedName, detectedPhone });
           const response = await fetch('/api/chat-lead', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

@@ -80,27 +80,31 @@ export const handler: Handler = async (event) => {
     const db = admin.firestore();
     const leadsRef = db.collection('leads');
 
-    // Duplicate prevention
-    // Check for existing lead with same normalized phone and source from the last 24 hours
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
+    // Duplicate prevention: Use a simpler query to avoid requiring composite indexes
     const duplicateQuery = await leadsRef
-      .where('phone', '==', phone) // Checking literal phone first
-      .where('source', '==', 'AI Chat (Jennifer)')
+      .where('phone', '==', phone)
       .where('status', '==', 'new')
-      .where('createdAt', '>=', admin.firestore.Timestamp.fromDate(oneDayAgo))
-      .limit(1)
+      .limit(5) // Get a few to check locally if needed
       .get();
 
-    if (!duplicateQuery.empty) {
+    const isDuplicate = duplicateQuery.docs.some(doc => {
+      const data = doc.data();
+      const created = data.createdAt?.toDate() || new Date(0);
+      return data.source === 'AI Chat (Jennifer)' && created >= oneDayAgo;
+    });
+
+    if (isDuplicate) {
+      const doc = duplicateQuery.docs.find(d => d.data().source === 'AI Chat (Jennifer)');
       console.log('Duplicate AI lead detected for phone:', phone);
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({ 
           success: true, 
-          leadId: duplicateQuery.docs[0].id, 
+          leadId: doc?.id, 
           duplicate: true 
         }),
       };
@@ -111,8 +115,8 @@ export const handler: Handler = async (event) => {
       name,
       phone,
       city: city || '',
-      serviceInterest: serviceInterest || '',
-      initialMessage: initialMessage || '',
+      service_type: serviceInterest || 'AI Chat Lead',
+      message: initialMessage || '',
       chatSessionId,
       source: 'AI Chat (Jennifer)',
       status: 'new',
