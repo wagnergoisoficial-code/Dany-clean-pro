@@ -15,8 +15,8 @@ export default function About() {
           >
             <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)]">
               <img 
-                src="https://images.unsplash.com/photo-1581578731548-c64695ce6958?auto=format&fit=crop&q=80&w=1200" 
-                alt="Professional cleaner in a bright kitchen" 
+                src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1200" 
+                alt="Luxury kitchen professionally cleaned and organized" 
                 className="w-full aspect-[4/5] object-cover"
               />
             </div>

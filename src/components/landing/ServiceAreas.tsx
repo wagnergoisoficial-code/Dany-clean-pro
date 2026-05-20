@@ -51,17 +51,65 @@ export default function ServiceAreas() {
           </div>
           
           <div className="relative">
-             <div className="aspect-square bg-slate-50 rounded-[3rem] overflow-hidden border border-slate-100 flex items-center justify-center p-12">
-                {/* Simplified Map Representation */}
-                <div className="w-full h-full border border-slate-200 rounded-[2rem] relative bg-white overflow-hidden shadow-sm">
-                   <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:20px_20px]" />
-                   <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-100 blur-3xl opacity-50 rounded-full animate-pulse" />
-                   <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-teal-100 blur-3xl opacity-50 rounded-full animate-pulse" />
-                   <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center pointer-events-none">
-                      <MapPin size={48} className="text-blue-600 mb-4 animate-bounce" />
-                      <p className="text-sm font-bold text-slate-900 px-4 py-2 bg-white rounded-full shadow-lg border border-slate-100">
-                        Based in Stamford, CT
-                      </p>
+             <div className="aspect-square bg-slate-50 rounded-[3rem] overflow-hidden border border-slate-100 flex items-center justify-center p-4 sm:p-8 md:p-12">
+                {/* Premium Stylized Map Representation */}
+                <div className="w-full h-full border border-slate-100 rounded-[2rem] relative bg-gradient-to-b from-slate-50 to-white overflow-hidden shadow-md flex flex-col justify-between p-6 sm:p-8">
+                   {/* Background dynamic grid and glows */}
+                   <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(#3b82f6_1.5px,transparent_1.5px)] [background-size:24px_24px]" />
+                   <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-tr from-blue-300 to-teal-300 blur-3xl opacity-30 rounded-full animate-pulse" />
+                   
+                   {/* Stylized Coverage Waves / Concentric Circles expanding from Stamford */}
+                   <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 border border-blue-400/10 rounded-full pointer-events-none animate-ping [animation-duration:4s]" />
+                   <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 border border-blue-500/10 rounded-full pointer-events-none" />
+                   <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-blue-500/20 rounded-full pointer-events-none" />
+
+                   {/* Pulsing Stamford Primary Hub Node */}
+                   <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                     <span className="relative flex h-5 w-5">
+                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                       <span className="relative inline-flex rounded-full h-5 w-5 bg-blue-600 border-2 border-white shadow-md"></span>
+                     </span>
+                     <span className="mt-2 text-[11px] font-sans font-bold text-blue-600 bg-blue-50/90 backdrop-blur-xs px-2 py-0.5 rounded-md border border-blue-100 shadow-xs">
+                       Stamford Hub
+                     </span>
+                   </div>
+
+                   {/* Other Coverage Nodes */}
+                   <div className="absolute top-[20%] left-[25%] flex flex-col items-center opacity-70">
+                     <span className="h-3 w-3 rounded-full bg-slate-400 border border-white"></span>
+                     <span className="mt-1 text-[9px] font-sans font-medium text-slate-500">Greenwich</span>
+                   </div>
+                   <div className="absolute top-[18%] right-[22%] flex flex-col items-center opacity-70">
+                     <span className="h-3 w-3 rounded-full bg-slate-400 border border-white"></span>
+                     <span className="mt-1 text-[9px] font-sans font-medium text-slate-500">Norwalk</span>
+                   </div>
+                   <div className="absolute bottom-[42%] left-[18%] flex flex-col items-center opacity-70">
+                     <span className="h-3 w-3 rounded-full bg-slate-400 border border-white"></span>
+                     <span className="mt-1 text-[9px] font-sans font-medium text-slate-500">New Canaan</span>
+                   </div>
+
+                   {/* Spacer for top/map content */}
+                   <div className="h-1/3" />
+
+                   {/* Premium Glassmorphism Stamford Coverage Card */}
+                   <div className="relative z-10 w-full bg-white/90 backdrop-blur-md border border-slate-100 rounded-2xl p-5 shadow-lg shadow-slate-100/80 space-y-3.5">
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                         <MapPin size={18} className="text-blue-600 animate-bounce" />
+                         <span className="font-sans font-extrabold text-base text-slate-900 tracking-tight">Stamford, CT</span>
+                       </div>
+                       <div className="flex gap-1.5">
+                         <span className="text-[10px] font-sans font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full select-none">
+                           Primary Hub
+                         </span>
+                         <span className="text-[10px] font-sans font-bold text-teal-600 bg-teal-50 border border-teal-100 px-2.5 py-0.5 rounded-full select-none">
+                           Fast Response
+                         </span>
+                       </div>
+                     </div>
+                     <p className="text-xs md:text-sm text-slate-500 font-medium leading-relaxed">
+                       Premium cleaning service based in Stamford, serving families across Connecticut with care, detail, and reliability.
+                     </p>
                    </div>
                 </div>
              </div>
