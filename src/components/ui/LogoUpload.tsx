@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, Trash2, Download } from 'lucide-react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db, auth, handleFirestoreError, OperationType } from '../../lib/firebase';
+import { db, auth, handleFirestoreError, OperationType, isFirebaseReady } from '../../lib/firebase';
 import { cn, compressImage } from '../../lib/utils';
 import { useSetting } from '../../lib/settings';
 
@@ -18,20 +18,66 @@ export default function LogoUpload({ onLogoChange, className }: LogoUploadProps)
 
   const saveToFirestore = async (value: string | null) => {
     setIsSaving(true);
+    let localSaved = false;
+
+    // First attempt to save locally
     try {
-      if (auth.currentUser) {
-        const docRef = doc(db, 'settings', SETTING_ID);
-        await setDoc(docRef, { value });
+      if (value) {
+        localStorage.setItem('app-logo', value);
       } else {
-        alert("Você precisa estar conectado com o Google para salvar permanentemente.");
+        localStorage.removeItem('app-logo');
       }
-      
-      if (value) localStorage.setItem('app-logo', value);
-      else localStorage.removeItem('app-logo');
+      localSaved = true;
+      window.dispatchEvent(new CustomEvent('settings-updated', { detail: { key: 'app-logo' } }));
+    } catch (localError: any) {
+      console.error('Local storage write failed (QuotaExceeded or other):', localError);
+    }
+
+    try {
+      const authDataStr = localStorage.getItem('dany_clean_auth');
+      const authData = authDataStr ? JSON.parse(authDataStr) : null;
+      const token = authData?.token;
+
+      if (token) {
+        const response = await fetch('/api/settings/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            settingId: SETTING_ID,
+            value
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP ${response.status}`);
+        }
+        console.log("Setting app_logo saved successfully via backend API.");
+      } else {
+        console.warn('Backend admin auth token not found. Locally stored state remains.');
+      }
       
       setTimeout(() => setIsSaving(false), 800);
     } catch (error) {
+      console.error('Firestore setting write failed via API.', error);
       handleFirestoreError(error, OperationType.WRITE, `settings/${SETTING_ID}`);
+      
+      // If local hasn't been saved yet, retry fallback saving
+      if (!localSaved) {
+        try {
+          if (value) {
+            localStorage.setItem('app-logo', value);
+          } else {
+            localStorage.removeItem('app-logo');
+          }
+          window.dispatchEvent(new CustomEvent('settings-updated', { detail: { key: 'app-logo' } }));
+        } catch (localError) {
+          console.error('Fallback local storage write failed as well:', localError);
+        }
+      }
       setIsSaving(false);
     }
   };
@@ -49,11 +95,18 @@ export default function LogoUpload({ onLogoChange, className }: LogoUploadProps)
       reader.onloadend = async () => {
         const base64 = reader.result as string;
         try {
-          const compressed = await compressImage(base64, 800, 0.6);
+          // Compress heavily: max 350px width/height and 0.5 quality to ensure a tiny Base64 payload (< 50KB)
+          const compressed = await compressImage(base64, 350, 0.5);
           saveToFirestore(compressed);
         } catch (error) {
-          console.error("Compression error:", error);
-          saveToFirestore(base64);
+          console.error("Compression error, trying safe fallback compression size:", error);
+          try {
+            const fallbackCompressed = await compressImage(base64, 200, 0.4);
+            saveToFirestore(fallbackCompressed);
+          } catch (fallbackError) {
+            console.error("Fallback compression failed as well. Saving raw file.", fallbackError);
+            saveToFirestore(base64);
+          }
         }
       };
       reader.readAsDataURL(file);

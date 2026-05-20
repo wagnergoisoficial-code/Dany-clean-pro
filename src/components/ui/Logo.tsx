@@ -12,15 +12,15 @@ export default function Logo({ className }: LogoProps) {
   const { value: preview } = useSetting('app_logo');
 
   return (
-    <div className={cn("flex items-center justify-center", className)}>
+    <div className={cn("flex items-center justify-center py-1", className)}>
       <div className={cn(
-        "w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden transition-all duration-300 relative bg-white shadow-sm border border-slate-100",
-        !preview && "bg-blue-600 shadow-lg shadow-blue-600/20 border-none"
+        "flex items-center justify-center transition-all duration-300",
+        !preview && "w-12 h-12 rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20 text-white font-black text-xl"
       )}>
         {preview ? (
-          <img src={preview} alt="Dany Clean Pro" className="w-full h-full object-contain p-1" />
+          <img src={preview} alt="Logo" className="h-10 md:h-14 w-auto object-contain" />
         ) : (
-          <span className="text-white font-black text-xl">D</span>
+          "D"
         )}
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Image as ImageIcon, Upload, Trash2, Download } from 'lucide-react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db, auth, handleFirestoreError, OperationType } from '../../lib/firebase';
+import { db, auth, handleFirestoreError, OperationType, isFirebaseReady } from '../../lib/firebase';
 import { cn, compressImage } from '../../lib/utils';
 import { useSetting } from '../../lib/settings';
 
@@ -18,18 +18,32 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
   const saveToFirestore = async (value: string | null) => {
     setIsSaving(true);
     try {
-      if (auth.currentUser) {
+      if (isFirebaseReady() && auth.currentUser) {
         const docRef = doc(db, 'settings', SETTING_ID);
         await setDoc(docRef, { value });
-      } else {
-        alert("Você precisa estar conectado com o Google para salvar permanentemente.");
+      } else if (!auth.currentUser) {
+        console.warn('Firebase Admin not authenticated. Saving locally first.');
       }
-      if (value) localStorage.setItem('hero-cover', value);
-      else localStorage.removeItem('hero-cover');
+      
+      if (value) {
+        localStorage.setItem('hero-cover', value);
+      } else {
+        localStorage.removeItem('hero-cover');
+      }
+      window.dispatchEvent(new CustomEvent('settings-updated', { detail: { key: 'hero-cover' } }));
       
       setTimeout(() => setIsSaving(false), 1000);
     } catch (error) {
+      console.error('Firestore cover write failed. Falling back to local storage.', error);
       handleFirestoreError(error, OperationType.WRITE, `settings/${SETTING_ID}`);
+      
+      // Fallback: Save local anyway so it works in browser immediately
+      if (value) {
+        localStorage.setItem('hero-cover', value);
+      } else {
+        localStorage.removeItem('hero-cover');
+      }
+      window.dispatchEvent(new CustomEvent('settings-updated', { detail: { key: 'hero-cover' } }));
       setIsSaving(false);
     }
   };

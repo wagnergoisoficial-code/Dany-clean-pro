@@ -7,9 +7,7 @@ export function useSetting(settingId: string, defaultValue: string | null = null
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // If db is mocked/empty, don't try to use it
-    if (!isFirebaseReady()) {
-      // Fallback logic
+    const fetchLocal = () => {
       const legacyKey = settingId === 'app_logo' ? 'app-logo' : 
                        settingId === 'hero_cover' ? 'hero-cover' : null;
       if (legacyKey) {
@@ -17,31 +15,51 @@ export function useSetting(settingId: string, defaultValue: string | null = null
         if (saved) setValue(saved);
       }
       setLoading(false);
-      return;
+    };
+
+    // Listen for local storage changes (from other tabs or same tab via custom event)
+    const handleStorageChange = (e: StorageEvent | CustomEvent) => {
+      const key = e instanceof StorageEvent ? e.key : (e as any).detail?.key;
+      const legacyKey = settingId === 'app_logo' ? 'app-logo' : 
+                       settingId === 'hero_cover' ? 'hero-cover' : null;
+      
+      if (key === legacyKey) {
+        fetchLocal();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('settings-updated' as any, handleStorageChange);
+    
+    let unsubscribe: (() => void) | undefined;
+
+    // If db is ready, try to subscribe
+    if (isFirebaseReady()) {
+      const docRef = doc(db, 'settings', settingId);
+      
+      // Use onSnapshot for real-time updates
+      unsubscribe = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          setValue(docSnap.data().value);
+        } else {
+          // Fallback to localStorage for legacy or if doc doesn't exist yet
+          fetchLocal();
+        }
+        setLoading(false);
+      }, (error) => {
+        handleFirestoreError(error, OperationType.GET, `settings/${settingId}`);
+        // Even on error, try to load from local
+        fetchLocal();
+      });
+    } else {
+      fetchLocal();
     }
 
-    const docRef = doc(db, 'settings', settingId);
-    
-    // Use onSnapshot for real-time updates
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setValue(docSnap.data().value);
-      } else {
-        // Fallback to localStorage for legacy or if doc doesn't exist yet
-        const legacyKey = settingId === 'app_logo' ? 'app-logo' : 
-                         settingId === 'hero_cover' ? 'hero-cover' : null;
-        if (legacyKey) {
-          const saved = localStorage.getItem(legacyKey);
-          if (saved) setValue(saved);
-        }
-      }
-      setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, `settings/${settingId}`);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('settings-updated' as any, handleStorageChange);
+      if (unsubscribe) unsubscribe();
+    };
   }, [settingId]);
 
   return { value, loading };

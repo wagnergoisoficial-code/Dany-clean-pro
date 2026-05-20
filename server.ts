@@ -617,6 +617,32 @@ app.post("/api/leads", async (req, res) => {
   }
 });
 
+// Settings Save Route
+app.post("/api/settings/save", authenticate, async (req, res) => {
+  const { settingId, value } = req.body;
+  if (!settingId) {
+    return res.status(400).json({ error: "Missing settingId" });
+  }
+  if (settingId !== "app_logo") {
+    return res.status(403).json({ error: "Unauthorized settingId" });
+  }
+
+  try {
+    const firestore = getFirestore();
+    if (!firestore) {
+      return res.status(500).json({ error: "Firestore database is not configured or ready on the server." });
+    }
+
+    const docRef = firestore.collection("settings").doc(settingId);
+    await docRef.set({ value });
+    console.log(`[Firestore] Successfully saved status for setting: ${settingId}`);
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error(`[Firestore Error] Failed to save setting ${settingId}:`, err);
+    res.status(500).json({ error: "Failed to save setting: " + err.message });
+  }
+});
+
 app.get("/api/admin/leads", authenticate, (req, res) => {
   const leads = db.prepare("SELECT id, name, email, phone, city, zip_code, service_type, bedrooms, bathrooms, preferred_date, message, status, created_at as createdAt FROM leads ORDER BY created_at DESC").all();
   res.json(leads);

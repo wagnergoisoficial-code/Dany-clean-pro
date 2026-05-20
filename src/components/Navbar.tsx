@@ -46,20 +46,16 @@ export default function Navbar() {
     >
       <Container>
         <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg overflow-hidden border-2 border-white shadow-xl shadow-blue-600/10 transition-transform group-hover:scale-110">
+          <Link to="/" className="flex items-center group py-1">
+            <div className="flex items-center justify-center transition-transform group-hover:scale-105">
               {appLogo ? (
-                <img src={appLogo} alt="Logo" className="w-full h-full object-cover" />
+                <img src={appLogo} alt="Logo" className="h-12 md:h-14 w-auto object-contain" />
               ) : (
-                "D"
+                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl overflow-hidden border-2 border-white shadow-xl shadow-blue-600/10">
+                  D
+                </div>
               )}
             </div>
-            <span className={cn(
-              "font-display font-bold text-xl tracking-tight leading-none transition-colors",
-              isScrolled ? "text-slate-900" : "text-slate-900" 
-            )}>
-              Dany Clean <span className="text-blue-600">Pro</span>
-            </span>
           </Link>
 
           {/* Desktop Nav */}

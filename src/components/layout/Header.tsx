@@ -42,14 +42,8 @@ export default function Header() {
       <Container>
         <div className="flex items-center justify-between">
           {/* Logo & Identity */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center">
             <Logo />
-            <div className="hidden sm:block">
-              <span className="block font-display font-bold text-xl tracking-tight text-slate-900 leading-none">
-                Dany Clean <span className="text-blue-600">Pro</span>
-              </span>
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1">Premium Network</span>
-            </div>
           </div>
 
           {/* Desktop Navigation */}
