@@ -94,41 +94,6 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
                  window.location.hostname.includes('netlify.app') ||
                  window.location.hostname.includes('run.app');
 
-  // Reusable local upload helper
-  const performLocalUploadFallback = async (file: File): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64Str = reader.result as string;
-        try {
-          const response = await fetch('/api/admin/upload', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${auth?.token || ''}`
-            },
-            body: JSON.stringify({
-              base64: base64Str,
-              filename: file.name
-            })
-          });
-          
-          if (!response.ok) {
-            const data = await response.json().catch(() => ({}));
-            throw new Error(data.error || 'Server rejected file upload.');
-          }
-          
-          const result = await response.json();
-          resolve(result.url);
-        } catch (innerErr: any) {
-          reject(new Error(innerErr.message || 'Server upload failed.'));
-        }
-      };
-      reader.onerror = () => reject(new Error('Failed to read file on the device.'));
-      reader.readAsDataURL(file);
-    });
-  };
-
   // Synchronous conversion of base64 to Blob without network fetch, bypassing any sandboxed iframe blocks
   const base64ToBlobSync = (base64DataUrl: string): Blob => {
     try {
@@ -160,7 +125,18 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
     }
   };
 
-  // Unified safe single upload helper targeting Firebase Storage or Node.js disk
+  // Helper to race promises against a timeout to prevent silent loops or infinite loading states
+  const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> => {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        const timer = setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+        promise.finally(() => clearTimeout(timer));
+      })
+    ]);
+  };
+
+  // Unified safe single upload helper targeting Firebase Storage (Required for all environments)
   const uploadSingleFileToStorageOrLocal = async (file: File, category: string): Promise<string> => {
     if (!file.type.startsWith('image/')) {
       throw new Error('Apenas arquivos de imagem são permitidos.');
@@ -180,65 +156,48 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
     // Compress using top-notch helper
     const compressedBase64 = await compressImage(base64, 1200, 0.75);
 
-    // Prioritized Firebase Storage uploads (Production & Client-side Environments like Netlify)
     if (isFirebaseReady() && storage) {
       const currentFbUser = firebaseUser || firebaseAuth?.currentUser;
       if (currentFbUser) {
-        try {
-          const emailLower = currentFbUser.email?.toLowerCase();
-          if (emailLower && allowedEmails.includes(emailLower)) {
+        const emailLower = currentFbUser.email?.toLowerCase();
+        if (emailLower && allowedEmails.includes(emailLower)) {
+          try {
             // Safe synchronous base64-to-blob conversion (iframe-friendly fallback)
             const compressedBlob = base64ToBlobSync(compressedBase64);
             const safeFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
             const imgRef = storageRef(storage, `gallery/${category}/${Date.now()}-${safeFileName}`);
             
-            const snapshot = await uploadBytes(imgRef, compressedBlob);
-            const downloadUrl = await getDownloadURL(snapshot.ref);
+            // Added real-time timeout defense against network hangs or CORS blocks in iframe/mobile contexts
+            const snapshot = await withTimeout(
+              uploadBytes(imgRef, compressedBlob),
+              25000,
+              'O envio do arquivo para o Firebase Storage excedeu o tempo limite de 25 segundos. Verifique sua conexão.'
+            );
+            
+            const downloadUrl = await withTimeout(
+              getDownloadURL(snapshot.ref),
+              15000,
+              'O resgate do link público do arquivo excedeu o tempo limite de 15 segundos.'
+            );
+
             if (downloadUrl) {
               console.log('Firebase storage upload successful:', downloadUrl);
               return downloadUrl;
+            } else {
+              throw new Error('Não foi possível obter a URL pública para a foto enviada.');
             }
-          } else {
-            console.warn('Firebase user email is not authorized for firebase storage uploads:', emailLower);
+          } catch (storageErr: any) {
+            console.error('Firebase storage upload failed:', storageErr);
+            throw new Error(`Falha no upload para o Storage: ${storageErr.message || 'Sem permissões completas'}`);
           }
-        } catch (storageErr: any) {
-          console.error('Firebase storage upload failed; fallback to Node server if local:', storageErr);
-          // If we're strictly on Netlify/Production where the server isn't available, fail fast with a clear explanation
-          if (isProd) {
-            throw new Error(`Falha no upload para o Storage: ${storageErr.message || 'Sem permissões adequadas'}`);
-          }
+        } else {
+          throw new Error(`O e-mail conectado (${emailLower}) não possui permissão administrativa no Firebase Storage.`);
         }
       } else {
-        console.log('Unauthenticated in Firebase Auth. Trying local server api if available.');
-        if (isProd) {
-          throw new Error('Autenticação Firebase necessária. Conecte sua conta administrativa para enviar.');
-        }
+        throw new Error('Para salvar fotos no portfólio, você precisa conectar seu Google Admin primeiro. Por favor, clique no botão azul "Conectar Google Admin" acima para autenticar.');
       }
-    }
-
-    // High reliability Node.js backend upload direct flow (Authorized via Admin Token) - Bypasses Firebase Storage to avoid iframe hangs and CORS blocks
-    try {
-      const response = await fetch('/api/admin/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth?.token || ''}`
-        },
-        body: JSON.stringify({
-          base64: compressedBase64,
-          filename: file.name
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Server rejected file upload.');
-      }
-      
-      const result = await response.json();
-      return result.url;
-    } catch (innerErr: any) {
-      throw new Error(innerErr.message || 'Falha ao salvar imagem no servidor.');
+    } else {
+      throw new Error('O sistema de arquivos em nuvem (Firebase Storage) não está inicializado ou configurado na sua plataforma.');
     }
   };
 
@@ -270,15 +229,20 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
         let firestoreSuccess = false;
         if (isFirebaseReady()) {
           try {
-            await addDoc(collection(db, 'gallery'), {
-              url: trimmedUrl,
-              title: trimmedTitle,
-              category: trimmedCategory,
-              createdAt: serverTimestamp()
-            });
+            // Protected Firestore writes with safety timeout to prevent spinner hanging on connection loss
+            await withTimeout(
+              addDoc(collection(db, 'gallery'), {
+                url: trimmedUrl,
+                title: trimmedTitle,
+                category: trimmedCategory,
+                createdAt: serverTimestamp()
+              }),
+              15000,
+              'O registro da imagem no banco de dados Firestore excedeu o tempo limite de 15 segundos.'
+            );
             firestoreSuccess = true;
-          } catch (fireErr) {
-            console.warn('Silent fallback to SQLite database');
+          } catch (fireErr: any) {
+            console.warn('Silent fallback to SQLite database or Firestore timeout:', fireErr?.message || fireErr);
           }
         }
 
