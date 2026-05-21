@@ -85,13 +85,13 @@ export default function Header() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             }}
-            className="flex items-center"
+            className="flex items-center shrink-0"
           >
             <Logo />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center lg:gap-4 xl:gap-6 2xl:gap-8 flex-nowrap shrink-0">
             {navLinks.map((link) => (
               <a 
                 key={link.name} 
@@ -102,10 +102,10 @@ export default function Header() {
                 {link.name}
               </a>
             ))}
-            <div className="h-4 w-px bg-slate-200" />
+            <div className="h-4 w-px bg-slate-200 shrink-0" />
             
             {/* Contact Links */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center lg:gap-3 xl:gap-6 shrink-0">
               <a 
                 href={`tel:${businessPhone.replace(/\D/g, '')}`} 
                 onClick={triggerAICall}
