@@ -180,6 +180,42 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
     // Compress using top-notch helper
     const compressedBase64 = await compressImage(base64, 1200, 0.75);
 
+    // Prioritized Firebase Storage uploads (Production & Client-side Environments like Netlify)
+    if (isFirebaseReady() && storage) {
+      const currentFbUser = firebaseUser || firebaseAuth?.currentUser;
+      if (currentFbUser) {
+        try {
+          const emailLower = currentFbUser.email?.toLowerCase();
+          if (emailLower && allowedEmails.includes(emailLower)) {
+            // Safe synchronous base64-to-blob conversion (iframe-friendly fallback)
+            const compressedBlob = base64ToBlobSync(compressedBase64);
+            const safeFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+            const imgRef = storageRef(storage, `gallery/${category}/${Date.now()}-${safeFileName}`);
+            
+            const snapshot = await uploadBytes(imgRef, compressedBlob);
+            const downloadUrl = await getDownloadURL(snapshot.ref);
+            if (downloadUrl) {
+              console.log('Firebase storage upload successful:', downloadUrl);
+              return downloadUrl;
+            }
+          } else {
+            console.warn('Firebase user email is not authorized for firebase storage uploads:', emailLower);
+          }
+        } catch (storageErr: any) {
+          console.error('Firebase storage upload failed; fallback to Node server if local:', storageErr);
+          // If we're strictly on Netlify/Production where the server isn't available, fail fast with a clear explanation
+          if (isProd) {
+            throw new Error(`Falha no upload para o Storage: ${storageErr.message || 'Sem permissões adequadas'}`);
+          }
+        }
+      } else {
+        console.log('Unauthenticated in Firebase Auth. Trying local server api if available.');
+        if (isProd) {
+          throw new Error('Autenticação Firebase necessária. Conecte sua conta administrativa para enviar.');
+        }
+      }
+    }
+
     // High reliability Node.js backend upload direct flow (Authorized via Admin Token) - Bypasses Firebase Storage to avoid iframe hangs and CORS blocks
     try {
       const response = await fetch('/api/admin/upload', {
@@ -585,11 +621,23 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
               <p className="text-[11px] text-slate-500">Selecione fotos da galeria do seu celular ou do seu notebook</p>
             </div>
           </div>
-          {firebaseUser && (
+          {firebaseUser ? (
             <div className="flex items-center gap-2 text-xs text-emerald-600 font-bold bg-emerald-50/50 px-3 py-1.5 rounded-full border border-emerald-100 shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               Google Auth: {firebaseUser.email}
             </div>
+          ) : (
+            <button
+              onClick={handleGoogleSignIn}
+              type="button"
+              className="flex items-center gap-2 text-xs text-blue-600 font-bold bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full border border-blue-100 shadow-sm cursor-pointer transition-all active:scale-95"
+            >
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-3.5 h-3.5" />
+              Conectar Google Admin
+            </button>
+          )}
+          {googleAuthError && (
+            <p className="text-xs text-red-500 font-semibold w-full text-right mt-1">{googleAuthError}</p>
           )}
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start mb-6">
           <div className="space-y-2">
