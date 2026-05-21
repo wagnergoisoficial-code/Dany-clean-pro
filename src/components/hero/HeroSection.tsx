@@ -25,7 +25,7 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="relative pt-24 pb-20 lg:pt-48 lg:pb-32 bg-white overflow-hidden">
+    <section className="relative pt-28 pb-20 lg:pt-52 lg:pb-32 bg-white overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute top-0 right-0 w-[60%] h-full bg-blue-50/30 -z-10 rounded-l-[5rem] lg:rounded-l-[10rem]" />
       <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-50/50 rounded-full blur-[100px] -z-10" />
@@ -45,13 +45,14 @@ export default function HeroSection() {
                Premium Connecticut Service
             </div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-8xl font-display font-bold text-slate-900 leading-[1.05] mb-8 tracking-tighter">
-              A Clean Home <br />
-              Starting <span className="text-blue-600">Today.</span>
+            <h1 className="text-4xl md:text-6xl lg:text-[5.5rem] font-display font-black text-slate-900 leading-[1.08] mb-8 tracking-tight">
+              A Cleaner Home. <br />
+              <span className="text-blue-600">A Calmer Life.</span>
             </h1>
             
             <p className="text-lg lg:text-xl text-slate-500 mb-12 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              We connect you with the top-rated cleaning professionals in Fairfield and New Haven counties. Simple booking, spotless results.
+              <span className="text-slate-900 font-extrabold block mb-2">Premium home cleaning trusted by Connecticut families.</span>
+              Reliable professionals, flexible scheduling, and spotless results without the stress.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
@@ -59,17 +60,17 @@ export default function HeroSection() {
                 href="#quote" 
                 className="w-full sm:w-auto bg-blue-600 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.1em] text-sm hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98] flex items-center justify-center gap-3"
               >
-                Instant Quote <ArrowRight size={18} />
+                GET MY FREE ESTIMATE <ArrowRight size={18} />
               </a>
               <div className="flex -space-x-3 items-center">
                  {[1, 2, 3, 4].map(i => (
-                   <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
-                      <img src={`https://i.pravatar.cc/100?img=${i+40}`} alt="Rating User" />
-                   </div>
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
+                       <img src={`https://i.pravatar.cc/100?img=${i+44}`} alt="Rating User" />
+                    </div>
                  ))}
                  <div className="pl-6">
                     <p className="text-[13px] font-bold text-slate-900">4.9/5 Rating</p>
-                    <p className="text-[10px] font-black text-slate-400 uppercase">Over 1,200 Reviews</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase">Trusted by 1,200+ Connecticut Families</p>
                  </div>
               </div>
             </div>
@@ -91,45 +92,13 @@ export default function HeroSection() {
             transition={{ duration: 1, delay: 0.2 }}
             className="flex-1 relative w-full mb-8 lg:mb-0"
           >
-            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] lg:rounded-[5.5rem] overflow-hidden shadow-2xl z-10 border-[8px] lg:border-[16px] border-white bg-slate-100 flex items-center justify-center">
-              {heroCover && !isImageError ? (
-                <img 
-                  src={heroCover} 
-                  alt="Spotless home environment" 
-                  onError={handleImageError}
-                  className="w-full h-full object-cover transition-all duration-700"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-700 flex flex-col items-center justify-center p-12 text-center text-white relative overflow-hidden">
-                  {/* Decorative pattern for the fallback */}
-                  <div 
-                    className="absolute inset-0 opacity-10 pointer-events-none" 
-                    style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} 
-                  />
-                  
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="w-24 h-24 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-8 shadow-inner"
-                  >
-                     <ShieldCheck size={48} className="text-white" />
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                  >
-                    <h3 className="text-3xl font-display font-bold mb-4 tracking-tight">Professional Home Cleaning</h3>
-                    <p className="text-blue-100 font-medium max-w-[280px]">Premium service delivering spotless results to every corner of your home.</p>
-                  </motion.div>
-                  
-                  {/* Floating elements inside fallback */}
-                  <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-                  <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl" />
-                </div>
-              )}
+            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] lg:rounded-[5.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(30,41,59,0.18)] z-10 border-[8px] lg:border-[16px] border-white bg-slate-100 flex items-center justify-center group">
+              <img 
+                src={(heroCover && !isImageError) ? heroCover : "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1200"} 
+                alt="Luxury kitchen professionally cleaned and organized" 
+                onError={handleImageError}
+                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
               
               {/* Floating Quality Card */}

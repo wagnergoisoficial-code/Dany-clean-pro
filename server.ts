@@ -13,8 +13,8 @@ const app = express();
 const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "dany-clean-pro-secret-key-2024";
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // --- API ROUTES ---
 
@@ -623,7 +623,7 @@ app.post("/api/settings/save", authenticate, async (req, res) => {
   if (!settingId) {
     return res.status(400).json({ error: "Missing settingId" });
   }
-  if (settingId !== "app_logo") {
+  if (settingId !== "app_logo" && settingId !== "hero_cover" && settingId !== "about_section_image") {
     return res.status(403).json({ error: "Unauthorized settingId" });
   }
 

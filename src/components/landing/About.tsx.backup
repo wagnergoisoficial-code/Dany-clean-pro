@@ -1,24 +1,8 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { CheckCircle2, Award, Users, Heart } from 'lucide-react';
 import Container from '../ui/Container';
-import { useSetting } from '../../lib/settings';
 
 export default function About() {
-  const { value: customImage } = useSetting('about_section_image');
-  const [isImageError, setIsImageError] = useState(false);
-
-  useEffect(() => {
-    setIsImageError(false);
-  }, [customImage]);
-
-  const fallbackImage = "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1200";
-  const displayImage = (customImage && !isImageError) ? customImage : fallbackImage;
-
-  const handleImageError = () => {
-    setIsImageError(true);
-  };
-
   return (
     <section id="about" className="py-32 bg-white overflow-hidden">
       <Container>
@@ -27,25 +11,13 @@ export default function About() {
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="relative w-full max-w-[540px] mx-auto lg:max-w-none"
+            className="relative"
           >
-            <div className="relative z-10 w-full aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-slate-900 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.12)] border border-slate-100 flex items-center justify-center">
-              {/* Stable Fallback Loader/Background Pattern to avoid cumulative layout shift (CLS) */}
-              <div className="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/20 mb-3">
-                  <Award size={24} />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Dany Clean Pro Excellence</span>
-              </div>
-
-              {/* High-fidelity Image layer with load-in properties */}
+            <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)]">
               <img 
-                src={displayImage} 
+                src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1200" 
                 alt="Luxury kitchen professionally cleaned and organized" 
-                onError={handleImageError}
-                referrerPolicy="no-referrer"
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-105"
+                className="w-full aspect-[4/5] object-cover"
               />
             </div>
             <div className="absolute -bottom-10 -right-10 w-56 h-56 bg-slate-900 rounded-[2.5rem] flex items-center justify-center p-8 text-white z-20 shadow-2xl hidden md:flex">

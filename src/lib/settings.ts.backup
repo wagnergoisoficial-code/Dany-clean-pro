@@ -9,8 +9,7 @@ export function useSetting(settingId: string, defaultValue: string | null = null
   useEffect(() => {
     const fetchLocal = () => {
       const legacyKey = settingId === 'app_logo' ? 'app-logo' : 
-                       settingId === 'hero_cover' ? 'hero-cover' : 
-                       settingId === 'about_section_image' ? 'about-section-image' : null;
+                       settingId === 'hero_cover' ? 'hero-cover' : null;
       if (legacyKey) {
         const saved = localStorage.getItem(legacyKey);
         if (saved) setValue(saved);
@@ -22,8 +21,7 @@ export function useSetting(settingId: string, defaultValue: string | null = null
     const handleStorageChange = (e: StorageEvent | CustomEvent) => {
       const key = e instanceof StorageEvent ? e.key : (e as any).detail?.key;
       const legacyKey = settingId === 'app_logo' ? 'app-logo' : 
-                       settingId === 'hero_cover' ? 'hero-cover' : 
-                       settingId === 'about_section_image' ? 'about-section-image' : null;
+                       settingId === 'hero_cover' ? 'hero-cover' : null;
       
       if (key === legacyKey) {
         fetchLocal();
