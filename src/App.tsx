@@ -102,7 +102,8 @@ export default function App() {
     });
   }, []);
 
-  const isAdminByEmail = fbUser?.email?.toLowerCase() === 'wagnergoisoficial@gmail.com';
+  const allowedEmails = ['wagnergoisoficial@gmail.com', 'danycleanenpro@gmail.com'];
+  const isAdminByEmail = fbUser?.email && allowedEmails.includes(fbUser.email.toLowerCase());
   const hasAccess = isAdminByEmail || !!auth.token;
 
   if (fbLoading) {

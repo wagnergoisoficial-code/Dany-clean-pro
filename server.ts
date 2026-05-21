@@ -204,10 +204,20 @@ async function notifyAutomation(leadData: any) {
 let db: Database.Database;
 let dbInitError: string | null = null;
 
-function initDb() {
+function initDb(retryCount = 0) {
+  const dbPath = "database.db";
   try {
-    db = new Database("database.db");
-    console.log("Database connected successfully.");
+    db = new Database(dbPath);
+    console.log("Database file opened. Performing integrity check...");
+    
+    // Quick test query to verify read/write works and look for disk image corruption
+    try {
+      db.pragma("integrity_check");
+    } catch (pingErr) {
+      console.warn("Database integrity probe failed:", pingErr);
+      throw pingErr;
+    }
+
     dbInitError = null;
 
     // Simple schema setup
@@ -318,10 +328,44 @@ function initDb() {
       initialGallery.forEach(img => stmt.run(img.url, img.title, img.category));
       console.log("Initial gallery seeded.");
     }
-  } catch (err) {
+  } catch (err: any) {
+    const errMsg = err?.message || String(err);
     console.error("CRITICAL: Database initialization failed:", err);
-    dbInitError = err instanceof Error ? err.message : String(err);
-    // Continue anyway to avoid total crash, though some features will break
+    
+    const isMalformed = errMsg.includes("malformed") || errMsg.includes("disk image") || errMsg.includes("corrupt");
+    if (isMalformed && retryCount < 1) {
+      console.warn(`Database file '${dbPath}' is detected as malformed or corrupt. Attempting automatic recovery (try ${retryCount + 1})...`);
+      try {
+        if (db) {
+          try { db.close(); } catch (_) {}
+        }
+      } catch (_) {}
+      
+      try {
+        if (fs.existsSync(dbPath)) {
+          const corruptedPath = `${dbPath}.corrupted-${Date.now()}`;
+          fs.renameSync(dbPath, corruptedPath);
+          console.warn(`Successfully archived corrupted DB files to '${corruptedPath}'. Creating a fresh database...`);
+        }
+        initDb(retryCount + 1);
+        return;
+      } catch (recoveryErr) {
+        console.error("Failed to rename corrupt database file. Retrying with deletion...", recoveryErr);
+        try {
+          if (fs.existsSync(dbPath)) {
+            fs.unlinkSync(dbPath);
+            console.warn(`Removed corrupted database file. Reinitializing...`);
+          }
+          initDb(retryCount + 1);
+          return;
+        } catch (unlinkErr) {
+          console.error("Deep failure: could not delete corrupt database file", unlinkErr);
+          dbInitError = unlinkErr instanceof Error ? unlinkErr.message : String(unlinkErr);
+        }
+      }
+    } else {
+      dbInitError = errMsg;
+    }
   }
 }
 
@@ -723,6 +767,47 @@ app.post("/api/admin/upload", authenticate, (req, res) => {
   } catch (err: any) {
     console.error("Local upload system error:", err);
     res.status(500).json({ error: "Local file-upload sequence failed" });
+  }
+});
+
+// Secure download proxy to circumvent browser CORS & storage invalid tokens
+app.get("/api/gallery/download", async (req, res) => {
+  try {
+    const { url, title } = req.query;
+    if (!url) {
+      return res.status(400).json({ error: "Missing url parameter" });
+    }
+    
+    const urlStr = String(url);
+    if (urlStr.startsWith("/uploads/")) {
+      const safeFilename = path.basename(urlStr);
+      const filePath = path.join(uploadDir, safeFilename);
+      if (fs.existsSync(filePath)) {
+        const ext = path.extname(safeFilename) || ".jpg";
+        const cleanTitle = (String(title || "image")).trim().replace(/[^a-zA-Z0-9]/g, "_") || "image";
+        res.setHeader("Content-Disposition", `attachment; filename="${cleanTitle}${ext}"`);
+        return res.sendFile(filePath);
+      }
+    }
+
+    const response = await fetch(urlStr);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch remote resource: ${response.status}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    const fileExt = urlStr.split('.').pop()?.split('?')[0] || 'jpg';
+    const safeTitle = (String(title || "image")).trim().replace(/[^a-zA-Z0-9]/g, "_") || "image";
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", `attachment; filename="${safeTitle}.${fileExt}"`);
+    res.send(buffer);
+  } catch (err: any) {
+    console.error("Download proxy operation error, redirecting to raw URL:", err);
+    res.redirect(String(req.query.url));
   }
 });
 

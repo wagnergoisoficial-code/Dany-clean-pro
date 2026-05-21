@@ -27,7 +27,8 @@ export function useAdminAuth() {
     await signOut(auth);
   };
 
-  const isAdmin = user?.email?.toLowerCase() === 'wagnergoisoficial@gmail.com';
+  const allowedEmails = ['wagnergoisoficial@gmail.com', 'danycleanenpro@gmail.com'];
+  const isAdmin = user?.email && allowedEmails.includes(user.email.toLowerCase());
 
   return { user, login, logout, loading, isAdmin };
 }
