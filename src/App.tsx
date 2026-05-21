@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import Layout from './components/Layout';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import { AuthState } from './types';
 import { auth as firebaseAuth } from './lib/firebase';
 import AIVoiceCall from './components/AIVoiceCall';
@@ -118,6 +119,7 @@ export default function App() {
             {/* Public Routes */}
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             </Route>
             
             {/* Private Admin Routes */}

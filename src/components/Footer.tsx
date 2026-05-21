@@ -77,7 +77,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-slate-900 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
           <p>© 2024 Dany Clean Pro. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-white">Privacy Policy</a>
+            <Link to="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
             <a href="#" className="hover:text-white">Terms of Service</a>
             
             {/* Admin Authentication */}
