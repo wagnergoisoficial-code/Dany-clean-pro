@@ -6,17 +6,51 @@ import Container from '../ui/Container';
 import Logo from '../ui/Logo';
 import { useSetting } from '../../lib/settings';
 import { useConfig } from '../../hooks/useConfig';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { value: heroCover } = useSetting('hero_cover');
   const { businessPhone } = useConfig();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const triggerAICall = (e: React.MouseEvent) => {
     // We allow the default action (making the call) 
     // while still triggering the AI overlay for multi-modal context.
     window.dispatchEvent(new CustomEvent('trigger-ai-call'));
+  };
+
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setIsOpen(false);
+    
+    if (href === '/') {
+      if (location.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    if (location.pathname !== '/') {
+      navigate('/' + href);
+    } else {
+      const id = href.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        const headerOffset = 90;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }
   };
 
   useEffect(() => {
@@ -26,6 +60,7 @@ export default function Header() {
   }, []);
 
   const navLinks = [
+    { name: 'Home', href: '/' },
     { name: 'Services', href: '#services' },
     { name: 'About', href: '#about' },
     { name: 'Gallery', href: '#gallery' },
@@ -42,9 +77,18 @@ export default function Header() {
       <Container>
         <div className="flex items-center justify-between">
           {/* Logo & Identity */}
-          <div className="flex items-center">
+          <Link 
+            to="/" 
+            onClick={(e) => {
+              if (location.pathname === '/') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+            className="flex items-center"
+          >
             <Logo />
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
@@ -52,6 +96,7 @@ export default function Header() {
               <a 
                 key={link.name} 
                 href={link.href} 
+                onClick={(e) => handleLinkClick(e, link.href)}
                 className="text-xs font-black uppercase tracking-[0.15em] text-slate-500 hover:text-blue-600 transition-colors"
               >
                 {link.name}
@@ -144,7 +189,7 @@ export default function Header() {
                   <a 
                     key={link.name} 
                     href={link.href}
-                    onClick={() => setIsOpen(false)}
+                    onClick={(e) => handleLinkClick(e, link.href)}
                     className="flex items-center justify-between group"
                   >
                     <span className="text-xl font-bold text-slate-900">{link.name}</span>

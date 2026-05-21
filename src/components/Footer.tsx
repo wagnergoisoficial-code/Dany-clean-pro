@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import Container from './ui/Container';
 import { useAdminAuth } from '../lib/auth';
 import { useConfig } from '../hooks/useConfig';
+import { useSetting } from '../lib/settings';
 
 export default function Footer() {
   const { user, login, logout, isAdmin } = useAdminAuth();
   const { businessPhone } = useConfig();
+  const { value: appLogo } = useSetting('app_logo');
 
   const triggerAICall = (e: React.MouseEvent) => {
     // allow native action while triggering internal event
@@ -22,10 +24,16 @@ export default function Footer() {
       <Container>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">D</div>
-              <span className="text-white font-bold text-xl">Dany Clean <span className="text-blue-500">Pro</span></span>
-            </div>
+            <Link to="/" className="flex items-center gap-2 group">
+              {appLogo ? (
+                <img src={appLogo} alt="Dany Clean Pro Logo" className="h-12 md:h-14 w-auto object-contain transition-transform group-hover:scale-105" />
+              ) : (
+                <div className="flex items-center gap-2 transition-transform group-hover:scale-105">
+                  <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">D</div>
+                  <span className="text-white font-bold text-xl">Dany Clean <span className="text-blue-500">Pro</span></span>
+                </div>
+              )}
+            </Link>
             <p className="text-sm leading-relaxed">
               Serving homes and businesses in Connecticut with professional, family-focused cleaning since 2014. Quality you can trust, prices you can afford.
             </p>

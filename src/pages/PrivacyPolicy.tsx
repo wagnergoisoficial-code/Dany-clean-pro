@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
+import { Link } from 'react-router-dom';
 import Container from '../components/ui/Container';
 import { 
   Shield, 
@@ -71,6 +72,12 @@ export default function PrivacyPolicy() {
 
         <Container className="relative z-10">
           <div className="max-w-3xl">
+            <Link 
+              to="/" 
+              className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest mb-8 group"
+            >
+              <span className="transition-transform group-hover:-translate-x-1">←</span> Back to Home Page
+            </Link>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full text-xs font-semibold mb-6">
               <Shield size={12} />
               <span>Dany Clean Pro Security & Client Trust</span>

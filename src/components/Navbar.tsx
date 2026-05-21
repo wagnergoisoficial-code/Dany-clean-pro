@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, MessageSquare, MapPin, Clock, LayoutDashboard, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -13,6 +13,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, isAdmin } = useAdminAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { value: appLogo } = useSetting('app_logo');
   const { businessPhone } = useConfig();
 
@@ -20,6 +21,37 @@ export default function Navbar() {
     // We allow the default action (making the call) 
     // while still triggering the AI overlay for multi-modal context.
     window.dispatchEvent(new CustomEvent('trigger-ai-call'));
+  };
+
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setIsOpen(false);
+    
+    if (href === '/') {
+      if (location.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    if (location.pathname !== '/') {
+      navigate('/' + href);
+    } else {
+      const id = href.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        const headerOffset = 90;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }
   };
 
   useEffect(() => {
@@ -31,6 +63,7 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
+    { name: 'Home', href: '/' },
     { name: 'Services', href: '#services' },
     { name: 'About', href: '#about' },
     { name: 'Gallery', href: '#gallery' },
@@ -46,7 +79,16 @@ export default function Navbar() {
     >
       <Container>
         <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center group py-1">
+          <Link 
+            to="/" 
+            onClick={(e) => {
+              if (location.pathname === '/') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+            className="flex items-center group py-1"
+          >
             <div className="flex items-center justify-center transition-transform group-hover:scale-105">
               {appLogo ? (
                 <img src={appLogo} alt="Logo" className="h-12 md:h-14 w-auto object-contain" />
@@ -64,6 +106,7 @@ export default function Navbar() {
               <a 
                 key={link.name} 
                 href={link.href}
+                onClick={(e) => handleLinkClick(e, link.href)}
                 className="text-[13px] font-bold text-slate-600 transition-colors hover:text-blue-600 uppercase tracking-wider"
               >
                 {link.name}
@@ -132,7 +175,7 @@ export default function Navbar() {
                     key={link.name} 
                     href={link.href}
                     className="block text-slate-900 font-bold text-lg"
-                    onClick={() => setIsOpen(false)}
+                    onClick={(e) => handleLinkClick(e, link.href)}
                   >
                     {link.name}
                   </a>
