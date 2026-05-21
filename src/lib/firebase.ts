@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 // Helper to get config value from environment variables
 // Helper to clean environment variables (removes quotes and spaces)
@@ -37,6 +38,7 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 let app: any;
 let db: any;
 let auth: any;
+let storage: any;
 
 // Helper to check if we are truly connected
 export const isFirebaseReady = () => {
@@ -51,6 +53,7 @@ try {
     // However, our code MUST respect the environment variable if it exists.
     db = getFirestore(app, dbId);
     auth = getAuth(app);
+    storage = getStorage(app);
     console.log("Firebase initialized with project:", firebaseConfig.projectId, "and DB:", dbId || '(default)');
   } else {
     throw new Error("Firebase config missing API Key or Project ID");
@@ -72,9 +75,14 @@ try {
     signOut: async () => {},
     currentUser: null
   } as any;
+  storage = {
+    ref: () => ({}),
+    uploadBytes: async () => ({}),
+    getDownloadURL: async () => ''
+  } as any;
 }
 
-export { db, auth };
+export { db, auth, storage };
 
 // Validation check
 async function testConnection() {

@@ -150,7 +150,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="admin"
+                    placeholder="Enter your username"
                     className="w-full pl-14 pr-5 py-4 rounded-2xl bg-slate-50/50 border border-slate-100 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all font-medium text-slate-900"
                   />
                 </div>
@@ -165,7 +165,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="admin123"
+                    placeholder="••••••••"
                     className="w-full pl-14 pr-5 py-4 rounded-2xl bg-slate-50/50 border border-slate-100 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all font-medium text-slate-900"
                   />
                 </div>
@@ -189,10 +189,6 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest text-center">
                   <ShieldCheck size={14} className="text-green-500" /> Authorized Personnel Only
-                </div>
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Standard Credentials:</p>
-                  <p className="text-xs text-blue-600 font-mono font-bold mt-1">admin / admin123</p>
                 </div>
               </div>
             </form>

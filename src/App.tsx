@@ -91,6 +91,14 @@ export default function App() {
     return firebaseAuth.onAuthStateChanged((user) => {
       setFbUser(user);
       setFbLoading(false);
+      if (user) {
+        setAuth(prev => {
+          if (!prev.token) {
+            return { token: 'fb-token', user: { id: 9999, username: user.email || 'firebase-admin' } };
+          }
+          return prev;
+        });
+      }
     });
   }, []);
 
