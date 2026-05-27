@@ -134,10 +134,10 @@ export default function AIChatWidget() {
       }
 
       const data = await response.json();
-      const responseText = data.reply || `Please call us at ${businessPhone} for assistance!`;
+      const responseText = data.reply || `Please text or call us at ${businessPhone} for instant assistance!`;
       setMessages(prev => [...prev, { role: 'assistant', content: responseText }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, I'm taking a quick break. Feel free to use our quote form or call us at ${businessPhone}!` }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, I'm taking a quick break. Feel free to use our quote form, or text or call us at ${businessPhone} for instant automated assistance!` }]);
     } finally {
       setIsLoading(false);
     }

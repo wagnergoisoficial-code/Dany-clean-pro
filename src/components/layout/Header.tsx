@@ -16,10 +16,28 @@ export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const getSmsUrl = () => {
+    const isIOS = typeof window !== 'undefined' && (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    );
+    const separator = isIOS ? '&' : '?';
+    return `sms:+12183575938${separator}body=Hi,%20I%20would%20like%20a%20cleaning%20quote.`;
+  };
+
   const triggerAICall = (e: React.MouseEvent) => {
     // We allow the default action (making the call) 
     // while still triggering the AI overlay for multi-modal context.
     window.dispatchEvent(new CustomEvent('trigger-ai-call'));
+  };
+
+  const handleSMSLaunch = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Detect mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('trigger-sms-fallback'));
+    }
   };
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -117,11 +135,16 @@ export default function Header() {
                 <span className="text-[13px] font-bold text-slate-900 line-clamp-1">{businessPhone}</span>
               </a>
 
-              <a href={`sms:${businessPhone.replace(/\D/g, '')}`} className="flex items-center gap-2 group">
+              <a 
+                href={getSmsUrl()} 
+                onClick={handleSMSLaunch}
+                className="flex items-center gap-2 group"
+                title="Send us a text message"
+              >
                 <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
                   <MessageSquare size={14} />
                 </div>
-                <span className="text-[13px] font-bold text-slate-900 hidden xl:block">SMS</span>
+                <span className="text-[13px] font-bold text-slate-900 hidden xl:block">Text Us</span>
               </a>
 
               <a href="mailto:danycleanenpro@gmail.com" className="flex items-center gap-2 group">
@@ -150,9 +173,10 @@ export default function Header() {
               <Mail size={18} />
             </a>
             <a 
-              href={`sms:${businessPhone.replace(/\D/g, '')}`} 
+              href={getSmsUrl()} 
+              onClick={handleSMSLaunch}
               className="p-2.5 rounded-xl bg-green-50 text-green-600 border border-green-100"
-              title="Text Us"
+              title="Send us a text message"
             >
               <MessageSquare size={18} />
             </a>
@@ -218,13 +242,21 @@ export default function Header() {
                   </div>
                 </a>
 
-                <a href={`sms:${businessPhone.replace(/\D/g, '')}`} className="flex items-center gap-4 p-4 rounded-2xl bg-green-50 text-green-600">
+                <a 
+                  href={getSmsUrl()} 
+                  onClick={(e) => {
+                    setIsOpen(false);
+                    handleSMSLaunch(e);
+                  }}
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-green-50 text-green-600"
+                  title="Send us a text message"
+                >
                   <div className="w-10 h-10 rounded-xl bg-green-600 text-white flex items-center justify-center">
                     <MessageSquare size={20} />
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Text Us</p>
-                    <p className="text-lg font-bold">{businessPhone}</p>
+                    <p className="text-lg font-bold">+1 (218) 357-5938</p>
                   </div>
                 </a>
 

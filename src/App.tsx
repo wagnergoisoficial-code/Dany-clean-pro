@@ -9,6 +9,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import { AuthState } from './types';
 import { auth as firebaseAuth } from './lib/firebase';
 import AIVoiceCall from './components/AIVoiceCall';
+import SMSFallbackModal from './components/SMSFallbackModal';
 import { AnimatePresence } from 'motion/react';
 import { AlertCircle } from 'lucide-react';
 
@@ -57,11 +58,19 @@ const queryClient = new QueryClient();
 
 export default function App() {
   const [isVoiceCallOpen, setIsVoiceCallOpen] = useState(false);
+  const [isSMSFallbackOpen, setIsSMSFallbackOpen] = useState(false);
 
   useEffect(() => {
     const handleTriggerCall = () => setIsVoiceCallOpen(true);
+    const handleTriggerSMS = () => setIsSMSFallbackOpen(true);
+    
     window.addEventListener('trigger-ai-call', handleTriggerCall);
-    return () => window.removeEventListener('trigger-ai-call', handleTriggerCall);
+    window.addEventListener('trigger-sms-fallback', handleTriggerSMS);
+    
+    return () => {
+      window.removeEventListener('trigger-ai-call', handleTriggerCall);
+      window.removeEventListener('trigger-sms-fallback', handleTriggerSMS);
+    };
   }, []);
   const [auth, setAuth] = useState<AuthState>(() => {
     const saved = localStorage.getItem('dany_clean_auth');
@@ -123,6 +132,7 @@ export default function App() {
         <BrowserRouter>
           <AnimatePresence>
             {isVoiceCallOpen && <AIVoiceCall onClose={() => setIsVoiceCallOpen(false)} />}
+            {isSMSFallbackOpen && <SMSFallbackModal onClose={() => setIsSMSFallbackOpen(false)} />}
           </AnimatePresence>
           <Routes>
             {/* Public Routes */}

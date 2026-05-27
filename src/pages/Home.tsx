@@ -5,6 +5,7 @@ import About from '../components/landing/About';
 import Gallery from '../components/landing/Gallery';
 import Reviews from '../components/landing/Reviews';
 import ServiceAreas from '../components/landing/ServiceAreas';
+import ContactShowcase from '../components/landing/ContactShowcase';
 import LeadForm from '../components/landing/LeadForm';
 import TrustElements from '../components/landing/TrustElements';
 import Container from '../components/ui/Container';
@@ -19,6 +20,7 @@ export default function Home() {
       <Gallery />
       <Reviews />
       <ServiceAreas />
+      <ContactShowcase />
       <section id="quote" className="py-24 bg-blue-600">
         <Container>
           <div className="grid lg:grid-cols-2 gap-12 items-center">

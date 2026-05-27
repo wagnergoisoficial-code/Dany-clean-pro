@@ -147,7 +147,7 @@ export default function PrivacyPolicy() {
                     </div>
                   </a>
                   <a 
-                    href="tel:+14753413699" 
+                    href="tel:+12183575938" 
                     className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors"
                   >
                     <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
@@ -155,7 +155,7 @@ export default function PrivacyPolicy() {
                     </div>
                     <div>
                       <p className="text-[10px] uppercase text-slate-500">SMS / Operations</p>
-                      <p className="font-semibold text-slate-200">+1 (475) 341-3699</p>
+                      <p className="font-semibold text-slate-200">+1 (218) 357-5938</p>
                     </div>
                   </a>
                 </div>
@@ -454,8 +454,8 @@ export default function PrivacyPolicy() {
                     <div>
                       <h4 className="font-bold text-slate-950 text-sm">SMS & Direct Operations</h4>
                       <p className="text-xs text-slate-500 mb-1">Standard mobile assistance and immediate support</p>
-                      <a href="tel:+14753413699" className="text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1">
-                        +1 (475) 341-3699
+                      <a href="tel:+12183575938" className="text-sm font-semibold text-blue-600 hover:underline flex items-center gap-1">
+                        +1 (218) 357-5938
                         <ArrowUpRight size={14} />
                       </a>
                     </div>

@@ -374,7 +374,7 @@ function initDb(retryCount = 0) {
 // Config Endpoint (Public)
 app.get("/api/config", (req, res) => {
   res.json({
-    businessPhone: process.env.TWILIO_PHONE_NUMBER || "(203) 456-7890" // Please set TWILIO_PHONE_NUMBER in environment variables
+    businessPhone: process.env.TWILIO_PHONE_NUMBER || "(218) 357-5938" // Please set TWILIO_PHONE_NUMBER in environment variables
   });
 });
 

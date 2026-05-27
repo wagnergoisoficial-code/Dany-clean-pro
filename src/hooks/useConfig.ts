@@ -4,7 +4,7 @@ import { db, isFirebaseReady } from '../lib/firebase';
 
 export function useConfig() {
   const [config, setConfig] = useState<{ businessPhone: string }>({
-    businessPhone: '(203) 456-7890' // Initial generic fallback
+    businessPhone: '(218) 357-5938' // Initial generic fallback
   });
 
   useEffect(() => {
@@ -22,7 +22,10 @@ export function useConfig() {
             if (contentType && contentType.indexOf("application/json") !== -1) {
               const data = await res.json();
               if (data && data.businessPhone) {
-                setConfig(data);
+                const phoneVal = (data.businessPhone === '(203) 456-7890' || !data.businessPhone)
+                  ? '(218) 357-5938'
+                  : data.businessPhone;
+                setConfig({ ...data, businessPhone: phoneVal });
                 return; // Success
               }
             }
@@ -40,7 +43,10 @@ export function useConfig() {
           if (docSnap.exists()) {
             const data = docSnap.data();
             if (data && data.businessPhone) {
-              setConfig(data as any);
+              const phoneVal = (data.businessPhone === '(203) 456-7890' || !data.businessPhone)
+                ? '(218) 357-5938'
+                : data.businessPhone;
+              setConfig({ ...data, businessPhone: phoneVal } as any);
             }
           }
         } catch (err) {
