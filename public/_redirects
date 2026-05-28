@@ -1,0 +1,4 @@
+/api/chat          /.netlify/functions/chat      200!
+/api/leads         /.netlify/functions/leads     200!
+/api/chat-lead     /.netlify/functions/chat-lead 200!
+/*                 /index.html                   200

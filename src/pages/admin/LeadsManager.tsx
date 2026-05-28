@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, UserCheck, CheckCircle2, Search, ArrowUpDown, Filter, Users } from 'lucide-react';
 import { Lead, AuthState, Customer } from '../../types';
@@ -15,6 +15,7 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+  const [expandedLeadId, setExpandedLeadId] = useState<string | number | null>(null);
 
   // Detect production environment
   const isProd = window.location.hostname === 'danycleanpro.com' || 
@@ -296,71 +297,180 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
             <tbody className="divide-y divide-slate-50">
               {filteredLeads?.length === 0 ? (
                 <tr><td colSpan={7} className="text-center py-12 text-slate-400 italic">No leads found for this filter.</td></tr>
-              ) : filteredLeads?.map((lead) => (
-                <tr key={lead.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-4 sm:px-6 py-4 text-[10px] text-slate-400 font-mono">
-                    {(() => {
-                      const date = (lead as any).createdAt && (lead as any).createdAt.toDate ? (lead as any).createdAt.toDate() : 
-                                   (lead as any).createdAt ? new Date((lead as any).createdAt) : null;
-                      return date ? date.toLocaleDateString() : 'N/A';
-                    })()}
-                  </td>
-                  <td className="px-4 sm:px-6 py-4">
-                     <p className="font-bold text-slate-900 text-sm">{lead.name}</p>
-                     <p className="text-[10px] text-slate-400 uppercase font-bold">{lead.service_type}</p>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4">
-                     <p className="text-xs font-medium text-slate-600">{lead.phone}</p>
-                     <p className="text-[10px] text-slate-400">{lead.email}</p>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4 text-xs text-slate-600">
-                    {lead.city}, {lead.zip_code}
-                  </td>
-                  <td className="px-4 sm:px-12 py-4">
-                     <p className="text-[10px] text-slate-900 font-medium">
-                       {lead.bedrooms}B / {lead.bathrooms}Ba
-                     </p>
-                     <p className="text-[10px] text-slate-400 italic line-clamp-1">"{lead.message}"</p>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4">
-                     <select 
-                       className={cn(
-                         "text-[10px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg px-2 py-1 outline-none",
-                         lead.status === 'new' ? "bg-blue-50 text-blue-700" :
-                         lead.status === 'scheduled' ? "bg-green-50 text-green-700" :
-                         "bg-white text-slate-600"
-                       )}
-                       value={lead.status}
-                       onChange={(e) => updateLeadStatus.mutate({ id: String(lead.id), status: e.target.value })}
-                     >
-                       <option value="new">New</option>
-                       <option value="contacted">Contacted</option>
-                       <option value="scheduled">Scheduled</option>
-                       <option value="completed">Completed</option>
-                       <option value="cancelled">Cancelled</option>
-                     </select>
-                  </td>
-                  <td className="px-4 sm:px-6 py-4">
-                     <div className="flex items-center gap-2">
-                       <a 
-                         href={`tel:${lead.phone}`}
-                         className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all flex items-center justify-center"
-                         title="Call Client"
-                       >
-                         <ExternalLink size={14} />
-                       </a>
-                       <button 
-                         onClick={() => { if(confirm(`Convert ${lead.name} to a regular customer?`)) convertToCustomer.mutate(lead) }}
-                         className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all flex items-center justify-center"
-                         title="Convert to Customer"
-                         disabled={convertToCustomer.isPending}
-                       >
-                         {convertToCustomer.isPending ? <div className="w-3.5 h-3.5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <UserCheck size={14} />}
-                       </button>
-                     </div>
-                  </td>
-                </tr>
-              ))}
+              ) : filteredLeads?.map((lead) => {
+                const isExpanded = expandedLeadId === lead.id;
+                
+                return (
+                  <React.Fragment key={lead.id}>
+                    <tr 
+                      className={cn(
+                        "hover:bg-slate-50/50 transition-colors cursor-pointer",
+                        isExpanded ? "bg-slate-50/80" : ""
+                      )}
+                      onClick={() => setExpandedLeadId(isExpanded ? null : lead.id)}
+                    >
+                      <td className="px-4 sm:px-6 py-4 text-[10px] text-slate-400 font-mono">
+                        {(() => {
+                          const date = (lead as any).createdAt && (lead as any).createdAt.toDate ? (lead as any).createdAt.toDate() : 
+                                       (lead as any).createdAt ? new Date((lead as any).createdAt) : null;
+                          return date ? date.toLocaleDateString() : 'N/A';
+                        })()}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4">
+                         <p className="font-bold text-slate-900 text-sm">{lead.name}</p>
+                         <p className="text-[10px] text-slate-400 uppercase font-bold">{lead.service_type}</p>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4">
+                         <p className="text-xs font-medium text-slate-600">{lead.phone}</p>
+                         <p className="text-[10px] text-slate-400">{lead.email || 'No email'}</p>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-xs text-slate-600">
+                        {lead.city || 'N/A'}, {lead.zip_code || ''}
+                      </td>
+                      <td className="px-4 sm:px-12 py-4">
+                         <p className="text-[10px] text-slate-900 font-medium">
+                           {lead.bedrooms}B / {lead.bathrooms}Ba
+                         </p>
+                         <p className="text-[10px] text-slate-400 italic line-clamp-1">"{lead.message || 'No initial message'}"</p>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                         <select 
+                           className={cn(
+                             "text-[10px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg px-2 py-1 outline-none",
+                             lead.status === 'new' ? "bg-blue-50 text-blue-700 border-blue-100" :
+                             lead.status === 'scheduled' || lead.status === 'estimate_scheduled' ? "bg-green-50 text-green-700 border-green-100" :
+                             lead.status === 'awaiting_photos' ? "bg-amber-50 text-amber-700 border-amber-100" :
+                             "bg-white text-slate-600"
+                           )}
+                           value={lead.status}
+                           onChange={(e) => updateLeadStatus.mutate({ id: String(lead.id), status: e.target.value })}
+                         >
+                           <option value="new">New Lead</option>
+                           <option value="inquiring">Inquiring</option>
+                           <option value="awaiting_photos">Awaiting Photos</option>
+                           <option value="estimate_requested">Estimate Requested</option>
+                           <option value="estimate_scheduled">Estimate Scheduled</option>
+                           <option value="followup_needed">Follow-Up Needed</option>
+                           <option value="quote_sent">Quote Sent</option>
+                           <option value="booked">Booked</option>
+                           <option value="closed">Closed</option>
+                           <option value="cancelled">Cancelled</option>
+                         </select>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                         <div className="flex items-center gap-2">
+                           <a 
+                             href={`tel:${lead.phone}`}
+                             className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all flex items-center justify-center"
+                             title="Call Client"
+                           >
+                             <ExternalLink size={14} />
+                           </a>
+                           <button 
+                             onClick={() => { if(confirm(`Convert ${lead.name} to a regular customer?`)) convertToCustomer.mutate(lead) }}
+                             className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all flex items-center justify-center"
+                             title="Convert to Customer"
+                             disabled={convertToCustomer.isPending}
+                           >
+                             {convertToCustomer.isPending ? <div className="w-3.5 h-3.5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <UserCheck size={14} />}
+                           </button>
+                         </div>
+                      </td>
+                    </tr>
+
+                    {isExpanded && (
+                      <tr className="bg-slate-50/70 border-b border-slate-100">
+                        <td colSpan={7} className="px-6 py-6" onClick={(e) => e.stopPropagation()}>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-slate-700">
+                            {/* Column 1: Detailed Metadata Info */}
+                            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                              <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400">Lead Metadata & CRM Specs</h4>
+                              <div className="grid grid-cols-2 gap-4 text-xs">
+                                <div>
+                                  <p className="text-slate-400 font-medium">Property Type</p>
+                                  <p className="font-bold text-slate-800">{lead.property_type || "House / Apartment"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400 font-medium">Detailed Address</p>
+                                  <p className="font-bold text-slate-800">{lead.address || "Not specified"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400 font-medium">Estimate Style Preference</p>
+                                  <p className="font-bold text-slate-800 text-blue-600 font-mono">{lead.estimate_option || "Pending option"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400 font-medium">Estimated Price Range</p>
+                                  <p className="font-bold text-green-600 text-sm font-mono">{lead.estimated_price || "TBD (No Price Given)"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400 font-medium">Preferred Time Range</p>
+                                  <p className="font-bold text-slate-800">{lead.preferred_time || "N/A"}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-400 font-medium">Initial Contact Message</p>
+                                  <p className="font-medium text-slate-600 italic">"{lead.message || "Hi, I would like a cleaning quote."}"</p>
+                                </div>
+                              </div>
+
+                              {lead.conversation_summary && (
+                                <div className="pt-4 border-t border-slate-100">
+                                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">AI Automated Relationship Summary</p>
+                                  <div className="p-3 bg-slate-50/60 rounded-xl text-xs text-slate-600 leading-relaxed italic">
+                                    {lead.conversation_summary}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Column 2: Conversational Chat logs and Assistant Transcripts */}
+                            <div className="bg-slate-900 text-slate-100 p-5 rounded-2xl shadow-xl flex flex-col h-[320px] overflow-hidden">
+                              <div className="flex justify-between items-center pb-3 border-b border-slate-800 mb-3 shrink-0">
+                                <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest">SMS AI Receptionist Transcript</h4>
+                                <span className="bg-green-500/10 text-green-400 text-[9px] font-mono px-2 py-0.5 rounded-full border border-green-500/20">AGENT BOT</span>
+                              </div>
+
+                              <div className="flex-grow overflow-y-auto space-y-3 pr-1 text-xs scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                                {lead.sms_history ? (
+                                  lead.sms_history.split("\n").map((line: string, idx: number) => {
+                                    if (!line.trim()) return null;
+                                    const isClient = line.toLowerCase().startsWith("client:") || line.toLowerCase().startsWith("customer:");
+                                    const cleanText = line.replace(/^(client|customer|assistant):\s*/i, "");
+                                    
+                                    return (
+                                      <div key={idx} className={cn("flex flex-col max-w-[85%]", isClient ? "mr-auto items-start" : "ml-auto items-end")}>
+                                        <span className="text-[9px] text-slate-500 font-mono mb-0.5">{isClient ? "Client" : "Dany Clean Pro AI"}</span>
+                                        <div className={cn("p-2.5 rounded-xl text-xs leading-relaxed", isClient ? "bg-slate-800 text-slate-200 rounded-tl-none" : "bg-blue-600 text-white rounded-tr-none")}>
+                                          {cleanText}
+                                        </div>
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <div className="text-center text-slate-500 font-mono py-12 text-xs">
+                                    No logged message events.
+                                    <div className="mt-2 text-[10px] text-slate-600 bg-slate-800/40 p-2.5 rounded-xl max-w-sm mx-auto">
+                                      As the client exchanges SMS messages with your n8n workflow, the database is auto-filled and conversations will log here.
+                                    </div>
+                                  </div>
+                                )}
+
+                                {lead.ai_reply && (
+                                  <div className="flex flex-col ml-auto items-end max-w-[85%] border-t border-slate-800 pt-3 mt-3 w-full">
+                                    <span className="text-[9px] text-blue-400 font-mono mb-0.5">Most Recent Reply</span>
+                                    <div className="p-2.5 bg-blue-600 text-white rounded-xl rounded-tr-none text-xs leading-relaxed">
+                                      {lead.ai_reply}
+                                    </div>
+                                  </div>
+                                ) || null}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
       </div>

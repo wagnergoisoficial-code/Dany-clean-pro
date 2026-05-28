@@ -10,9 +10,25 @@ export interface Lead {
   bathrooms: number | string;
   preferred_date?: string;
   message?: string;
-  status: 'new' | 'contacted' | 'scheduled' | 'completed' | 'cancelled';
+  status: 'new' | 'contacted' | 'scheduled' | 'completed' | 'cancelled' | 'inquiring' | 'awaiting_photos' | 'estimate_requested' | 'estimate_scheduled' | 'followup_needed' | 'quote_sent' | 'booked' | 'closed';
   createdAt?: any;
   created_at?: string;
+
+  // Custom AI Receptionist/CRM fields
+  customer_name?: string;
+  customer_phone?: string;
+  customer_message?: string;
+  service_requested?: string;
+  property_type?: string;
+  address?: string;
+  preferred_time?: string;
+  estimate_option?: string;
+  estimated_price?: string;
+  ai_reply?: string;
+  lead_status?: string;
+  conversation_summary?: string;
+  sms_history?: string;
+  updated_at?: string;
 }
 
 export interface Review {
