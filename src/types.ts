@@ -29,6 +29,65 @@ export interface Lead {
   conversation_summary?: string;
   sms_history?: string;
   updated_at?: string;
+  
+  // Shadow Mode Fields
+  lead_score?: number | null;
+  intent_category?: string | null;
+  revenue_estimate?: number | null;
+  ai_summary?: string | null;
+
+  // Sales Tracker Fields (Fase 4)
+  call_made?: number | null;
+  client_answered?: number | null;
+  quote_sent?: number | null;
+  service_scheduled?: number | null;
+  sale_closed?: number | null;
+  closed_value?: number | null;
+  commercial_notes?: string | null;
+
+  // Commercial Command Center - Fase 5
+  projected_frequency?: string | null;
+  projected_ltv?: number | null;
+  objection_category?: string | null;
+  objection_notes?: string | null;
+
+  // Marketing Attribution - Módulo 1
+  attribution_channel?: string | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+
+  // Sales Velocity - Módulo 2
+  first_contacted_at?: string | null;
+
+  // Customer Lifecycle - Módulo 3
+  lifecycle_status?: 'lead' | 'active' | 'recurring' | 'paused' | 'lost' | null;
+  last_service_date?: string | null;
+
+  // Customer Recovery - Módulo 4
+  recovery_history?: string | null; // JSON String of RecoveryAttempt[]
+
+  // Revenue Recovery - Módulo 5
+  quote_sent_at?: string | null;
+  quote_recovery_history?: string | null; // JSON String of QuoteRecoveryAttempt[]
+}
+
+export interface QuoteRecoveryAttempt {
+  id: string;
+  date: string;
+  channel: 'sms' | 'call' | 'email';
+  status: 'pending' | 'success' | 'refused' | 'no_response';
+  notes: string;
+  agentName?: string;
+}
+
+export interface RecoveryAttempt {
+  id: string;
+  date: string;
+  channel: 'sms' | 'call' | 'email';
+  status: 'pending' | 'success' | 'refused' | 'no_response';
+  notes: string;
+  agentName?: string;
 }
 
 export interface Review {

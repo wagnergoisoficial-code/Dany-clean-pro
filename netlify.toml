@@ -6,6 +6,24 @@
   directory = "netlify/functions"
 
 [[redirects]]
+  from = "/terms"
+  to = "/terms/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/privacy-policy"
+  to = "/privacy-policy/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/termos"
+  to = "/termos/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/chat"
   to = "/.netlify/functions/chat"
   status = 200

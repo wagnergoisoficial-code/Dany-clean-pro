@@ -240,7 +240,7 @@ export default function PrivacyPolicy() {
                   <span>4. SMS & TCPA Compliance</span>
                 </h2>
                 <p>
-                  Dany Clean Pro is fully committed to compliance under the United States Telephone Consumer Protection Act (TCPA) and applicable CT communication regulations. 
+                  Dany Clean Pro is fully committed to compliance under the United States Telephone Consumer Protection Act (TCPA) and applicable CT communication regulations. Mobile information will not be shared with third parties or affiliates for marketing or promotional purposes.
                 </p>
                 <div className="p-6 rounded-2xl bg-blue-50 border border-blue-100 text-slate-700 text-sm space-y-3">
                   <p className="font-semibold text-slate-900">Please review our explicit mobile policies below:</p>
@@ -285,7 +285,7 @@ export default function PrivacyPolicy() {
                   <span>6. Third-Party Pricing & Infrastructure Providers</span>
                 </h2>
                 <p>
-                  To deliver seamless operations, some data layers are integrated securely with modern cloud services:
+                  To deliver seamless operations, some data layers are integrated securely with modern cloud services. <strong>Mobile information will not be shared with third parties or affiliates for marketing or promotional purposes.</strong> All the above categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties.
                 </p>
                 <div className="space-y-4 mt-4">
                   <div className="flex gap-4 p-4 rounded-xl border border-slate-100">

@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import admin from "firebase-admin";
 import twilio from "twilio";
+import { enrichLeadWithShadowAI } from "./netlify/functions/shared/shadowEngine";
 
 dotenv.config();
 
@@ -16,6 +17,43 @@ const JWT_SECRET = process.env.JWT_SECRET || "dany-clean-pro-secret-key-2024";
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// --- DEDICATED STATIC ROUTES FOR TWILIO COMPLIANCE (Prevents 301/302 redirects) ---
+app.get("/terms", (req, res) => {
+  const fileInDist = path.join(process.cwd(), "dist", "terms", "index.html");
+  if (fs.existsSync(fileInDist)) {
+    return res.sendFile(fileInDist);
+  }
+  const fileInPublic = path.join(process.cwd(), "public", "terms", "index.html");
+  if (fs.existsSync(fileInPublic)) {
+    return res.sendFile(fileInPublic);
+  }
+  res.sendFile(path.join(process.cwd(), "dist", "index.html"));
+});
+
+app.get("/privacy-policy", (req, res) => {
+  const fileInDist = path.join(process.cwd(), "dist", "privacy-policy", "index.html");
+  if (fs.existsSync(fileInDist)) {
+    return res.sendFile(fileInDist);
+  }
+  const fileInPublic = path.join(process.cwd(), "public", "privacy-policy", "index.html");
+  if (fs.existsSync(fileInPublic)) {
+    return res.sendFile(fileInPublic);
+  }
+  res.sendFile(path.join(process.cwd(), "dist", "index.html"));
+});
+
+app.get("/termos", (req, res) => {
+  const fileInDist = path.join(process.cwd(), "dist", "termos", "index.html");
+  if (fs.existsSync(fileInDist)) {
+    return res.sendFile(fileInDist);
+  }
+  const fileInPublic = path.join(process.cwd(), "public", "termos", "index.html");
+  if (fs.existsSync(fileInPublic)) {
+    return res.sendFile(fileInPublic);
+  }
+  res.sendFile(path.join(process.cwd(), "dist", "index.html"));
+});
 
 // --- API ROUTES ---
 
@@ -303,6 +341,87 @@ function initDb(retryCount = 0) {
     addColumnSafely("leads", "conversation_summary", "TEXT");
     addColumnSafely("leads", "sms_history", "TEXT");
     addColumnSafely("leads", "updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP");
+    addColumnSafely("leads", "lead_score", "INTEGER");
+    addColumnSafely("leads", "intent_category", "TEXT");
+    addColumnSafely("leads", "revenue_estimate", "REAL");
+    addColumnSafely("leads", "ai_summary", "TEXT");
+    addColumnSafely("leads", "call_made", "INTEGER DEFAULT 0");
+    addColumnSafely("leads", "client_answered", "INTEGER DEFAULT 0");
+    addColumnSafely("leads", "quote_sent", "INTEGER DEFAULT 0");
+    addColumnSafely("leads", "service_scheduled", "INTEGER DEFAULT 0");
+    addColumnSafely("leads", "sale_closed", "INTEGER DEFAULT 0");
+    addColumnSafely("leads", "closed_value", "REAL DEFAULT 0");
+    addColumnSafely("leads", "commercial_notes", "TEXT");
+    addColumnSafely("leads", "projected_frequency", "TEXT");
+    addColumnSafely("leads", "projected_ltv", "REAL DEFAULT 0");
+    addColumnSafely("leads", "objection_category", "TEXT");
+    addColumnSafely("leads", "objection_notes", "TEXT");
+    addColumnSafely("leads", "attribution_channel", "TEXT DEFAULT 'Unknown'");
+    addColumnSafely("leads", "utm_source", "TEXT");
+    addColumnSafely("leads", "utm_medium", "TEXT");
+    addColumnSafely("leads", "utm_campaign", "TEXT");
+    addColumnSafely("leads", "first_contacted_at", "TEXT");
+    addColumnSafely("leads", "lifecycle_status", "TEXT");
+    addColumnSafely("leads", "last_service_date", "TEXT");
+    addColumnSafely("leads", "recovery_history", "TEXT");
+    addColumnSafely("leads", "quote_sent_at", "TEXT");
+    addColumnSafely("leads", "quote_recovery_history", "TEXT");
+
+    // Módulo 5: Backfill of historical sent quotes
+    try {
+      const dbCheck = db.prepare("SELECT COUNT(*) as count FROM leads WHERE (quote_sent = 1 OR status = 'quote_sent') AND quote_sent_at IS NULL").get() as any;
+      if (dbCheck && dbCheck.count > 0) {
+        console.log(`Backfilling quote_sent_at for ${dbCheck.count} historical records...`);
+        const historicalLeads = db.prepare(`
+          SELECT id, updated_at, created_at FROM leads 
+          WHERE (quote_sent = 1 OR status = 'quote_sent') AND quote_sent_at IS NULL
+        `).all() as any[];
+
+        historicalLeads.forEach(lead => {
+          const backfillDate = lead.updated_at || lead.created_at || new Date().toISOString();
+          const backfilledValue = `${backfillDate}_backfilled`;
+          db.prepare("UPDATE leads SET quote_sent_at = ? WHERE id = ?").run(backfilledValue, lead.id);
+        });
+        console.log("Backfill of historical sent quotes complete!");
+      }
+    } catch (backfillErr: any) {
+      console.warn("Could not run quote_sent_at backfill:", backfillErr.message);
+    }
+
+    // Migrate/populate lifecycle_status for existing database records if empty
+    try {
+      const dbCheck = db.prepare("SELECT COUNT(*) as count FROM leads WHERE lifecycle_status IS NULL").get() as any;
+      if (dbCheck && dbCheck.count > 0) {
+        console.log(`Migrating/calculating lifecycle_status for ${dbCheck.count} records...`);
+        // Update those that are sale_closed = 1 and frequency in ('weekly', 'biweekly', 'monthly') to 'recurring'
+        db.prepare(`
+          UPDATE leads 
+          SET lifecycle_status = 'recurring' 
+          WHERE (sale_closed = 1) 
+            AND projected_frequency IN ('weekly', 'biweekly', 'monthly')
+            AND lifecycle_status IS NULL
+        `).run();
+
+        // Update those that are sale_closed = 1 and frequency not in/empty to 'active'
+        db.prepare(`
+          UPDATE leads 
+          SET lifecycle_status = 'active' 
+          WHERE (sale_closed = 1) 
+            AND (projected_frequency IS NULL OR projected_frequency NOT IN ('weekly', 'biweekly', 'monthly'))
+            AND lifecycle_status IS NULL
+        `).run();
+
+        // All others are 'lead'
+        db.prepare(`
+          UPDATE leads 
+          SET lifecycle_status = 'lead' 
+          WHERE lifecycle_status IS NULL
+        `).run();
+        console.log("Migration of lifecycle_status complete!");
+      }
+    } catch (migErr: any) {
+      console.warn("Could not run lifecycle_status migration, might be brand new DB:", migErr.message);
+    }
 
     // Seed initial admin if not exists
     const adminExists = db.prepare("SELECT * FROM users WHERE username = ?").get("admin");
@@ -404,6 +523,61 @@ function initDb(retryCount = 0) {
   }
 }
 
+// Shadow Mode background processing helper
+function triggerShadowModeBackground(leadId: string | number | bigint, leadData: any) {
+  (async () => {
+    try {
+      console.log(`[SHADOW MODE BACKGROUND CLIENT] Running for ID: ${leadId}`);
+      const analysis = await enrichLeadWithShadowAI(leadData);
+      if (analysis) {
+        console.log(`[SHADOW MODE SUCCESS] Analysis results for ID ${leadId}:`, analysis);
+        if (db) {
+          try {
+            db.prepare(`
+              UPDATE leads 
+              SET lead_score = ?, intent_category = ?, revenue_estimate = ?, ai_summary = ?
+              WHERE id = ?
+            `).run(analysis.lead_score, analysis.intent_category, analysis.revenue_estimate, analysis.ai_summary, leadId);
+            console.log(`[SHADOW MODE SQLITE] Updated lead ID ${leadId} silently.`);
+          } catch (dbErr) {
+            console.error("[SHADOW MODE SQLITE ERROR] Failed to update lead in SQLite:", dbErr);
+          }
+        }
+
+        const firestore = getFirestore();
+        if (firestore) {
+          try {
+            const phone = leadData.phone || leadData.customer_phone;
+            if (phone) {
+              const query = await firestore.collection("leads").where("phone", "==", phone).limit(3).get();
+              let docRef = query.docs[0];
+              if (!docRef) {
+                const queryCust = await firestore.collection("leads").where("customer_phone", "==", phone).limit(3).get();
+                docRef = queryCust.docs[0];
+              }
+              if (docRef) {
+                await firestore.collection("leads").doc(docRef.id).update({
+                  lead_score: analysis.lead_score,
+                  intent_category: analysis.intent_category,
+                  revenue_estimate: analysis.revenue_estimate,
+                  ai_summary: analysis.ai_summary
+                });
+                console.log(`[SHADOW MODE FIRESTORE] Updated lead Doc ID ${docRef.id} silently.`);
+              } else {
+                console.log(`[SHADOW MODE FIRESTORE] Document not found for phone: ${phone}`);
+              }
+            }
+          } catch (fsErr) {
+            console.error("[SHADOW MODE FIRESTORE ERROR] Failed to update in Firestore:", fsErr);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[SHADOW MODE ERROR] Error in background execution:", err);
+    }
+  })();
+}
+
 // --- API ROUTES ---
 
 // Config Endpoint (Public)
@@ -454,7 +628,7 @@ app.post("/api/sms", async (req, res) => {
         if (lead) {
           existingLead = lead;
         } else {
-          const insertRes = db.prepare("INSERT INTO leads (phone, status) VALUES (?, ?)").run(clientPhone, 'new');
+          const insertRes = db.prepare("INSERT INTO leads (phone, status, attribution_channel) VALUES (?, ?, 'Twilio SMS')").run(clientPhone, 'new');
           existingLead = {
             id: insertRes.lastInsertRowid as any,
             name: null,
@@ -607,6 +781,24 @@ You must output a valid JSON object matching the required schema. Ensure you pre
           parsed.lead_status || 'inquiring',
           existingLead.id
         );
+
+        const leadObj = existingLead as any;
+
+        // Trigger Shadow Mode background analysis silently
+        triggerShadowModeBackground(existingLead.id, {
+          name: parsed.customer_name || leadObj.name,
+          phone: clientPhone,
+          service_type: parsed.service_requested || leadObj.service_type,
+          bedrooms: parsed.bedrooms ? parseInt(parsed.bedrooms) || null : leadObj.bedrooms,
+          bathrooms: parsed.bathrooms ? parseInt(parsed.bathrooms) || null : leadObj.bathrooms,
+          city: parsed.city || leadObj.city,
+          preferred_date: parsed.preferred_date || leadObj.preferred_date,
+          address: parsed.address || leadObj.address,
+          property_type: parsed.property_type || leadObj.property_type,
+          estimate_option: parsed.estimate_option || leadObj.estimate_option,
+          message: parsed.customer_message || leadObj.message,
+          sms_history: history.map(h => `${h.sender === 'client' ? 'Client' : 'Assistant'}: ${h.message}`).join("\n")
+        });
       } catch (dbErr) {
         console.error("Error updating lead details in SMS webhook:", dbErr);
       }
@@ -721,14 +913,21 @@ app.post("/api/ai/book-lead", async (req, res) => {
   const { name, phone, email, service_type, preferred_date, city } = req.body;
   try {
     const stmt = db.prepare(`
-      INSERT INTO leads (name, phone, email, service_type, preferred_date, city, status)
-      VALUES (?, ?, ?, ?, ?, ?, 'scheduled')
+      INSERT INTO leads (name, phone, email, service_type, preferred_date, city, status, attribution_channel)
+      VALUES (?, ?, ?, ?, ?, ?, 'scheduled', 'Jennifer AI')
     `);
     const result = stmt.run(name, phone || '', email || '', service_type || 'Regular', preferred_date || '', city || 'Stamford');
     
     // Trigger Automation
     await notifyAutomation({ name, phone, email, service_type, preferred_date, city, status: 'scheduled' });
     
+    // Trigger Shadow Mode background analysis silently
+    if (result.lastInsertRowid) {
+      triggerShadowModeBackground(result.lastInsertRowid, {
+        name, phone, email, service_type, preferred_date, city
+      });
+    }
+
     res.status(201).json({ success: true, leadId: result.lastInsertRowid });
   } catch (err) {
     console.error("Booking error:", err);
@@ -826,6 +1025,60 @@ app.post("/api/leads", async (req, res) => {
   const conversation_summary = sanitize(rawBody.conversation_summary);
   const sms_history = sanitize(rawBody.sms_history);
 
+  // Marketing Attribution - Módulo 1 fields
+  const utm_source = sanitize(rawBody.utm_source);
+  const utm_medium = sanitize(rawBody.utm_medium);
+  const utm_campaign = sanitize(rawBody.utm_campaign);
+  const source_body = sanitize(rawBody.source);
+
+  let attribution_channel = "Unknown";
+  if (utm_source || utm_medium || utm_campaign) {
+    const srcLower = utm_source.toLowerCase();
+    const medLower = utm_medium.toLowerCase();
+    
+    if (srcLower.includes("google") || srcLower.includes("gads") || medLower.includes("cpc") || srcLower.includes("adwords")) {
+      attribution_channel = "Google Ads";
+    } else if (srcLower.includes("facebook") || srcLower.includes("fb") || srcLower.includes("meta")) {
+      attribution_channel = "Facebook Ads";
+    } else if (srcLower.includes("instagram") || srcLower.includes("ig")) {
+      attribution_channel = "Instagram";
+    } else if (srcLower.includes("whatsapp") || srcLower.includes("wa")) {
+      attribution_channel = "WhatsApp";
+    } else if (srcLower.includes("organic") || medLower.includes("organic") || srcLower.includes("seo")) {
+      attribution_channel = "Organic";
+    } else if (srcLower.includes("referral") || medLower.includes("referral")) {
+      attribution_channel = "Referral";
+    } else if (srcLower.includes("twilio") || medLower.includes("sms")) {
+      attribution_channel = "Twilio SMS";
+    } else if (srcLower.includes("jennifer")) {
+      attribution_channel = "Jennifer AI";
+    } else {
+      attribution_channel = utm_source.charAt(0).toUpperCase() + utm_source.slice(1);
+    }
+  } else if (source_body === "Jennifer AI" || source_body === "jennifer" || rawBody.isJennifer) {
+    attribution_channel = "Jennifer AI";
+  } else if (source_body === "Twilio SMS" || source_body === "sms" || rawBody.isTwilio) {
+    attribution_channel = "Twilio SMS";
+  } else if (source_body === "direct_call" || source_body === "phone" || source_body === "Direct Call") {
+    attribution_channel = "Direct Call";
+  } else if (source_body === "referral" || source_body === "Referral") {
+    attribution_channel = "Referral";
+  } else if (source_body === "organic" || source_body === "Organic") {
+    attribution_channel = "Organic";
+  } else if (source_body === "facebook" || source_body === "Facebook") {
+    attribution_channel = "Facebook Ads";
+  } else if (source_body === "instagram" || source_body === "Instagram") {
+    attribution_channel = "Instagram";
+  } else if (source_body === "google" || source_body === "Google") {
+    attribution_channel = "Google Ads";
+  } else if (source_body === "whatsapp" || source_body === "WhatsApp") {
+    attribution_channel = "WhatsApp";
+  } else if (source_body === "website-estimate" || source_body === "LeadForm" || source_body === "direct-client-firestore-priority" || rawBody.bedrooms || rawBody.bathrooms) {
+    attribution_channel = "Website";
+  } else {
+    attribution_channel = "Unknown";
+  }
+
   if (!phone) {
     console.error("✗ Failed to save lead: Phone number is required");
     return res.status(400).json({ error: "Phone number is required" });
@@ -843,7 +1096,7 @@ app.post("/api/leads", async (req, res) => {
     console.log(`Processing SQLite upsert for phone: ${phone}`);
 
     // Check for existing lead by phone to support continuous conversations
-    let existingLead = db.prepare("SELECT id FROM leads WHERE phone = ? OR customer_phone = ? ORDER BY id DESC LIMIT 1").get(phone, phone) as any;
+    let existingLead = db.prepare("SELECT id, attribution_channel FROM leads WHERE phone = ? OR customer_phone = ? ORDER BY id DESC LIMIT 1").get(phone, phone) as any;
 
     if (existingLead) {
       console.log(`↳ Updating existing SQLite lead ID: ${existingLead.id}`);
@@ -871,6 +1124,10 @@ app.post("/api/leads", async (req, res) => {
             lead_status = COALESCE(NULLIF(?, ''), lead_status),
             conversation_summary = COALESCE(NULLIF(?, ''), conversation_summary),
             sms_history = COALESCE(NULLIF(?, ''), sms_history),
+            attribution_channel = COALESCE(NULLIF(?, ''), COALESCE(attribution_channel, 'Unknown')),
+            utm_source = COALESCE(NULLIF(?, ''), utm_source),
+            utm_medium = COALESCE(NULLIF(?, ''), utm_medium),
+            utm_campaign = COALESCE(NULLIF(?, ''), utm_campaign),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `).run(
@@ -878,7 +1135,10 @@ app.post("/api/leads", async (req, res) => {
         bedroomsNum, bathroomsNum, preferred_date, preferred_time,
         message, message, property_type, address, estimate_option,
         estimated_price, ai_reply, lead_status, lead_status,
-        conversation_summary, sms_history, existingLead.id
+        conversation_summary, sms_history,
+        (existingLead.attribution_channel && existingLead.attribution_channel !== 'Unknown' ? existingLead.attribution_channel : attribution_channel),
+        utm_source, utm_medium, utm_campaign,
+        existingLead.id
       );
       leadId = existingLead.id;
     } else {
@@ -890,8 +1150,9 @@ app.post("/api/leads", async (req, res) => {
           preferred_date, preferred_time, message, customer_message, 
           property_type, address, estimate_option, estimated_price, 
           ai_reply, status, lead_status, conversation_summary, 
-          sms_history, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+          sms_history, attribution_channel, utm_source, utm_medium, utm_campaign,
+          updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       `);
       const result = stmt.run(
         name, name, email, phone, phone, city, zip_code,
@@ -899,7 +1160,7 @@ app.post("/api/leads", async (req, res) => {
         preferred_date, preferred_time, message, message,
         property_type, address, estimate_option, estimated_price,
         ai_reply, lead_status, lead_status, conversation_summary,
-        sms_history
+        sms_history, attribution_channel, utm_source, utm_medium, utm_campaign
       );
       leadId = result.lastInsertRowid;
     }
@@ -971,6 +1232,15 @@ app.post("/api/leads", async (req, res) => {
     })();
   }
 
+  // Trigger Shadow Mode background analysis silently
+  if (leadId) {
+    triggerShadowModeBackground(leadId, {
+      name, email, phone, city, zip_code, service_type, bedrooms: bedroomsNum, bathrooms: bathroomsNum,
+      preferred_date, preferred_time, message, property_type, address, estimate_option, estimated_price,
+      conversation_summary, sms_history
+    });
+  }
+
   if (sqliteSuccess) {
     res.status(200).json({ success: true, id: leadId, message: "Lead processed successfully" });
   } else {
@@ -1031,14 +1301,171 @@ app.get("/api/admin/leads", authenticate, (req, res) => {
 
 app.patch("/api/admin/leads/:id", authenticate, (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { 
+    status, 
+    call_made, 
+    client_answered, 
+    quote_sent, 
+    service_scheduled, 
+    sale_closed, 
+    closed_value, 
+    commercial_notes,
+    projected_frequency,
+    projected_ltv,
+    objection_category,
+    objection_notes,
+    attribution_channel,
+    utm_source,
+    utm_medium,
+    utm_campaign,
+    lifecycle_status,
+    last_service_date,
+    recovery_history,
+    quote_sent_at,
+    quote_recovery_history
+  } = req.body;
+
   try {
-    // Keep both columns in sync
-    db.prepare("UPDATE leads SET status = ?, lead_status = ? WHERE id = ?").run(status, status, id);
+    // Rule 1: No automatic revenue_estimate as closed_value.
+    // Prohibit setting sales as closed without explicitly input positive closed_value.
+    const isSaleClosedRequest = sale_closed !== undefined && (sale_closed === true || Number(sale_closed) === 1 || String(sale_closed) === 'true');
+    if (isSaleClosedRequest) {
+      const existing = db.prepare("SELECT closed_value FROM leads WHERE id = ?").get(id) as any;
+      const finalClosedValue = closed_value !== undefined ? Number(closed_value) : (existing?.closed_value || 0);
+      if (!finalClosedValue || finalClosedValue <= 0) {
+        return res.status(400).json({ error: "Manually entering a positive Closed Value is required to mark a sale as closed." });
+      }
+    }
+
+    // Módulo 2: Sales Velocity - Check and assign first_contacted_at immutably
+    const currentLead = db.prepare("SELECT first_contacted_at FROM leads WHERE id = ?").get(id) as any;
+    if (currentLead && !currentLead.first_contacted_at) {
+      const isCallMade = call_made !== undefined && (call_made === true || Number(call_made) === 1 || String(call_made) === 'true');
+      const isClientAnswered = client_answered !== undefined && (client_answered === true || Number(client_answered) === 1 || String(client_answered) === 'true');
+      const isQuoteSent = quote_sent !== undefined && (quote_sent === true || Number(quote_sent) === 1 || String(quote_sent) === 'true');
+      const isServiceScheduled = service_scheduled !== undefined && (service_scheduled === true || Number(service_scheduled) === 1 || String(service_scheduled) === 'true');
+      const isStatusContacted = status !== undefined && ['contacted', 'quote_sent', 'scheduled', 'booked', 'completed'].includes(status);
+
+      if (isCallMade || isClientAnswered || isQuoteSent || isServiceScheduled || isSaleClosedRequest || isStatusContacted) {
+        db.prepare("UPDATE leads SET first_contacted_at = CURRENT_TIMESTAMP WHERE id = ?").run(id);
+      }
+    }
+
+    // Módulo 3 / Módulo 5: Customer Lifecycle status safe rule updates
+    if (lifecycle_status !== undefined) {
+      db.prepare("UPDATE leads SET lifecycle_status = ? WHERE id = ?").run(lifecycle_status, id);
+    } else {
+      const dbRow = db.prepare("SELECT sale_closed, projected_frequency, lifecycle_status FROM leads WHERE id = ?").get(id) as any;
+      if (dbRow) {
+        const finalClosed = sale_closed !== undefined ? (sale_closed ? 1 : 0) : (dbRow.sale_closed || 0);
+        const finalFreq = projected_frequency !== undefined ? projected_frequency : dbRow.projected_frequency;
+        let finalLifecycle = dbRow.lifecycle_status;
+
+        if (finalClosed === 1) {
+          if (finalFreq === 'weekly' || finalFreq === 'biweekly' || finalFreq === 'monthly') {
+            finalLifecycle = 'recurring';
+          } else {
+            finalLifecycle = 'active';
+          }
+          db.prepare("UPDATE leads SET lifecycle_status = ? WHERE id = ?").run(finalLifecycle, id);
+        } else if (!finalLifecycle) {
+          db.prepare("UPDATE leads SET lifecycle_status = 'lead' WHERE id = ?").run(id);
+        }
+      }
+    }
+
+    // Rule 3: Handling quote_sent_at mutability and immutability rules
+    if (quote_sent !== undefined && (quote_sent === true || Number(quote_sent) === 1 || String(quote_sent) === 'true')) {
+      const existing = db.prepare("SELECT quote_sent_at FROM leads WHERE id = ?").get(id) as any;
+      if (!existing || !existing.quote_sent_at) {
+        db.prepare("UPDATE leads SET quote_sent_at = ? WHERE id = ?").run(new Date().toISOString(), id);
+      }
+    }
+
+    if (quote_sent_at !== undefined) {
+      db.prepare("UPDATE leads SET quote_sent_at = ? WHERE id = ?").run(quote_sent_at, id);
+    }
+
+    if (quote_recovery_history !== undefined) {
+      db.prepare("UPDATE leads SET quote_recovery_history = ? WHERE id = ?").run(quote_recovery_history, id);
+    }
+
+    if (last_service_date !== undefined) {
+      db.prepare("UPDATE leads SET last_service_date = ? WHERE id = ?").run(last_service_date, id);
+    }
+
+    if (recovery_history !== undefined) {
+      db.prepare("UPDATE leads SET recovery_history = ? WHERE id = ?").run(recovery_history, id);
+    }
+
+    if (status !== undefined) {
+      db.prepare("UPDATE leads SET status = ?, lead_status = ? WHERE id = ?").run(status, status, id);
+    }
+    
+    if (attribution_channel !== undefined) {
+      db.prepare("UPDATE leads SET attribution_channel = ? WHERE id = ?").run(attribution_channel, id);
+    }
+
+    if (utm_source !== undefined) {
+      db.prepare("UPDATE leads SET utm_source = ? WHERE id = ?").run(utm_source, id);
+    }
+
+    if (utm_medium !== undefined) {
+      db.prepare("UPDATE leads SET utm_medium = ? WHERE id = ?").run(utm_medium, id);
+    }
+
+    if (utm_campaign !== undefined) {
+      db.prepare("UPDATE leads SET utm_campaign = ? WHERE id = ?").run(utm_campaign, id);
+    }
+    
+    if (call_made !== undefined) {
+      db.prepare("UPDATE leads SET call_made = ? WHERE id = ?").run(call_made ? 1 : 0, id);
+    }
+    
+    if (client_answered !== undefined) {
+      db.prepare("UPDATE leads SET client_answered = ? WHERE id = ?").run(client_answered ? 1 : 0, id);
+    }
+    
+    if (quote_sent !== undefined) {
+      db.prepare("UPDATE leads SET quote_sent = ? WHERE id = ?").run(quote_sent ? 1 : 0, id);
+    }
+    
+    if (service_scheduled !== undefined) {
+      db.prepare("UPDATE leads SET service_scheduled = ? WHERE id = ?").run(service_scheduled ? 1 : 0, id);
+    }
+    
+    if (sale_closed !== undefined) {
+      db.prepare("UPDATE leads SET sale_closed = ? WHERE id = ?").run(sale_closed ? 1 : 0, id);
+    }
+    
+    if (closed_value !== undefined) {
+      db.prepare("UPDATE leads SET closed_value = ? WHERE id = ?").run(Number(closed_value) || 0, id);
+    }
+    
+    if (commercial_notes !== undefined) {
+      db.prepare("UPDATE leads SET commercial_notes = ? WHERE id = ?").run(commercial_notes, id);
+    }
+
+    if (projected_frequency !== undefined) {
+      db.prepare("UPDATE leads SET projected_frequency = ? WHERE id = ?").run(projected_frequency, id);
+    }
+
+    if (projected_ltv !== undefined) {
+      db.prepare("UPDATE leads SET projected_ltv = ? WHERE id = ?").run(Number(projected_ltv) || 0, id);
+    }
+
+    if (objection_category !== undefined) {
+      db.prepare("UPDATE leads SET objection_category = ? WHERE id = ?").run(objection_category, id);
+    }
+
+    if (objection_notes !== undefined) {
+      db.prepare("UPDATE leads SET objection_notes = ? WHERE id = ?").run(objection_notes, id);
+    }
+
     res.json({ success: true });
   } catch (err: any) {
-    console.error("Failed to update lead status in SQLite:", err);
-    res.status(500).json({ error: "Failed to update status" });
+    console.error("Failed to update lead status/tracking in SQLite:", err);
+    res.status(500).json({ error: "Failed to update lead" });
   }
 });
 

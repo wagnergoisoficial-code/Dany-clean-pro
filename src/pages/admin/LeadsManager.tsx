@@ -318,7 +318,24 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                       </td>
                       <td className="px-4 sm:px-6 py-4">
                          <p className="font-bold text-slate-900 text-sm">{lead.name}</p>
-                         <p className="text-[10px] text-slate-400 uppercase font-bold">{lead.service_type}</p>
+                         <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                           <span className="text-[10px] text-slate-400 uppercase font-bold">{lead.service_type}</span>
+                           {(lead as any).lead_score !== undefined && (lead as any).lead_score !== null && (
+                             <span className={cn(
+                               "text-[9px] font-bold px-1.5 py-0.5 rounded-full font-mono",
+                               (lead as any).lead_score >= 75 ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
+                               (lead as any).lead_score >= 40 ? "bg-amber-50 text-amber-700 border border-amber-100" :
+                               "bg-slate-50 text-slate-600 border border-slate-100"
+                             )}>
+                               Score: {(lead as any).lead_score}
+                             </span>
+                           )}
+                           {(lead as any).intent_category && (
+                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                               {(lead as any).intent_category}
+                             </span>
+                           )}
+                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-4">
                          <p className="text-xs font-medium text-slate-600">{lead.phone}</p>
@@ -331,7 +348,14 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                          <p className="text-[10px] text-slate-900 font-medium">
                            {lead.bedrooms}B / {lead.bathrooms}Ba
                          </p>
-                         <p className="text-[10px] text-slate-400 italic line-clamp-1">"{lead.message || 'No initial message'}"</p>
+                         <div className="flex items-center gap-1.5 mt-0.5">
+                           <p className="text-[10px] text-slate-400 italic line-clamp-1">"{lead.message || 'No initial message'}"</p>
+                           {(lead as any).revenue_estimate !== undefined && (lead as any).revenue_estimate !== null && (
+                             <span className="text-[9px] font-mono font-bold text-emerald-600 shrink-0 ml-1">
+                               Est: ${(lead as any).revenue_estimate}
+                             </span>
+                           )}
+                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-4" onClick={(e) => e.stopPropagation()}>
                          <select 
@@ -411,6 +435,57 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                                   <p className="font-medium text-slate-600 italic">"{lead.message || "Hi, I would like a cleaning quote."}"</p>
                                 </div>
                               </div>
+
+                              {/* SHADOW MODE INSIGHTS SECTION */}
+                              {((lead as any).lead_score !== undefined && (lead as any).lead_score !== null || (lead as any).ai_summary) && (
+                                <div className="pt-4 border-t border-slate-100 space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="font-bold text-xs uppercase tracking-wider text-indigo-600 flex items-center gap-1.5">
+                                      <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                                      Shadow Mode Insights
+                                    </h4>
+                                    <span className="text-[9px] bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-widest font-mono border border-indigo-100">
+                                      PASSIVO (READ-ONLY)
+                                    </span>
+                                  </div>
+                                  <div className="grid grid-cols-3 gap-3">
+                                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Lead Score</p>
+                                      <div className="flex items-baseline gap-1">
+                                        <span className={cn(
+                                          "text-lg font-black font-mono",
+                                          (lead as any).lead_score >= 75 ? "text-emerald-600" :
+                                          (lead as any).lead_score >= 40 ? "text-amber-500" :
+                                          "text-rose-500"
+                                        )}>
+                                          {(lead as any).lead_score ?? "N/A"}
+                                        </span>
+                                        <span className="text-[10px] text-slate-400 font-medium">/100</span>
+                                      </div>
+                                    </div>
+                                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Intent Category</p>
+                                      <p className="font-bold text-slate-700 truncate mt-1 text-xs">{(lead as any).intent_category || "N/A"}</p>
+                                    </div>
+                                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Revenue Est.</p>
+                                      <p className="font-mono font-bold text-emerald-600 mt-1 text-sm">
+                                        {(lead as any).revenue_estimate !== undefined && (lead as any).revenue_estimate !== null 
+                                          ? `$${(lead as any).revenue_estimate}` 
+                                          : "N/A"}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {(lead as any).ai_summary && (
+                                    <div className="bg-indigo-50/20 p-3 rounded-xl border border-indigo-50/50">
+                                      <p className="text-[9px] text-indigo-500 font-bold uppercase tracking-wider mb-1">AI Direct Summary</p>
+                                      <p className="text-xs text-slate-700 leading-relaxed font-semibold italic">
+                                        {(lead as any).ai_summary}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
 
                               {lead.conversation_summary && (
                                 <div className="pt-4 border-t border-slate-100">

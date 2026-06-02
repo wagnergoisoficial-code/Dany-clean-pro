@@ -5,9 +5,10 @@ import {
   Image as ImageIcon, 
   MessageSquare, 
   Settings, 
-  LogOut,
-  X,
-  ChevronRight
+  LogOut, 
+  X, 
+  ChevronRight,
+  Target
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../../lib/utils';
@@ -24,6 +25,7 @@ export default function AdminSidebar({ isMobile, onClose, onLogout }: AdminSideb
   const sidebarLinks = [
     { icon: LayoutDashboard, label: 'Overview', path: '/admin/dashboard' },
     { icon: Users, label: 'Manage Leads', path: '/admin/dashboard/leads' },
+    { icon: Target, label: 'Command Center', path: '/admin/dashboard/commercial' },
     { icon: UserCheck, label: 'Customers', path: '/admin/dashboard/customers' },
     { icon: ImageIcon, label: 'Gallery', path: '/admin/dashboard/gallery' },
     { icon: MessageSquare, label: 'Reviews', path: '/admin/dashboard/reviews' },

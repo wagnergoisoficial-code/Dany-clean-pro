@@ -1,5 +1,6 @@
 import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
+import { enrichLeadWithShadowAI } from './shared/shadowEngine';
 
 // Initialize Firebase Admin outside the handler for reuse
 const initializeAdmin = () => {
@@ -144,6 +145,30 @@ export const handler: Handler = async (event) => {
 
     console.log('No duplicate found, creating new lead...');
 
+    // Shadow Mode background analysis silently
+    let shadowData: any = {};
+    try {
+      const payloadForEnrichment = {
+        name,
+        phone,
+        city: city || "",
+        service_type: serviceInterest || "AI Chat Lead",
+        message: initialMessage || ""
+      };
+      const analysis = await enrichLeadWithShadowAI(payloadForEnrichment);
+      if (analysis) {
+        shadowData = {
+          lead_score: analysis.lead_score,
+          intent_category: analysis.intent_category,
+          revenue_estimate: analysis.revenue_estimate,
+          ai_summary: analysis.ai_summary
+        };
+        console.log("[SHADOW MODE CHAT-LEAD SUCCESS] Enrichment retrieved silently:", analysis);
+      }
+    } catch (enrichErr) {
+      console.error("[SHADOW MODE CHAT-LEAD EXCEPTION] Failed to enrich lead silently:", enrichErr);
+    }
+
     // Create the lead
     const newLead = {
       name,
@@ -155,6 +180,7 @@ export const handler: Handler = async (event) => {
       source: 'AI Chat (Jennifer)',
       status: 'new',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      ...shadowData
     };
 
     const docRef = await leadsRef.add(newLead);

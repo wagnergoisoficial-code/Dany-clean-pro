@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Send, CheckCircle, ArrowRight } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, isFirebaseReady } from '../../lib/firebase';
@@ -78,7 +79,21 @@ export default function LeadForm() {
     if (mutation.isPending) return;
     
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+    const rawData = Object.fromEntries(formData.entries());
+
+    // Marketing Attribution - Módulo 1: Capture UTM queries from URL search params
+    const urlParams = new URLSearchParams(window.location.search);
+    const utm_source = urlParams.get('utm_source') || '';
+    const utm_medium = urlParams.get('utm_medium') || '';
+    const utm_campaign = urlParams.get('utm_campaign') || '';
+
+    const data = {
+      ...rawData,
+      utm_source,
+      utm_medium,
+      utm_campaign
+    };
+    
     mutation.mutate(data);
   };
 
@@ -177,11 +192,29 @@ export default function LeadForm() {
         </div>
       </div>
 
+      {/* TCR / A2P 10DLC Compliant SMS Consent Section */}
+      <div className="flex items-start gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 mt-2">
+        <input 
+          type="checkbox"
+          id="sms_consent"
+          name="sms_consent"
+          required
+          defaultChecked={true}
+          className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 shrink-0"
+        />
+        <label htmlFor="sms_consent" className="text-[11px] text-slate-500 leading-normal font-sans font-medium select-none">
+          By checking this box or submitting this form, you agree to receive SMS messages from Dany Clean Pro / Brazilian Clean. Message frequency varies. Message and data rates may apply. Reply STOP to opt out. Reply HELP for assistance. View our{' '}
+          <Link to="/privacy-policy" className="text-blue-600 hover:underline font-bold">Privacy Policy</Link>
+          {' '}and{' '}
+          <Link to="/terms" className="text-blue-600 hover:underline font-bold">Terms & Conditions</Link>.
+        </label>
+      </div>
+
       <button 
         type="submit"
         disabled={mutation.isPending}
         className={cn(
-          "w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 active:scale-[0.98] mt-4 relative",
+          "w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 active:scale-[0.98] mt-2 relative",
           mutation.isPending && "opacity-70 cursor-not-allowed"
         )}
       >
