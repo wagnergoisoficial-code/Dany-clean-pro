@@ -84,7 +84,7 @@ export default function TermsAndConditions() {
               to="/" 
               className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest mb-8 group"
             >
-              <span className="transition-transform group-hover:-translate-x-1">←</span> Back to Home Page
+              <span className="transition-transform group-hover:-translate-x-1">&lt;-</span> Back to Home Page
             </Link>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-full text-xs font-semibold mb-6 font-sans">
               <FileText size={12} />
@@ -556,10 +556,10 @@ export default function TermsAndConditions() {
                 </p>
                 <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 space-y-4 font-sans text-slate-705">
                   <p className="font-black text-slate-900 text-xs sm:text-sm uppercase tracking-widest font-mono">DANY CLEAN PRO OPERATIONS</p>
-                  <p className="text-xs sm:text-sm">📍 Headquartered in Connecticut, United States</p>
-                  <p className="text-xs sm:text-sm">📱 Phone: <a href="tel:+12183575938" className="text-indigo-600 hover:underline font-semibold font-mono">+1 (218) 357-5938</a></p>
-                  <p className="text-xs sm:text-sm">✉️ Email: <a href="mailto:danycleanenpro@gmail.com" className="text-indigo-600 hover:underline font-semibold">danycleanenpro@gmail.com</a></p>
-                  <p className="text-xs sm:text-sm">🌐 Website: <a href="https://ais-pre-4fnvpzw3cvjvt7ikeaspo5-19020320692.us-west2.run.app" className="text-indigo-600 hover:underline font-mono">Dany Clean Pro Portal</a></p>
+                  <p className="text-xs sm:text-sm">Headquartered in Connecticut, United States</p>
+                  <p className="text-xs sm:text-sm">Phone: <a href="tel:+12183575938" className="text-indigo-600 hover:underline font-semibold font-mono">+1 (218) 357-5938</a></p>
+                  <p className="text-xs sm:text-sm">Email: <a href="mailto:danycleanenpro@gmail.com" className="text-indigo-600 hover:underline font-semibold">danycleanenpro@gmail.com</a></p>
+                  <p className="text-xs sm:text-sm">Website: <a href="https://ais-pre-4fnvpzw3cvjvt7ikeaspo5-19020320692.us-west2.run.app" className="text-indigo-600 hover:underline font-mono">Dany Clean Pro Portal</a></p>
                 </div>
               </article>
 

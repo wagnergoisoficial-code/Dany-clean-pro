@@ -9,6 +9,7 @@ import { useConfig } from '../../hooks/useConfig';
 
 export default function LeadForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
   const { businessPhone } = useConfig();
 
   const mutation = useMutation({
@@ -199,23 +200,24 @@ export default function LeadForm() {
           id="sms_consent"
           name="sms_consent"
           required
-          defaultChecked={true}
+          checked={smsConsent}
+          onChange={(e) => setSmsConsent(e.target.checked)}
           className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 shrink-0"
         />
         <label htmlFor="sms_consent" className="text-[11px] text-slate-500 leading-normal font-sans font-medium select-none">
-          By checking this box or submitting this form, you agree to receive SMS messages from Dany Clean Pro / Brazilian Clean. Message frequency varies. Message and data rates may apply. Reply STOP to opt out. Reply HELP for assistance. View our{' '}
-          <Link to="/privacy-policy" className="text-blue-600 hover:underline font-bold">Privacy Policy</Link>
+          By checking this box and submitting this form, you agree to receive SMS messages from Dany Clean Pro / Brazilian Clean about your cleaning service request, estimates, and appointment updates. Message frequency varies. Message and data rates may apply. Reply HELP for help, reply STOP to opt out. View our{' '}
+          <Link to="/privacy-policy" className="text-blue-650 hover:underline font-bold">Privacy Policy</Link>
           {' '}and{' '}
-          <Link to="/terms" className="text-blue-600 hover:underline font-bold">Terms & Conditions</Link>.
+          <Link to="/terms" className="text-blue-650 hover:underline font-bold">Terms & Conditions</Link>.
         </label>
       </div>
 
       <button 
         type="submit"
-        disabled={mutation.isPending}
+        disabled={mutation.isPending || !smsConsent}
         className={cn(
           "w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 active:scale-[0.98] mt-2 relative",
-          mutation.isPending && "opacity-70 cursor-not-allowed"
+          (mutation.isPending || !smsConsent) && "opacity-70 cursor-not-allowed"
         )}
       >
         <span className={cn("flex items-center gap-3 transition-opacity", mutation.isPending ? "opacity-0" : "opacity-100")}>

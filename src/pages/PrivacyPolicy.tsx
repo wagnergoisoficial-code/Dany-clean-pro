@@ -52,7 +52,7 @@ export default function PrivacyPolicy() {
     { id: 'security-measures', label: '9. Platform Security', icon: Lock },
     { id: 'data-retention', label: '10. Data Retention', icon: FileText },
     { id: 'user-rights', label: '11. Your Legal Rights', icon: Sliders },
-    { id: 'minor-privacy', label: '12. Children’s Privacy', icon: AlertTriangle },
+    { id: 'minor-privacy', label: "12. Children's Privacy", icon: AlertTriangle },
     { id: 'policy-updates', label: '13. Policy Updates', icon: RefreshCcw },
     { id: 'contact-us', label: '14. Contact Operations', icon: Mail },
   ];
@@ -76,7 +76,7 @@ export default function PrivacyPolicy() {
               to="/" 
               className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest mb-8 group"
             >
-              <span className="transition-transform group-hover:-translate-x-1">←</span> Back to Home Page
+              <span className="transition-transform group-hover:-translate-x-1">&lt;-</span> Back to Home Page
             </Link>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full text-xs font-semibold mb-6">
               <Shield size={12} />
@@ -400,11 +400,11 @@ export default function PrivacyPolicy() {
                 </div>
               </article>
 
-              {/* Children’s Privacy */}
+              {/* Children's Privacy */}
               <article id="minor-privacy" className="scroll-mt-32 space-y-4">
                 <h2 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 tracking-tight flex items-center gap-3 border-b border-slate-100 pb-4">
                   <AlertTriangle className="text-blue-600 shrink-0" size={24} />
-                  <span>12. Children’s Privacy</span>
+                  <span>12. Children's Privacy</span>
                 </h2>
                 <p>
                   Our websites, checkout channels, and automated routing services are geared entirely toward adults, property owners, and business operators who are at least 18 years old. We do not intentionally target, collect, or catalog information from children under the age of 13. If you believe a minor has entered personal telemetry data, please notify us, and we will purge the record immediately.
