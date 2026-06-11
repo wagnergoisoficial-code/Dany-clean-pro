@@ -199,7 +199,6 @@ export default function LeadForm() {
           type="checkbox"
           id="sms_consent"
           name="sms_consent"
-          required
           checked={smsConsent}
           onChange={(e) => setSmsConsent(e.target.checked)}
           className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 shrink-0"
@@ -214,10 +213,10 @@ export default function LeadForm() {
 
       <button 
         type="submit"
-        disabled={mutation.isPending || !smsConsent}
+        disabled={mutation.isPending}
         className={cn(
           "w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 active:scale-[0.98] mt-2 relative",
-          (mutation.isPending || !smsConsent) && "opacity-70 cursor-not-allowed"
+          mutation.isPending && "opacity-70 cursor-not-allowed"
         )}
       >
         <span className={cn("flex items-center gap-3 transition-opacity", mutation.isPending ? "opacity-0" : "opacity-100")}>
