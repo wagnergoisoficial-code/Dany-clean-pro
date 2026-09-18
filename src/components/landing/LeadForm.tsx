@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Send, CheckCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType, isFirebaseReady } from '../../lib/firebase';
+import { db, isFirebaseReady } from '../../lib/firebase';
 import { cn } from '../../lib/utils';
 import { useConfig } from '../../hooks/useConfig';
+
+const fieldClass =
+  "w-full bg-surface-low px-4 py-3.5 text-body-md text-ink placeholder:text-ink-faint border border-transparent focus:border-accent focus:bg-surface outline-none transition-colors";
+const labelClass = "text-label-md uppercase text-ink mb-2 block";
 
 export default function LeadForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -100,17 +104,28 @@ export default function LeadForm() {
 
   if (submitted) {
     return (
-      <div className="text-center py-12 animate-in fade-in zoom-in duration-500">
-        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle size={40} />
+      <div className="flex flex-col items-center text-center py-10">
+        <div className="w-16 h-16 bg-accent-soft text-accent flex items-center justify-center mb-6">
+          <CheckCircle size={30} />
         </div>
-        <h3 className="text-3xl font-bold text-slate-900 mb-2">Thank You!</h3>
-        <p className="text-slate-600 mb-8 max-w-xs mx-auto">
-          We've received your request. A cleaning specialist will get in touch within 24 hours.
+        <h3 className="font-display text-headline-sm text-ink mb-3">Request received</h3>
+        <p className="text-body-md text-ink-muted max-w-md mb-8">
+          Thank you. Your request went straight to our scheduling desk — expect a personal call or
+          text within a few hours to confirm availability and review your requirements.
         </p>
+        <div className="bg-surface-low p-5 w-full max-w-md text-left mb-8">
+          <p className="text-body-sm text-ink">
+            <span className="text-label-sm uppercase text-ink-faint block mb-1">Direct contact</span>
+            {businessPhone}
+          </p>
+          <p className="text-body-sm text-ink mt-3">
+            <span className="text-label-sm uppercase text-ink-faint block mb-1">Email</span>
+            danycleanenpro@gmail.com
+          </p>
+        </div>
         <button 
           onClick={() => setSubmitted(false)}
-          className="text-blue-600 font-bold hover:underline"
+          className="text-label-md uppercase text-accent hover:text-accent-strong transition-colors border-b border-accent/40 pb-1"
         >
           Submit another request
         </button>
@@ -119,126 +134,134 @@ export default function LeadForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid sm:grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Your Full Name</label>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col">
+          <label className={labelClass} htmlFor="lead-name">Your Full Name *</label>
           <input 
             required
+            id="lead-name"
             name="name"
-            placeholder="e.g.: Sarah Smith"
-            className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-transparent focus:bg-white focus:border-blue-600/20 focus:ring-4 focus:ring-blue-100/50 outline-none transition-all font-medium text-slate-900 border"
+            placeholder="e.g. Sarah Smith"
+            className={fieldClass}
           />
         </div>
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Phone Number</label>
+        <div className="flex flex-col">
+          <label className={labelClass} htmlFor="lead-phone">Phone Number *</label>
           <input 
             required
             type="tel"
+            id="lead-phone"
             name="phone"
             placeholder={businessPhone}
-            className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-transparent focus:bg-white focus:border-blue-600/20 focus:ring-4 focus:ring-blue-100/50 outline-none transition-all font-medium text-slate-900 border"
+            className={fieldClass}
           />
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Email Address</label>
+      <div className="flex flex-col">
+        <label className={labelClass} htmlFor="lead-email">Email Address *</label>
         <input 
           required
           type="email"
+          id="lead-email"
           name="email"
           placeholder="sarah@example.com"
-          className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-transparent focus:bg-white focus:border-blue-600/20 focus:ring-4 focus:ring-blue-100/50 outline-none transition-all font-medium text-slate-900 border"
+          className={fieldClass}
         />
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Connecticut City</label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col">
+          <label className={labelClass} htmlFor="lead-city">Connecticut City *</label>
           <input 
             required
+            id="lead-city"
             name="city"
-            placeholder="e.g.: Stamford"
-            className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-transparent focus:bg-white focus:border-blue-600/20 focus:ring-4 focus:ring-blue-100/50 outline-none transition-all font-medium text-slate-900 border"
+            placeholder="e.g. Stamford"
+            className={fieldClass}
           />
         </div>
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Service Type</label>
+        <div className="flex flex-col">
+          <label className={labelClass} htmlFor="lead-service">Service Type</label>
           <select 
+            id="lead-service"
             name="service_type"
-            className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-transparent focus:bg-white focus:border-blue-600/20 focus:ring-4 focus:ring-blue-100/50 outline-none transition-all font-medium text-slate-900 border appearance-none"
+            className={cn(fieldClass, "appearance-none cursor-pointer")}
           >
             <option>Standard Residential Cleaning</option>
             <option>Deep Cleaning</option>
             <option>Move-In / Move-Out</option>
             <option>Post-Construction</option>
-            <option>Office & Commercial</option>
+            <option>Office &amp; Commercial</option>
           </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-5">
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Bedrooms</label>
-          <select name="bedrooms" className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-transparent focus:bg-white focus:border-blue-600/20 outline-none transition-all font-medium text-slate-900 border appearance-none">
+      <div className="grid grid-cols-2 gap-6">
+        <div className="flex flex-col">
+          <label className={labelClass} htmlFor="lead-bedrooms">Bedrooms</label>
+          <select id="lead-bedrooms" name="bedrooms" className={cn(fieldClass, "appearance-none cursor-pointer")}>
             {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} Bedroom{n > 1 ? 's' : ''}</option>)}
           </select>
         </div>
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Bathrooms</label>
-          <select name="bathrooms" className="w-full px-5 py-4 rounded-2xl bg-slate-50 border-transparent focus:bg-white focus:border-blue-600/20 outline-none transition-all font-medium text-slate-900 border appearance-none">
+        <div className="flex flex-col">
+          <label className={labelClass} htmlFor="lead-bathrooms">Bathrooms</label>
+          <select id="lead-bathrooms" name="bathrooms" className={cn(fieldClass, "appearance-none cursor-pointer")}>
             {[1,1.5,2,2.5,3,3.5,4].map(n => <option key={n} value={n}>{n} Bathroom{n > 1 ? 's' : ''}</option>)}
           </select>
         </div>
       </div>
 
       {/* TCR / A2P 10DLC Compliant SMS Consent Section */}
-      <div className="flex items-start gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 mt-2">
+      <div className="flex items-start gap-3 bg-surface-low p-5">
         <input 
           type="checkbox"
           id="sms_consent"
           name="sms_consent"
           checked={smsConsent}
           onChange={(e) => setSmsConsent(e.target.checked)}
-          className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 shrink-0"
+          className="mt-0.5 w-4 h-4 accent-[var(--color-accent)] shrink-0"
         />
-        <label htmlFor="sms_consent" className="text-[11px] text-slate-500 leading-normal font-sans font-medium select-none">
+        <label htmlFor="sms_consent" className="text-body-sm text-ink-muted select-none">
           By checking this box and submitting this form, you agree to receive SMS messages from Dany Clean Pro / Brazilian Clean about your cleaning service request, estimates, and appointment updates. Message frequency varies. Message and data rates may apply. Reply HELP for help, reply STOP to opt out. View our{' '}
-          <Link to="/privacy-policy" className="text-blue-650 hover:underline font-bold">Privacy Policy</Link>
+          <Link to="/privacy-policy" className="text-accent hover:underline font-semibold">Privacy Policy</Link>
           {' '}and{' '}
-          <Link to="/terms" className="text-blue-650 hover:underline font-bold">Terms & Conditions</Link>.
+          <Link to="/terms" className="text-accent hover:underline font-semibold">Terms &amp; Conditions</Link>.
         </label>
       </div>
 
-      <button 
-        type="submit"
-        disabled={mutation.isPending}
-        className={cn(
-          "w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/20 active:scale-[0.98] mt-2 relative",
-          mutation.isPending && "opacity-70 cursor-not-allowed"
-        )}
-      >
-        <span className={cn("flex items-center gap-3 transition-opacity", mutation.isPending ? "opacity-0" : "opacity-100")}>
-          Check Availability <ArrowRight size={20} />
-        </span>
-        
-        {mutation.isPending && (
-          <span className="absolute inset-0 flex items-center justify-center animate-pulse">
-            Connecting with Professional...
+      <div className="flex flex-col items-start gap-4">
+        <button 
+          type="submit"
+          disabled={mutation.isPending}
+          className={cn(
+            "w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-accent text-white text-label-md uppercase px-10 py-4 hover:bg-accent-strong transition-colors relative",
+            mutation.isPending && "opacity-70 cursor-not-allowed"
+          )}
+        >
+          <span className={cn("flex items-center gap-3 transition-opacity", mutation.isPending ? "opacity-0" : "opacity-100")}>
+            Check Availability <ArrowRight size={16} />
           </span>
-        )}
-      </button>
+          
+          {mutation.isPending && (
+            <span className="absolute inset-0 flex items-center justify-center animate-pulse">
+              Connecting with a professional…
+            </span>
+          )}
+        </button>
+
+        <p className="text-body-sm text-ink-muted flex items-start gap-2">
+          <Lock size={14} className="text-accent shrink-0 mt-1" />
+          No upfront payment required. We contact you to review requirements and confirm your appointment.
+        </p>
+      </div>
 
       {mutation.isError && (
-        <p className="text-red-500 text-sm text-center mt-2 font-medium">
+        <p className="text-body-sm text-red-600">
           Something went wrong. Please try calling us at {businessPhone} instead.
         </p>
       )}
-      
-      <p className="text-[10px] text-center text-slate-400 font-medium px-4">
-        By clicking, you agree to be contacted by our team. No credit card is required to get a quote.
-      </p>
     </form>
   );
 }

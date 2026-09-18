@@ -1,11 +1,16 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, CheckCircle2, Star, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
 import Container from '../ui/Container';
 import { useSetting } from '../../lib/settings';
+import { useConfig } from '../../hooks/useConfig';
+
+const FALLBACK_COVER =
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=2400";
 
 export default function HeroSection() {
   const { value: heroCover } = useSetting('hero_cover');
+  const { businessPhone } = useConfig();
   const [isImageError, setIsImageError] = React.useState(false);
 
   // Reset error state if heroCover changes (e.g. user updates it in CMS)
@@ -18,114 +23,80 @@ export default function HeroSection() {
     setIsImageError(true);
   };
 
-  const trustPoints = [
-    "Verified Professionals",
-    "Same-Day Availability",
-    "Fully Licensed & Insured"
-  ];
+  const triggerAICall = () => {
+    window.dispatchEvent(new CustomEvent('trigger-ai-call'));
+  };
 
   return (
-    <section className="relative pt-28 pb-20 lg:pt-52 lg:pb-32 bg-white overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-[60%] h-full bg-blue-50/30 -z-10 rounded-l-[5rem] lg:rounded-l-[10rem]" />
-      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-50/50 rounded-full blur-[100px] -z-10" />
+    <section className="relative w-full h-[80vh] min-h-[560px] bg-ink overflow-hidden">
+      {/* Full-bleed cover */}
+      <img
+        src={(heroCover && !isImageError) ? heroCover : FALLBACK_COVER}
+        alt="Professionally cleaned Connecticut home"
+        onError={handleImageError}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
 
-      <Container>
-        <div className="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-24">
-          
-          {/* Content side */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex-1 text-center lg:text-left z-10 w-full"
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] mb-8">
-               <ShieldCheck size={12} className="text-blue-400" />
-               Premium Connecticut Service
-            </div>
-            
-            <h1 className="text-4xl md:text-6xl lg:text-[5.5rem] font-display font-black text-slate-900 leading-[1.08] mb-8 tracking-tight">
-              A Cleaner Home. <br />
-              <span className="text-blue-600">A Calmer Life.</span>
-            </h1>
-            
-            <p className="text-lg lg:text-xl text-slate-500 mb-12 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              <span className="text-slate-900 font-extrabold block mb-2">Premium home cleaning trusted by Connecticut families.</span>
-              Reliable professionals, flexible scheduling, and spotless results without the stress.
+      {/* Editorial gradient wash: dark from the left and bottom so type stays legible */}
+      <div className="absolute inset-0 bg-gradient-to-r from-ink/95 via-ink/70 to-ink/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-transparent to-ink/50" />
+
+      {/* Copy sits on the lower left, clear of the fixed header */}
+      <Container className="relative h-full flex items-end pb-14 lg:pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="max-w-3xl"
+        >
+          <div className="flex items-center gap-3 mb-5">
+            <span className="w-1.5 h-1.5 bg-white/80" />
+            <p className="text-label-sm uppercase text-white/80">
+              Stamford · Greenwich · Norwalk · Fairfield County
             </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
-              <a 
-                href="#quote" 
-                className="w-full sm:w-auto bg-blue-600 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.1em] text-sm hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98] flex items-center justify-center gap-3"
-              >
-                GET MY FREE ESTIMATE <ArrowRight size={18} />
-              </a>
-              <div className="flex -space-x-3 items-center">
-                 {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
-                       <img src={`https://i.pravatar.cc/100?img=${i+44}`} alt="Rating User" />
-                    </div>
-                 ))}
-                 <div className="pl-6">
-                    <p className="text-[13px] font-bold text-slate-900">4.9/5 Rating</p>
-                    <p className="text-[10px] font-black text-slate-400 uppercase">Trusted by 1,200+ Connecticut Families</p>
-                 </div>
-              </div>
-            </div>
+          </div>
 
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-4 pt-10 border-t border-slate-100">
-               {trustPoints.map((text, i) => (
-                 <div key={i} className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
-                    <CheckCircle2 size={14} className="text-green-500" />
-                    {text}
-                 </div>
-               ))}
-            </div>
-          </motion.div>
+          <h1 className="font-display text-headline-lg sm:text-display lg:text-[64px] lg:leading-[70px] text-white tracking-tight mb-6">
+            A cleaner home.<br />A calmer life.
+          </h1>
 
-          {/* Visual side */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="flex-1 relative w-full mb-8 lg:mb-0"
-          >
-            <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[2.5rem] lg:rounded-[5.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(30,41,59,0.18)] z-10 border-[8px] lg:border-[16px] border-white bg-slate-100 flex items-center justify-center group">
-              <img 
-                src={(heroCover && !isImageError) ? heroCover : "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=1200"} 
-                alt="Luxury kitchen professionally cleaned and organized" 
-                onError={handleImageError}
-                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
-              
-              {/* Floating Quality Card */}
-              <div className="absolute top-12 left-12 py-5 px-6 bg-white/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 text-white shadow-2xl hidden sm:block">
-                 <div className="flex items-center gap-2 mb-1">
-                    <Star size={12} className="text-amber-400 fill-current" />
-                    <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Highly Recommended</span>
-                 </div>
-                 <p className="text-lg font-display font-bold">Elite Professional</p>
-              </div>
+          <p className="text-body-lg text-white/75 max-w-xl mb-10">
+            Premium residential and commercial cleaning trusted by Connecticut families.
+            Vetted professionals, flexible scheduling, and spotless results without the stress.
+          </p>
 
-              <div className="absolute bottom-16 left-16 right-16 text-white">
-                 <p className="text-3xl font-display font-medium tracking-tight leading-tight">Bringing professional shine to every corner of Connecticut.</p>
-              </div>
-            </div>
-
-            {/* Subtle floating markers */}
-            <motion.div 
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-6 -right-6 w-24 h-24 bg-blue-600 rounded-3xl shrink-0 flex items-center justify-center text-white shadow-2xl z-20"
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+            <a
+              href="#quote"
+              className="inline-flex items-center justify-center gap-3 bg-white text-ink hover:bg-accent hover:text-white transition-colors text-label-md uppercase px-8 py-4"
             >
-              <ShieldCheck size={40} />
-            </motion.div>
-          </motion.div>
+              Get My Free Estimate <ArrowRight size={16} />
+            </a>
+            <span className="text-body-sm text-white/70">
+              or call / text us directly at
+              <a
+                href={`tel:${businessPhone.replace(/\D/g, '')}`}
+                onClick={triggerAICall}
+                className="font-semibold text-white underline underline-offset-4 hover:text-white/80 transition-colors ml-1.5"
+              >
+                {businessPhone}
+              </a>
+            </span>
+          </div>
 
-        </div>
+          <div className="mt-10 pt-8 border-t border-white/15 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <div className="flex items-center gap-2">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={13} className="text-white fill-white" />
+              ))}
+              <span className="text-label-sm uppercase text-white/80 ml-1">4.9 / 5 average rating</span>
+            </div>
+            <span className="hidden sm:block w-px h-4 bg-white/20" />
+            <span className="text-label-sm uppercase text-white/60">
+              Family owned · Licensed &amp; insured · Background-checked team
+            </span>
+          </div>
+        </motion.div>
       </Container>
     </section>
   );

@@ -151,10 +151,10 @@ export default function AIChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="mb-4 w-[350px] sm:w-[400px] h-[500px] bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden"
+            className="mb-4 w-[350px] sm:w-[400px] h-[500px] bg-surface shadow-2xl border border-rule flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-blue-600 p-4 text-white flex justify-between items-center">
+            <div className="bg-ink p-4 text-white flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden border border-white/30">
                   <img 
@@ -170,13 +170,13 @@ export default function AIChatWidget() {
                 </div>
                 <div>
                   <h4 className="font-bold">Jennifer Assistant</h4>
-                  <p className="text-[10px] text-blue-100 flex items-center gap-1">
+                  <p className="text-label-sm uppercase text-white/60 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                     Online & Ready to Help
                   </p>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-1 rounded-lg">
+              <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-1">
                 <X size={20} />
               </button>
             </div>
@@ -184,7 +184,7 @@ export default function AIChatWidget() {
             {/* Messages */}
             <div 
               ref={scrollRef}
-              className="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50"
+              className="flex-grow overflow-y-auto p-4 space-y-4 bg-surface-low"
             >
               {messages.map((msg, i) => (
                 <div key={i} className={cn(
@@ -193,7 +193,7 @@ export default function AIChatWidget() {
                 )}>
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden",
-                    msg.role === 'user' ? "bg-blue-600 text-white" : "bg-white border border-slate-200 text-slate-400 shadow-sm"
+                    msg.role === 'user' ? "bg-accent text-white" : "bg-surface border border-rule text-ink-faint"
                   )}>
                     {msg.role === 'user' ? (
                       <User size={16} />
@@ -210,15 +210,15 @@ export default function AIChatWidget() {
                     )}
                   </div>
                   <div className={cn(
-                    "px-4 py-3 rounded-2xl text-sm max-w-[80%]",
-                    msg.role === 'user' ? "bg-blue-600 text-white" : "bg-white text-slate-700 shadow-sm border border-slate-100"
+                    "px-4 py-3 text-body-sm max-w-[80%]",
+                    msg.role === 'user' ? "bg-accent text-white" : "bg-surface text-ink-soft border border-rule"
                   )}>
                     {msg.content}
                   </div>
                 </div>
               ))}
               {isLoading && (
-                <div className="flex items-center gap-2 text-slate-400 text-xs px-12">
+                <div className="flex items-center gap-2 text-ink-faint text-body-sm px-12">
                   <span className="animate-bounce">●</span>
                   <span className="animate-bounce [animation-delay:0.2s]">●</span>
                   <span className="animate-bounce [animation-delay:0.4s]">●</span>
@@ -227,18 +227,18 @@ export default function AIChatWidget() {
             </div>
 
             {/* Footer */}
-            <form onSubmit={handleSend} className="p-4 border-t border-slate-100 bg-white">
+            <form onSubmit={handleSend} className="p-4 border-t border-rule bg-surface">
               <div className="relative">
                 <input 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about our services..."
-                  className="w-full pl-4 pr-12 py-3 rounded-xl bg-slate-100 focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
+                  className="w-full pl-4 pr-12 py-3 bg-surface-low border border-transparent focus:bg-surface focus:border-accent outline-none transition-colors text-body-md"
                 />
                 <button 
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center disabled:bg-slate-300"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-accent text-white flex items-center justify-center disabled:bg-surface-high"
                 >
                   <Send size={16} />
                 </button>
@@ -252,12 +252,12 @@ export default function AIChatWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center relative group"
+        className="w-16 h-16 bg-ink text-white shadow-2xl flex items-center justify-center relative group hover:bg-accent transition-colors"
       >
         <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full z-10" />
         <MessageSquare size={32} />
         {/* Tooltip */}
-        <div className="absolute right-20 bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        <div className="absolute right-20 bg-ink text-white px-3 py-1.5 text-label-sm uppercase opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           Questions? Ask Jennifer!
         </div>
       </motion.button>

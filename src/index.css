@@ -1,20 +1,111 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap');
 @import "tailwindcss";
 
+/*
+  Editorial design system.
+  Typography: Newsreader (display/headlines) + Manrope (body, labels).
+  Palette: the site's existing blue/slate brand mapped onto surface + ink roles.
+  No rounded cards, no decorative borders — rhythm comes from rules and whitespace.
+*/
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-low: #f8fafc;
+  --color-surface-mid: #f1f5f9;
+  --color-surface-high: #e2e8f0;
+
+  /* Ink */
+  --color-ink: #0f172a;
+  --color-ink-soft: #334155;
+  --color-ink-muted: #475569;
+  --color-ink-faint: #94a3b8;
+
+  /* Rules */
+  --color-rule: #e2e8f0;
+  --color-rule-soft: #f1f5f9;
+
+  /* Brand accent (kept from the current site) */
+  --color-accent: #2563eb;
+  --color-accent-strong: #1d4ed8;
+  --color-accent-ink: #1e40af;
+  --color-accent-soft: #eff6ff;
+
+  /* Type scale */
+  --text-label-sm: 10px;
+  --text-label-sm--line-height: 14px;
+  --text-label-sm--letter-spacing: 0.16em;
+  --text-label-sm--font-weight: 700;
+
+  --text-label-md: 12px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--letter-spacing: 0.12em;
+  --text-label-md--font-weight: 700;
+
+  --text-label-lg: 14px;
+  --text-label-lg--line-height: 20px;
+  --text-label-lg--letter-spacing: 0.08em;
+  --text-label-lg--font-weight: 600;
+
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--letter-spacing: 0.01em;
+  --text-body-sm--font-weight: 400;
+
+  --text-body-md: 15px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--letter-spacing: -0.005em;
+  --text-body-lg--font-weight: 400;
+
+  --text-headline-sm: 22px;
+  --text-headline-sm--line-height: 30px;
+  --text-headline-sm--font-weight: 500;
+
+  --text-headline-md: 28px;
+  --text-headline-md--line-height: 36px;
+  --text-headline-md--letter-spacing: -0.01em;
+  --text-headline-md--font-weight: 400;
+
+  --text-headline-lg: 40px;
+  --text-headline-lg--line-height: 48px;
+  --text-headline-lg--letter-spacing: -0.015em;
+  --text-headline-lg--font-weight: 400;
+
+  --text-display: 56px;
+  --text-display--line-height: 62px;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 400;
 }
 
-html {
-  scroll-behavior: smooth;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-surface font-sans text-ink-muted antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-normal text-ink;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-ink);
+  }
 }
 
-body {
-  @apply text-slate-600 antialiased;
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
-
-h1, h2, h3, h4, h5, h6 {
-  @apply font-display text-slate-900;
-}
-

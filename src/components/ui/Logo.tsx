@@ -1,30 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../../lib/firebase';
 import { cn } from '../../lib/utils';
 import { useSetting } from '../../lib/settings';
 
 interface LogoProps {
   className?: string;
+  /** `inverse` renders the wordmark for use on top of a dark image. */
+  variant?: 'default' | 'inverse';
 }
 
-export default function Logo({ className }: LogoProps) {
+export default function Logo({ className, variant = 'default' }: LogoProps) {
   const { value: preview } = useSetting('app_logo');
+  const inverse = variant === 'inverse';
 
   return (
-    <div className={cn("flex items-center gap-2.5 md:gap-3 py-1", className)}>
-      <div className={cn(
-        "flex items-center justify-center transition-all duration-300 shrink-0",
-        !preview && "w-10 h-10 md:w-11 md:h-11 rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20 text-white font-black text-xl"
-      )}>
-        {preview ? (
-          <img src={preview} alt="Logo" className="h-8 md:h-10 w-auto object-contain" />
-        ) : (
-          "D"
-        )}
-      </div>
-      <span className="font-sans font-extrabold text-base md:text-lg text-slate-800 tracking-tight whitespace-nowrap">
-        Dany Clean <span className="text-blue-600">Pro</span>
+    <div className={cn("flex items-center gap-2 sm:gap-3 min-w-0", className)}>
+      {preview && (
+        <img src={preview} alt="Dany Clean Pro" className="h-8 sm:h-9 md:h-10 w-auto object-contain shrink-0" />
+      )}
+      <span className="block">
+        <span
+          className={cn(
+            "block font-display text-body-lg sm:text-headline-sm tracking-tight transition-colors whitespace-nowrap",
+            inverse ? "text-white" : "text-ink group-hover:text-accent"
+          )}
+        >
+          Dany Clean Pro
+        </span>
+        <span
+          className={cn(
+            "hidden sm:block text-label-sm uppercase mt-0.5 transition-colors whitespace-nowrap",
+            inverse ? "text-white/70" : "text-accent"
+          )}
+        >
+          Residential &amp; Commercial Care
+        </span>
       </span>
     </div>
   );

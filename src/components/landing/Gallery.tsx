@@ -1,18 +1,37 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useQuery } from '@tanstack/react-query';
 import { GalleryItem } from '../../types';
 import Container from '../ui/Container';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import { Info, LayoutGrid, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { defaultImages } from '../../lib/galleryDefaults';
+
+const categories = ['All', 'Residential', 'Commercial', 'Deep Clean', 'Event Prep'];
+
+const translateCategory = (cat: string) => {
+  switch (cat.toLowerCase()) {
+    case 'residential': return 'Residencial';
+    case 'commercial': return 'Comercial';
+    case 'deep clean': return 'Pesada (Deep Clean)';
+    case 'event prep': return 'Pré/Pós Evento';
+    case 'all': return 'Todos';
+    default: return cat;
+  }
+};
 
 export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [itemsLimit, setItemsLimit] = useState<number>(9);
+  const [view, setView] = useState<'carousel' | 'grid'>('carousel');
+  const [itemsLimit, setItemsLimit] = useState<number>(12);
+  const [lightbox, setLightbox] = useState<number | null>(null);
 
-  const { data: galleryItems, isLoading } = useQuery<GalleryItem[]>({
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const { data: galleryItems } = useQuery<GalleryItem[]>({
     queryKey: ['gallery'],
     queryFn: async () => {
       let localItems: GalleryItem[] = [];
@@ -54,160 +73,316 @@ export default function Gallery() {
     }
   });
 
-  // Unique key deduplication and combining user uploads with default collection 
   const userItems = galleryItems || [];
-  
+
   // Dedup fallback default list if matching URLs (to avoid showing the same thing twice)
-  const dedupedDefaults = defaultImages.filter(def => 
+  const dedupedDefaults = defaultImages.filter(def =>
     !userItems.some(userItem => userItem.url === def.url)
   );
 
-  // User uploaded work comes FIRST, then beautiful reference catalog fills up to ensure 30+ items at all times
+  // User uploaded work comes FIRST, then the reference catalog fills the gallery out
   const displayImages = [...userItems, ...dedupedDefaults];
 
-  // Filtering Logic
-  const filteredImages = selectedCategory === 'All' 
-    ? displayImages 
+  const filteredImages = selectedCategory === 'All'
+    ? displayImages
     : displayImages.filter(img => img.category?.toLowerCase() === selectedCategory.toLowerCase());
 
-  // Pagination / Collapsing display limit
-  const visibleImages = filteredImages.slice(0, itemsLimit);
+  const visibleImages = view === 'grid' ? filteredImages.slice(0, itemsLimit) : filteredImages;
 
-  const translateCategory = (cat: string) => {
-    switch (cat.toLowerCase()) {
-      case 'residential': return 'Residencial';
-      case 'commercial': return 'Comercial';
-      case 'deep clean': return 'Pesada (Deep Clean)';
-      case 'event prep': return 'Pré/Pós Evento';
-      case 'all': return 'Todos';
-      default: return cat;
-    }
+  /* ---------------- Carousel controls ---------------- */
+
+  const syncArrows = useCallback(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 4);
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    syncArrows();
+    el.addEventListener('scroll', syncArrows, { passive: true });
+    window.addEventListener('resize', syncArrows);
+    return () => {
+      el.removeEventListener('scroll', syncArrows);
+      window.removeEventListener('resize', syncArrows);
+    };
+  }, [syncArrows, view, filteredImages.length]);
+
+  const slide = (direction: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * el.clientWidth * 0.82, behavior: 'smooth' });
   };
 
-  const categories = ['All', 'Residential', 'Commercial', 'Deep Clean', 'Event Prep'];
+  /* ---------------- Lightbox ---------------- */
+
+  const step = useCallback((direction: 1 | -1) => {
+    setLightbox(prev => {
+      if (prev === null) return prev;
+      const next = prev + direction;
+      if (next < 0) return filteredImages.length - 1;
+      if (next >= filteredImages.length) return 0;
+      return next;
+    });
+  }, [filteredImages.length]);
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null);
+      if (e.key === 'ArrowRight') step(1);
+      if (e.key === 'ArrowLeft') step(-1);
+    };
+    window.addEventListener('keydown', onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [lightbox, step]);
+
+  const active = lightbox !== null ? filteredImages[lightbox] : null;
 
   return (
-    <section id="gallery" className="py-24 sm:py-32 bg-slate-50/50">
+    <section id="gallery" className="w-full bg-surface py-16 lg:py-24">
       <Container>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
-          <div className="space-y-4">
-            <span className="text-blue-600 text-xs font-black uppercase tracking-[0.2em] block">Portfólio & Amostras</span>
-            <h3 className="text-4xl md:text-5xl font-display font-bold text-slate-900 leading-tight">
-              Galeria de <br />
-              Nossos Trabalhos.
-            </h3>
-            <p className="text-slate-500 text-sm sm:text-base max-w-xl">
-              Nossa galeria conta com mais de 30 fotos reais e profissionais de limpezas residenciais, comerciais, profundas e pós-eventos. Veja os resultados com seus próprios olhos!
+        {/* Section head */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10">
+          <div className="max-w-2xl">
+            <span className="block text-label-sm uppercase text-accent mb-3">Portfólio &amp; Amostras</span>
+            <h2 className="font-display text-headline-md lg:text-headline-lg text-ink">
+              Galeria de Nossos Trabalhos
+            </h2>
+            <p className="text-body-md text-ink-muted mt-3">
+              Mais de 30 fotos reais de limpezas residenciais, comerciais, profundas e pós-eventos.
+              Arraste para o lado ou abra a grade completa para ver os resultados.
             </p>
           </div>
-          
-          <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2.5 rounded-2xl border border-blue-100/50 text-xs font-bold">
-            <LayoutGrid className="w-4 h-4 text-blue-500" />
-            <span>Exibindo {filteredImages.length} fotos</span>
+
+          {/* Filters, dot separated — no pills, no cards */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-label-md uppercase">
+            {categories.map((cat, i) => (
+              <span key={cat} className="flex items-center gap-3">
+                {i > 0 && <span className="text-rule">·</span>}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    setItemsLimit(12);
+                    trackRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
+                  }}
+                  className={
+                    selectedCategory === cat
+                      ? "text-ink border-b border-accent pb-0.5"
+                      : "text-ink-faint hover:text-ink transition-colors pb-0.5 border-b border-transparent"
+                  }
+                >
+                  {translateCategory(cat)}
+                </button>
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* Category Filter Selector Buttons */}
-        <div className="flex flex-wrap gap-2 mb-10 pb-2 border-b border-slate-200/50">
-          {categories.map((cat) => (
+        {/* Counter + view switch */}
+        <div className="flex items-center justify-between gap-6 border-y border-rule py-4 mb-8">
+          <span className="text-label-sm uppercase text-ink-faint">
+            Exibindo {filteredImages.length} fotos
+          </span>
+
+          <div className="flex items-center gap-4">
             <button
-              key={cat}
-              onClick={() => {
-                setSelectedCategory(cat);
-                setItemsLimit(9); // Reset view size to 9 on filter change
-              }}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
-                selectedCategory === cat 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/10 scale-102' 
-                  : 'bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-800 border border-slate-200/60'
-              }`}
+              type="button"
+              onClick={() => setView(view === 'carousel' ? 'grid' : 'carousel')}
+              className="text-label-md uppercase text-ink hover:text-accent transition-colors"
             >
-              {translateCategory(cat)}
+              {view === 'carousel' ? 'Ver grade completa' : 'Ver carrossel'}
             </button>
-          ))}
+
+            {view === 'carousel' && (
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => slide(-1)}
+                  disabled={atStart}
+                  aria-label="Fotos anteriores"
+                  className="w-10 h-10 flex items-center justify-center bg-surface-low text-ink hover:bg-ink hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-surface-low disabled:hover:text-ink"
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => slide(1)}
+                  disabled={atEnd}
+                  aria-label="Próximas fotos"
+                  className="w-10 h-10 flex items-center justify-center bg-surface-low text-ink hover:bg-ink hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-surface-low disabled:hover:text-ink"
+                >
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Dynamic Gallery Container */}
-        <AnimatePresence mode="popLayout">
-          {visibleImages.length === 0 ? (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="py-16 text-center text-slate-400 italic font-medium"
-            >
-              Nenhuma imagem cadastrada para esta categoria.
-            </motion.div>
-          ) : (
-            <motion.div 
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-              id="platform-gallery-grid-container"
-            >
-              {visibleImages.map((img, i) => {
-                const isUserUpload = (img as any).createdAt || !defaultImages.some(def => def.url === img.url);
-                return (
-                  <motion.div
-                    layout
-                    key={`${img.url}-${i}`}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.35, delay: Math.min(i * 0.05, 0.3) }}
-                    whileHover={{ y: -6 }}
-                    className="relative group rounded-[2rem] overflow-hidden bg-white aspect-[4/5] shadow-sm hover:shadow-xl transition-all border border-slate-100"
-                  >
-                    {isUserUpload && (
-                      <div className="absolute top-4 left-4 z-10 bg-blue-600/90 backdrop-blur-md text-white px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow">
-                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                        Nosso Serviço
-                      </div>
-                    )}
-                    <img 
-                      src={img.url} 
-                      alt={img.title} 
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-450 flex flex-col justify-end p-8">
-                      <span className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1.5">
-                        {translateCategory(img.category || 'Residential')}
-                      </span>
-                      <h4 className="text-white font-bold text-xl tracking-tight leading-tight">{img.title || 'Foto de Serviço'}</h4>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {filteredImages.length === 0 ? (
+          <p className="py-16 text-center text-body-md text-ink-faint italic">
+            Nenhuma imagem cadastrada para esta categoria.
+          </p>
+        ) : view === 'carousel' ? (
+          /* Left-to-right filmstrip */
+          <div
+            ref={trackRef}
+            className="no-scrollbar flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-px-0 -mx-6 px-6 lg:mx-0 lg:px-0"
+          >
+            {filteredImages.map((img, i) => (
+              <figure
+                key={`${img.url}-${i}`}
+                onClick={() => setLightbox(i)}
+                className="group relative shrink-0 snap-start cursor-pointer w-[78%] sm:w-[46%] lg:w-[31%] aspect-4/5 overflow-hidden bg-surface-mid"
+              >
+                <img
+                  src={img.url}
+                  alt={img.title}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 via-ink/30 to-transparent p-6 pt-16">
+                  <span className="block text-label-sm uppercase text-white/70 mb-1">
+                    {translateCategory(img.category || 'Residential')}
+                  </span>
+                  <figcaption className="font-display text-headline-sm text-white leading-tight">
+                    {img.title || 'Foto de Serviço'}
+                  </figcaption>
+                </div>
+              </figure>
+            ))}
+          </div>
+        ) : (
+          /* Full mosaic */
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {visibleImages.map((img, i) => (
+              <figure
+                key={`${img.url}-${i}`}
+                onClick={() => setLightbox(i)}
+                className="group relative cursor-pointer aspect-4/5 overflow-hidden bg-surface-mid"
+              >
+                <img
+                  src={img.url}
+                  alt={img.title}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+                  <span className="block text-label-sm uppercase text-white/70 mb-1">
+                    {translateCategory(img.category || 'Residential')}
+                  </span>
+                  <figcaption className="font-display text-body-lg text-white leading-tight">
+                    {img.title || 'Foto de Serviço'}
+                  </figcaption>
+                </div>
+              </figure>
+            ))}
+          </div>
+        )}
 
-        {/* Collapsible Pagination controls */}
-        {filteredImages.length > 9 && (
-          <div className="mt-16 text-center">
+        {/* Grid pagination */}
+        {view === 'grid' && filteredImages.length > 12 && (
+          <div className="mt-10 text-center">
             {itemsLimit < filteredImages.length ? (
               <button
                 id="gallery-load-more-btn"
                 onClick={() => setItemsLimit(prev => Math.min(prev + 12, filteredImages.length))}
-                className="inline-flex items-center gap-2 bg-white text-slate-800 hover:text-blue-600 font-bold text-xs uppercase tracking-wider py-3.5 px-8 rounded-2xl shadow-sm border border-slate-200/80 active:scale-95 transition-all cursor-pointer hover:shadow-md hover:border-slate-300"
+                className="inline-flex items-center gap-2 text-label-md uppercase text-ink hover:text-accent transition-colors border-b border-rule hover:border-accent pb-1"
               >
                 Ver mais fotos ({filteredImages.length - itemsLimit} restantes)
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown size={14} />
               </button>
             ) : (
               <button
                 id="gallery-show-less-btn"
-                onClick={() => setItemsLimit(9)}
-                className="inline-flex items-center gap-2 bg-white text-slate-800 hover:text-blue-600 font-bold text-xs uppercase tracking-wider py-3.5 px-8 rounded-2xl shadow-sm border border-slate-200/80 active:scale-95 transition-all cursor-pointer hover:shadow-md hover:border-slate-300"
+                onClick={() => setItemsLimit(12)}
+                className="inline-flex items-center gap-2 text-label-md uppercase text-ink hover:text-accent transition-colors border-b border-rule hover:border-accent pb-1"
               >
-                Ver menos (Recolher galeria)
-                <ChevronUp className="w-4 h-4" />
+                Ver menos (recolher galeria)
+                <ChevronUp size={14} />
               </button>
             )}
           </div>
         )}
       </Container>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {active && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[200] bg-ink flex flex-col"
+            onClick={() => setLightbox(null)}
+          >
+            <div className="flex items-center justify-between px-6 lg:px-12 h-20 shrink-0">
+              <span className="text-label-sm uppercase text-white/60">
+                {(lightbox ?? 0) + 1} / {filteredImages.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => setLightbox(null)}
+                aria-label="Fechar"
+                className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div
+              className="flex-grow flex items-center justify-center px-4 sm:px-16 pb-10 min-h-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => step(-1)}
+                aria-label="Foto anterior"
+                className="hidden sm:flex w-12 h-12 items-center justify-center text-white hover:bg-white/10 transition-colors shrink-0"
+              >
+                <ArrowLeft size={20} />
+              </button>
+
+              <figure className="flex-grow h-full flex flex-col items-center justify-center min-w-0">
+                <img
+                  src={active.url}
+                  alt={active.title}
+                  referrerPolicy="no-referrer"
+                  className="max-h-[70vh] max-w-full object-contain"
+                />
+                <figcaption className="mt-6 text-center">
+                  <span className="block text-label-sm uppercase text-white/60 mb-1.5">
+                    {translateCategory(active.category || 'Residential')}
+                  </span>
+                  <span className="block font-display text-headline-sm text-white">
+                    {active.title || 'Foto de Serviço'}
+                  </span>
+                </figcaption>
+              </figure>
+
+              <button
+                type="button"
+                onClick={() => step(1)}
+                aria-label="Próxima foto"
+                className="hidden sm:flex w-12 h-12 items-center justify-center text-white hover:bg-white/10 transition-colors shrink-0"
+              >
+                <ArrowRight size={20} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

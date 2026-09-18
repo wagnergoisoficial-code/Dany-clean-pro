@@ -4,17 +4,19 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import Container from '../ui/Container';
 import Logo from '../ui/Logo';
-import { useSetting } from '../../lib/settings';
 import { useConfig } from '../../hooks/useConfig';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { value: heroCover } = useSetting('hero_cover');
   const { businessPhone } = useConfig();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const isHome = location.pathname === '/';
+  // Over the full-bleed hero the bar is transparent and reads on the gradient.
+  const overlay = isHome && !isScrolled && !isOpen;
 
   const getSmsUrl = () => {
     const isIOS = typeof window !== 'undefined' && (
@@ -73,217 +75,271 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
     { name: 'Services', href: '#services' },
     { name: 'About', href: '#about' },
     { name: 'Gallery', href: '#gallery' },
     { name: 'Reviews', href: '#reviews' },
+    { name: 'Service Areas', href: '#areas' },
   ];
 
   return (
-    <nav 
+    <header 
       className={cn(
-        "fixed top-0 inset-x-0 z-[100] transition-all duration-500",
-        isScrolled ? "bg-white/90 backdrop-blur-xl shadow-sm py-3" : "bg-transparent py-6"
+        "fixed top-0 inset-x-0 z-[100] transition-colors duration-300",
+        overlay
+          ? "bg-transparent"
+          : "bg-surface/95 backdrop-blur-xl border-b border-rule"
       )}
     >
       <Container>
-        <div className="flex items-center justify-between">
-          {/* Logo & Identity */}
-          <Link 
-            to="/" 
-            onClick={(e) => {
-              if (location.pathname === '/') {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-            }}
-            className="flex items-center shrink-0"
-          >
-            <Logo />
-          </Link>
+        <div className="h-20 flex items-center justify-between gap-8">
+          {/* Wordmark + primary navigation */}
+          <div className="flex items-center gap-8 2xl:gap-12 min-w-0">
+            <Link 
+              to="/" 
+              onClick={(e) => {
+                if (location.pathname === '/') {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
+              className="group block shrink-0"
+            >
+              <Logo variant={overlay ? 'inverse' : 'default'} />
+            </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center lg:gap-4 xl:gap-6 2xl:gap-8 flex-nowrap shrink-0">
-            {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                onClick={(e) => handleLinkClick(e, link.href)}
-                className="text-xs font-black uppercase tracking-[0.15em] text-slate-500 hover:text-blue-600 transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-            <div className="h-4 w-px bg-slate-200 shrink-0" />
-            
-            {/* Contact Links */}
-            <div className="flex items-center lg:gap-3 xl:gap-6 shrink-0">
+            <nav className="hidden xl:flex items-center gap-5 2xl:gap-7">
+              {navLinks.map((link) => (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  onClick={(e) => handleLinkClick(e, link.href)}
+                  className={cn(
+                    "text-label-md uppercase transition-colors whitespace-nowrap",
+                    overlay ? "text-white/80 hover:text-white" : "text-ink-muted hover:text-ink"
+                  )}
+                >
+                  {link.name}
+                </a>
+              ))}
+            </nav>
+          </div>
+
+          {/* Direct contact + call to action */}
+          <div className="hidden md:flex items-center gap-6 shrink-0">
+            <div className="text-right hidden 2xl:block">
+              <span className={cn(
+                "block text-label-sm uppercase",
+                overlay ? "text-white/60" : "text-accent"
+              )}>
+                Direct Inquiries
+              </span>
               <a 
                 href={`tel:${businessPhone.replace(/\D/g, '')}`} 
                 onClick={triggerAICall}
-                className="flex items-center gap-2 group"
+                className={cn(
+                  "text-body-sm font-semibold transition-colors",
+                  overlay ? "text-white hover:text-white/80" : "text-ink hover:text-accent"
+                )}
               >
-                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                  <Phone size={14} />
-                </div>
-                <span className="text-[13px] font-bold text-slate-900 line-clamp-1">{businessPhone}</span>
+                Call or Text {businessPhone}
               </a>
+            </div>
 
-              <a 
-                href={getSmsUrl()} 
+            <div className="flex items-center gap-2">
+              <a
+                href={`tel:${businessPhone.replace(/\D/g, '')}`}
+                onClick={triggerAICall}
+                title="Call us"
+                className={cn(
+                  "w-10 h-10 flex items-center justify-center transition-colors 2xl:hidden",
+                  overlay
+                    ? "text-white bg-white/10 hover:bg-white/20"
+                    : "text-ink-muted bg-surface-low hover:bg-surface-mid hover:text-ink"
+                )}
+              >
+                <Phone size={16} />
+              </a>
+              <a
+                href={getSmsUrl()}
                 onClick={handleSMSLaunch}
-                className="flex items-center gap-2 group"
                 title="Send us a text message"
+                className={cn(
+                  "w-10 h-10 flex items-center justify-center transition-colors",
+                  overlay
+                    ? "text-white bg-white/10 hover:bg-white/20"
+                    : "text-ink-muted bg-surface-low hover:bg-surface-mid hover:text-ink"
+                )}
               >
-                <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
-                  <MessageSquare size={14} />
-                </div>
-                <span className="text-[13px] font-bold text-slate-900 hidden xl:block">Text Us</span>
+                <MessageSquare size={16} />
               </a>
-
-              <a href="mailto:danycleanenpro@gmail.com" className="flex items-center gap-2 group">
-                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
-                  <Mail size={14} />
-                </div>
-                <span className="text-[13px] font-bold text-slate-900 hidden xl:block">Email</span>
+              <a
+                href="mailto:danycleanenpro@gmail.com"
+                title="Email us"
+                className={cn(
+                  "w-10 h-10 flex items-center justify-center transition-colors",
+                  overlay
+                    ? "text-white bg-white/10 hover:bg-white/20"
+                    : "text-ink-muted bg-surface-low hover:bg-surface-mid hover:text-ink"
+                )}
+              >
+                <Mail size={16} />
               </a>
             </div>
 
             <a 
               href="#quote" 
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl text-[13px] font-black uppercase tracking-wider hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 active:scale-95 whitespace-nowrap"
+              onClick={(e) => handleLinkClick(e, '#quote')}
+              className={cn(
+                "inline-flex items-center justify-center text-label-md uppercase px-6 py-3.5 transition-colors whitespace-nowrap",
+                overlay
+                  ? "bg-white text-ink hover:bg-white/90"
+                  : "bg-accent text-white hover:bg-accent-strong"
+              )}
             >
               Get Free Estimate
             </a>
           </div>
 
-          {/* Mobile Actions */}
-          <div className="flex items-center gap-2 sm:gap-3 lg:hidden">
-            <a 
-              href="mailto:danycleanenpro@gmail.com" 
-              className="p-2.5 rounded-xl bg-slate-50 text-slate-600 border border-slate-100"
-              title="Email Us"
-            >
-              <Mail size={18} />
-            </a>
-            <a 
-              href={getSmsUrl()} 
-              onClick={handleSMSLaunch}
-              className="p-2.5 rounded-xl bg-green-50 text-green-600 border border-green-100"
-              title="Send us a text message"
-            >
-              <MessageSquare size={18} />
-            </a>
+          {/* Compact actions */}
+          <div className="flex items-center gap-2 md:hidden">
             <a 
               href={`tel:${businessPhone.replace(/\D/g, '')}`} 
               onClick={triggerAICall}
-              className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100"
-              title="Call Us"
+              title="Call us"
+              className={cn(
+                "w-10 h-10 flex items-center justify-center transition-colors",
+                overlay ? "text-white bg-white/10" : "text-ink-muted bg-surface-low"
+              )}
             >
-              <Phone size={18} />
+              <Phone size={16} />
+            </a>
+            <a 
+              href="#quote" 
+              onClick={(e) => handleLinkClick(e, '#quote')}
+              className={cn(
+                "inline-flex items-center justify-center text-label-sm uppercase px-4 py-3 transition-colors",
+                overlay ? "bg-white text-ink" : "bg-accent text-white"
+              )}
+            >
+              Estimate
             </a>
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2.5 rounded-xl bg-slate-900 text-white shadow-lg"
+              aria-label="Toggle navigation"
+              className={cn(
+                "w-10 h-10 flex items-center justify-center transition-colors",
+                overlay ? "text-white bg-white/10" : "text-white bg-ink"
+              )}
             >
               {isOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
+
+          {/* Tablet menu trigger */}
+          <button 
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle navigation"
+            className={cn(
+              "hidden md:flex xl:hidden w-10 h-10 items-center justify-center transition-colors",
+              overlay ? "text-white bg-white/10" : "text-ink-muted bg-surface-low hover:text-ink"
+            )}
+          >
+            {isOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </Container>
 
-      {/* Mobile Drawer */}
+      {/* Drawer */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full inset-x-0 bg-white border-b border-slate-100 shadow-2xl lg:hidden overflow-hidden"
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full inset-x-0 bg-surface border-b border-rule xl:hidden overflow-hidden"
           >
-            <div className="px-6 py-10 space-y-8">
-              <div className="space-y-6">
-                {navLinks.map((link) => (
+            <Container>
+              <div className="py-10">
+                <nav className="flex flex-col divide-y divide-rule-soft border-y border-rule-soft mb-10">
+                  {navLinks.map((link) => (
+                    <a 
+                      key={link.name} 
+                      href={link.href}
+                      onClick={(e) => handleLinkClick(e, link.href)}
+                      className="flex items-center justify-between py-4 group"
+                    >
+                      <span className="font-display text-headline-sm text-ink group-hover:text-accent transition-colors">
+                        {link.name}
+                      </span>
+                      <ArrowRight size={16} className="text-ink-faint group-hover:text-accent transition-colors" />
+                    </a>
+                  ))}
+                </nav>
+
+                <span className="block text-label-sm uppercase text-accent mb-4">Direct Contact</span>
+                <div className="flex flex-col gap-3">
                   <a 
-                    key={link.name} 
-                    href={link.href}
-                    onClick={(e) => handleLinkClick(e, link.href)}
-                    className="flex items-center justify-between group"
+                    href={`tel:${businessPhone.replace(/\D/g, '')}`} 
+                    onClick={(e) => {
+                      setIsOpen(false);
+                      triggerAICall(e);
+                    }}
+                    className="flex items-center gap-4 bg-surface-low px-5 py-4 hover:bg-surface-mid transition-colors"
                   >
-                    <span className="text-xl font-bold text-slate-900">{link.name}</span>
-                    <ArrowRight size={18} className="text-slate-300 group-hover:text-blue-600 transition-colors" />
+                    <Phone size={18} className="text-accent shrink-0" />
+                    <span>
+                      <span className="block text-label-sm uppercase text-ink-faint">Call the office</span>
+                      <span className="block text-body-md font-semibold text-ink">{businessPhone}</span>
+                    </span>
                   </a>
-                ))}
-              </div>
 
-              <div className="pt-8 border-t border-slate-100 space-y-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Direct Contact</p>
-                
-                <a 
-                  href={`tel:${businessPhone.replace(/\D/g, '')}`} 
-                  onClick={(e) => {
-                    setIsOpen(false);
-                    triggerAICall(e);
-                  }}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50 text-blue-600"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
-                    <Phone size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">AI Call Assistant</p>
-                    <p className="text-lg font-bold">{businessPhone}</p>
-                  </div>
-                </a>
+                  <a 
+                    href={getSmsUrl()} 
+                    onClick={(e) => {
+                      setIsOpen(false);
+                      handleSMSLaunch(e);
+                    }}
+                    className="flex items-center gap-4 bg-surface-low px-5 py-4 hover:bg-surface-mid transition-colors"
+                  >
+                    <MessageSquare size={18} className="text-accent shrink-0" />
+                    <span>
+                      <span className="block text-label-sm uppercase text-ink-faint">Text us</span>
+                      <span className="block text-body-md font-semibold text-ink">+1 (218) 357-5938</span>
+                    </span>
+                  </a>
 
-                <a 
-                  href={getSmsUrl()} 
-                  onClick={(e) => {
-                    setIsOpen(false);
-                    handleSMSLaunch(e);
-                  }}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-green-50 text-green-600"
-                  title="Send us a text message"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-green-600 text-white flex items-center justify-center">
-                    <MessageSquare size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Text Us</p>
-                    <p className="text-lg font-bold">+1 (218) 357-5938</p>
-                  </div>
-                </a>
+                  <a 
+                    href="mailto:danycleanenpro@gmail.com" 
+                    className="flex items-center gap-4 bg-surface-low px-5 py-4 hover:bg-surface-mid transition-colors"
+                  >
+                    <Mail size={18} className="text-accent shrink-0" />
+                    <span className="min-w-0">
+                      <span className="block text-label-sm uppercase text-ink-faint">Email us</span>
+                      <span className="block text-body-md font-semibold text-ink truncate">danycleanenpro@gmail.com</span>
+                    </span>
+                  </a>
+                </div>
 
-                <a href="mailto:danycleanenpro@gmail.com" className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 text-slate-600">
-                  <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center">
-                    <Mail size={20} />
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Email Us</p>
-                    <p className="text-base font-bold truncate">danycleanenpro@gmail.com</p>
-                  </div>
-                </a>
-              </div>
-              
-              <div className="pt-8 border-t border-slate-100">
                 <a 
                   href="#quote" 
-                  onClick={() => setIsOpen(false)}
-                  className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-[0.1em] text-sm flex items-center justify-center gap-3 shadow-xl shadow-blue-600/20"
+                  onClick={(e) => handleLinkClick(e, '#quote')}
+                  className="mt-6 w-full bg-accent text-white py-4 text-label-md uppercase flex items-center justify-center gap-3 hover:bg-accent-strong transition-colors"
                 >
-                  Book Instant Clean <ArrowRight size={18} />
+                  Get Free Estimate <ArrowRight size={16} />
                 </a>
               </div>
-            </div>
+            </Container>
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </header>
   );
 }

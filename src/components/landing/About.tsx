@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { CheckCircle2, Award, Users, Heart } from 'lucide-react';
+import { CheckCircle2, Award, Users, Leaf } from 'lucide-react';
 import Container from '../ui/Container';
 import { useSetting } from '../../lib/settings';
+
+const credentials = [
+  { icon: Award, title: "Quality First", desc: "A detailed checklist verified on every single visit." },
+  { icon: Users, title: "Trusted Team", desc: "Background-checked professionals, never rotating strangers." },
+  { icon: Leaf, title: "Family Safe", desc: "Non-toxic products chosen for children and pets." },
+  { icon: CheckCircle2, title: "100% Guarantee", desc: "Didn't love it? We return and re-clean for free." }
+];
 
 export default function About() {
   const { value: customImage } = useSetting('about_section_image');
@@ -20,70 +27,65 @@ export default function About() {
   };
 
   return (
-    <section id="about" className="py-32 bg-white overflow-hidden">
+    <section id="about" className="w-full bg-surface-low py-16 lg:py-24">
       <Container>
-        <div className="grid lg:grid-cols-2 gap-20 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Portrait */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative w-full max-w-[540px] mx-auto lg:max-w-none"
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-5"
           >
-            <div className="relative z-10 w-full aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-slate-900 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.12)] border border-slate-100 flex items-center justify-center">
-              {/* Stable Fallback Loader/Background Pattern to avoid cumulative layout shift (CLS) */}
-              <div className="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/20 mb-3">
-                  <Award size={24} />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Dany Clean Pro Excellence</span>
-              </div>
-
-              {/* High-fidelity Image layer with load-in properties */}
-              <img 
-                src={displayImage} 
-                alt="Luxury kitchen professionally cleaned and organized" 
+            <div className="relative bg-surface overflow-hidden">
+              <img
+                src={displayImage}
+                alt="Our team at work in a Connecticut home"
                 onError={handleImageError}
                 referrerPolicy="no-referrer"
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-105"
+                className="w-full h-[420px] lg:h-[520px] object-cover"
               />
-            </div>
-            <div className="absolute -bottom-10 -right-10 w-56 h-56 bg-slate-900 rounded-[2.5rem] flex items-center justify-center p-8 text-white z-20 shadow-2xl hidden md:flex">
-              <div className="text-center">
-                <p className="text-5xl font-bold mb-1">14+</p>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Years of Service</p>
+              <div className="p-5 bg-surface flex items-center justify-between gap-4">
+                <div>
+                  <span className="block text-label-sm uppercase text-accent">Family Owned &amp; Operated</span>
+                  <span className="block font-display text-headline-sm text-ink">Dany Clean Pro</span>
+                </div>
+                <span className="text-label-sm uppercase bg-accent-soft text-accent-ink px-3 py-1.5 whitespace-nowrap">
+                  14+ Years
+                </span>
               </div>
             </div>
           </motion.div>
 
-          <div className="space-y-10">
-            <div className="space-y-6">
-              <h3 className="text-4xl md:text-5xl font-display font-bold text-slate-900 leading-tight">
-                Born in Connecticut, <br />
-                Dedicated to Your Home.
-              </h3>
-              <p className="text-slate-500 text-lg leading-relaxed font-medium">
-                Dany Clean Pro started with a simple family goal: to provide high-quality cleaning services with a personal, reliable touch. Today, we've helped thousands of families across Fairfield County reclaim their time.
+          {/* Story */}
+          <div className="lg:col-span-7 flex flex-col">
+            <span className="block text-label-sm uppercase text-accent mb-3">Meet Your Cleaning Team</span>
+            <h2 className="font-display text-headline-md lg:text-headline-lg text-ink tracking-tight mb-6">
+              “We treat your home with the same quiet care and respect we give our own.”
+            </h2>
+
+            <div className="flex flex-col gap-4 text-body-md text-ink-muted mb-10">
+              <p>
+                Dany Clean Pro started with a simple family goal: to provide high-quality cleaning
+                with a personal, reliable touch. Today we've helped thousands of families across
+                Fairfield County reclaim their time.
               </p>
-              <p className="text-slate-500 text-lg leading-relaxed font-medium">
-                We're not a massive corporate franchise. We're your neighbors. Every clean we perform is treated with the same care we give our own homes.
+              <p>
+                We're not a massive corporate franchise — we're your neighbors. Every clean we
+                perform is treated with the same care we give our own homes, from punctual arrivals
+                to quiet thoroughness and absolute discretion.
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-x-10 gap-y-8 pt-4">
-              {[
-                { icon: Award, title: "Quality First", desc: "A detailed checklist for every single visit." },
-                { icon: Users, title: "Trusted Team", desc: "Background checked professionals." },
-                { icon: Heart, title: "Eco-Friendly", desc: "Safe products for pets and children." },
-                { icon: CheckCircle2, title: "100% Guarantee", desc: "Didn't love it? We'll re-clean for free." }
-              ].map((item, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                    <item.icon size={20} />
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-8 bg-surface p-8">
+              {credentials.map((item, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <item.icon size={20} className="text-accent shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-bold text-slate-900 mb-1 text-base">{item.title}</h4>
-                    <p className="text-sm text-slate-400 font-medium leading-relaxed">{item.desc}</p>
+                    <span className="block text-label-md uppercase text-ink mb-1.5">{item.title}</span>
+                    <span className="block text-body-sm text-ink-muted">{item.desc}</span>
                   </div>
                 </div>
               ))}

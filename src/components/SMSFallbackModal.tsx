@@ -49,7 +49,7 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-[200] bg-ink/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6"
     >
       {/* Click outside to close */}
       <div className="absolute inset-0" onClick={onClose} />
@@ -59,13 +59,13 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
         transition={{ type: "spring", duration: 0.5 }}
-        className="w-full max-w-lg bg-white rounded-[2.5rem] overflow-hidden shadow-2xl relative border border-slate-100 p-6 sm:p-10 flex flex-col space-y-6 z-10 text-left"
+        className="w-full max-w-lg bg-surface overflow-hidden shadow-2xl relative p-6 sm:p-10 flex flex-col space-y-6 z-10 text-left"
         id="sms-fallback-card"
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+          className="absolute top-5 right-5 w-10 h-10 flex items-center justify-center hover:bg-surface-low text-ink-faint hover:text-ink transition-colors"
           title="Close Dialog"
         >
           <X size={20} />
@@ -73,41 +73,41 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
 
         {/* Header Icon & Title */}
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-green-50 text-green-700 text-[10px] font-black uppercase tracking-[0.15em]">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-accent-soft text-accent-ink text-label-sm uppercase">
             <Sparkles size={12} className="animate-spin-slow" />
             Instant SMS AI Receptionist
           </div>
           <div className="space-y-2">
-            <h3 className="text-2xl sm:text-3xl font-display font-black text-slate-900 leading-tight">
+            <h3 className="font-display text-headline-md text-ink leading-tight">
               Text Us for Quotes <br />
-              <span className="text-blue-600">& Local Booking</span>
+              <span className="text-accent">& Local Booking</span>
             </h3>
-            <p className="text-slate-500 font-medium text-sm leading-relaxed">
+            <p className="text-body-md text-ink-muted">
               We operate standard SMS in the United States. Send us a message, and our AI Assistant handles bookings instantly.
             </p>
           </div>
         </div>
 
         {/* Visual Phone Simulation */}
-        <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 sm:p-6 space-y-4 relative overflow-hidden">
-          <div className="flex items-center gap-3 pb-3 border-b border-slate-200/60">
-            <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0 shadow-sm">
+        <div className="bg-surface-low p-4 sm:p-6 space-y-4 relative overflow-hidden">
+          <div className="flex items-center gap-3 pb-3 border-b border-rule">
+            <div className="w-10 h-10 bg-accent flex items-center justify-center text-white shrink-0">
               <Smartphone size={20} className="text-white" />
             </div>
             <div>
-              <p className="text-xs uppercase font-extrabold text-slate-400 tracking-wider">SMS Recipient</p>
-              <p className="text-sm font-black text-slate-800">{formattedPhone}</p>
+              <p className="text-label-sm uppercase text-ink-faint">SMS Recipient</p>
+              <p className="text-body-md font-semibold text-ink">{formattedPhone}</p>
             </div>
           </div>
 
           <div className="space-y-3">
              <div className="flex justify-between items-center">
-               <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Message Draft</span>
-               <span className="text-[10px] text-slate-400">Pre-filled automagic text</span>
+               <span className="text-label-sm uppercase text-ink-faint">Message Draft</span>
+               <span className="text-label-sm text-ink-faint">Pre-filled automagic text</span>
              </div>
              
              {/* Simulated Message Bubble */}
-             <div className="bg-green-100 text-slate-800 text-sm px-4 py-3 rounded-2xl rounded-br-none max-w-[85%] ml-auto shadow-xs border border-green-200">
+             <div className="bg-accent-soft text-ink text-body-sm px-4 py-3 max-w-[85%] ml-auto border border-accent/20">
                {presetMessage}
              </div>
           </div>
@@ -118,7 +118,7 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
           {/* Main Direct SMS Deep Link */}
           <a
             href={getSmsUrl()}
-            className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white py-4.5 px-6 rounded-2xl font-black uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-3 shadow-xl shadow-blue-600/15 transition-all text-center"
+            className="w-full bg-accent hover:bg-accent-strong text-white py-4 px-6 text-label-md uppercase flex items-center justify-center gap-3 transition-colors text-center"
           >
             LAUNCH MESSAGE APP <ArrowUpRight size={16} />
           </a>
@@ -128,10 +128,10 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
             <button
               onClick={copyNumberToClipboard}
               className={cn(
-                "py-3 px-4 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
+                "py-3 px-4 border text-label-md uppercase flex items-center justify-center gap-2 transition-colors",
                 copiedNumber 
-                  ? "bg-green-50 text-green-600 border-green-200" 
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  ? "bg-accent-soft text-accent-ink border-accent/20" 
+                  : "bg-surface text-ink-soft border-rule hover:bg-surface-low"
               )}
             >
               {copiedNumber ? (
@@ -149,10 +149,10 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
             <button
               onClick={copyMessageToClipboard}
               className={cn(
-                "py-3 px-4 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
+                "py-3 px-4 border text-label-md uppercase flex items-center justify-center gap-2 transition-colors",
                 copiedMessage 
-                  ? "bg-green-50 text-green-600 border-green-200" 
-                  : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                  ? "bg-accent-soft text-accent-ink border-accent/20" 
+                  : "bg-surface text-ink-soft border-rule hover:bg-surface-low"
               )}
             >
               {copiedMessage ? (
@@ -170,7 +170,7 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
 
         {/* Supporting Microcopy */}
         <div className="text-center">
-          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">
+          <p className="text-label-sm uppercase text-ink-faint">
             Text us for instant cleaning quotes and support.
           </p>
         </div>
