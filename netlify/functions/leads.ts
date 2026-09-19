@@ -1,6 +1,7 @@
 import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
 import { enrichLeadWithShadowAI } from './shared/shadowEngine';
+import { sendLeadEmail } from './shared/leadEmail';
 
 // Initialize Firebase Admin outside the handler for reuse
 const initializeAdmin = () => {
@@ -319,6 +320,15 @@ export const handler: Handler = async (event) => {
       await leadsRef.doc(existingLeadId).update(updatePayload);
       console.log(`✓ Firestore lead updated successfully.`);
 
+      // Mirror the CRM in the inbox; a mail failure must not fail the request.
+      const notifyPayload = {
+        name, phone: finalPhone, email, city, address, zip_code,
+        service_type, bedrooms: bedroomsNum, bathrooms: bathroomsNum,
+        preferred_date, preferred_time, message,
+        source: sanitize(getOptionalVal('source')) || 'api',
+      };
+      await sendLeadEmail({ ...notifyPayload, leadId: existingLeadId });
+
       return {
         statusCode: 200,
         headers,
@@ -385,6 +395,15 @@ export const handler: Handler = async (event) => {
 
       const docRef = await leadsRef.add(insertPayload);
       console.log(`✓ Created new Firestore lead doc ID: ${docRef.id}`);
+
+      // Mirror the CRM in the inbox; a mail failure must not fail the request.
+      const notifyPayload = {
+        name, phone: finalPhone, email, city, address, zip_code,
+        service_type, bedrooms: bedroomsNum, bathrooms: bathroomsNum,
+        preferred_date, preferred_time, message,
+        source: sanitize(getOptionalVal('source')) || 'api',
+      };
+      await sendLeadEmail({ ...notifyPayload, leadId: docRef.id });
 
       return {
         statusCode: 200,

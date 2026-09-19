@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import admin from "firebase-admin";
 import twilio from "twilio";
 import { enrichLeadWithShadowAI } from "./netlify/functions/shared/shadowEngine";
+import { sendLeadEmail } from './netlify/functions/shared/leadEmail';
 
 dotenv.config();
 
@@ -982,6 +983,16 @@ app.get("/api/leads", (req, res) => {
   });
 });
 
+// Mirrors netlify/functions/notify-lead.ts so the form behaves the same in dev.
+app.post("/api/notify-lead", async (req, res) => {
+  const lead = req.body || {};
+  if (!lead.phone && !lead.email) {
+    return res.status(400).json({ error: "phone or email required" });
+  }
+  const result = await sendLeadEmail(lead);
+  res.json(result);
+});
+
 app.post("/api/leads", async (req, res) => {
   console.log(`[POST] /api/leads - Incoming Lead Payload`);
   
@@ -1205,7 +1216,18 @@ app.post("/api/leads", async (req, res) => {
     }
   }
 
-  // 3. Trigger External Automations Webhook (if loaded)
+  // 3. E-mail the request to the operations inbox (never blocks the response)
+  void sendLeadEmail({
+    name, phone, email, city, address, zip_code, service_type,
+    bedrooms: bedroomsNum, bathrooms: bathroomsNum,
+    preferred_date, preferred_time, message,
+    sms_consent: rawBody.sms_consent,
+    utm_source, utm_medium, utm_campaign, attribution_channel,
+    source: source_body || 'api',
+    leadId: leadId == null ? null : String(leadId),
+  });
+
+  // 4. Trigger External Automations Webhook (if loaded)
   const webhookUrl = process.env.AUTOMATION_WEBHOOK_URL;
   if (webhookUrl) {
     (async () => {

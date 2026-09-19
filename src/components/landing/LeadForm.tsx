@@ -11,6 +11,30 @@ const fieldClass =
   "w-full bg-surface-low px-4 py-3.5 text-body-md text-ink placeholder:text-ink-faint border border-transparent focus:border-accent focus:bg-surface outline-none transition-colors";
 const labelClass = "text-label-md uppercase text-ink mb-2 block";
 
+/**
+ * Mirror a Firestore-written lead into the operations inbox.
+ * Fire and forget — failures are logged, never surfaced to the client.
+ */
+function notifyByEmail(payload: Record<string, any>) {
+  try {
+    const body = JSON.stringify(payload);
+    const url = '/api/notify-lead';
+    // sendBeacon survives the page being closed right after submitting
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const queued = navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+      if (queued) return;
+    }
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: true,
+    }).catch(err => console.warn('Lead e-mail notification failed:', err));
+  } catch (err) {
+    console.warn('Lead e-mail notification failed:', err);
+  }
+}
+
 export default function LeadForm() {
   const [submitted, setSubmitted] = useState(false);
   const [smsConsent, setSmsConsent] = useState(false);
@@ -38,6 +62,10 @@ export default function LeadForm() {
                  source: 'direct-client-firestore-priority'
                });
                console.log('LeadForm: Firestore submission successful, ID:', docRef.id);
+               // The API never sees this path, so the inbox notification is
+               // fired here. Deliberately not awaited: a mail problem must not
+               // hold up — or fail — a booking the client already completed.
+               notifyByEmail({ ...formData, leadId: docRef.id, source: 'website-form' });
                return { success: true, id: docRef.id };
              } catch (fsErr) {
                console.warn('LeadForm: Firestore submission failed, falling back to API:', fsErr);

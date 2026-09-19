@@ -30,6 +30,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/notify-lead"
+  to = "/.netlify/functions/notify-lead"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/leads"
   to = "/.netlify/functions/leads"
   status = 200
