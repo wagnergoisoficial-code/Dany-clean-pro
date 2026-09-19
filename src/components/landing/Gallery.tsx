@@ -335,7 +335,7 @@ export default function Gallery() {
                 type="button"
                 onClick={() => setLightbox(null)}
                 aria-label="Fechar"
-                className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                className="w-10 h-10 flex items-center justify-center text-white hover:bg-surface transition-colors"
               >
                 <X size={20} />
               </button>
@@ -349,7 +349,7 @@ export default function Gallery() {
                 type="button"
                 onClick={() => step(-1)}
                 aria-label="Foto anterior"
-                className="hidden sm:flex w-12 h-12 items-center justify-center text-white hover:bg-white/10 transition-colors shrink-0"
+                className="hidden sm:flex w-12 h-12 items-center justify-center text-white hover:bg-surface transition-colors shrink-0"
               >
                 <ArrowLeft size={20} />
               </button>
@@ -375,7 +375,7 @@ export default function Gallery() {
                 type="button"
                 onClick={() => step(1)}
                 aria-label="Próxima foto"
-                className="hidden sm:flex w-12 h-12 items-center justify-center text-white hover:bg-white/10 transition-colors shrink-0"
+                className="hidden sm:flex w-12 h-12 items-center justify-center text-white hover:bg-surface transition-colors shrink-0"
               >
                 <ArrowRight size={20} />
               </button>

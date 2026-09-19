@@ -50,7 +50,7 @@ export default function HeroSection() {
           className="max-w-3xl"
         >
           <div className="flex items-center gap-3 mb-5">
-            <span className="w-1.5 h-1.5 bg-white/80" />
+            <span className="w-1.5 h-1.5 bg-surface" />
             <p className="text-label-sm uppercase text-white/80">
               Stamford · Greenwich · Norwalk · Fairfield County
             </p>
@@ -68,7 +68,7 @@ export default function HeroSection() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
             <a
               href="#quote"
-              className="inline-flex items-center justify-center gap-3 bg-white text-ink hover:bg-accent hover:text-white transition-colors text-label-md uppercase px-8 py-4"
+              className="inline-flex items-center justify-center gap-3 bg-surface text-ink hover:bg-accent hover:text-white transition-colors text-label-md uppercase px-8 py-4"
             >
               Get My Free Estimate <ArrowRight size={16} />
             </a>
@@ -91,7 +91,7 @@ export default function HeroSection() {
               ))}
               <span className="text-label-sm uppercase text-white/80 ml-1">4.9 / 5 average rating</span>
             </div>
-            <span className="hidden sm:block w-px h-4 bg-white/20" />
+            <span className="hidden sm:block w-px h-4 bg-surface" />
             <span className="text-label-sm uppercase text-white/60">
               Family owned · Licensed &amp; insured · Background-checked team
             </span>

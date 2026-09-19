@@ -5,53 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Privacy Policy | Dany Clean Pro</title>
     <meta name="description" content="Official Privacy Policy and terms for Dany Clean Pro. Learn how we securely protect, manage, and process your residential and commercial cleaning requests in Connecticut." />
-    <!-- Tailwind CSS CDN for styling -->
+    <!-- Tailwind CSS CDN + editorial design tokens (mirrors src/index.css) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              surface: { DEFAULT: '#ffffff', low: '#f8fafc', mid: '#f1f5f9', high: '#e2e8f0' },
+              ink: { DEFAULT: '#0f172a', soft: '#334155', muted: '#475569', faint: '#94a3b8' },
+              rule: { DEFAULT: '#e2e8f0', soft: '#f1f5f9' },
+              accent: { DEFAULT: '#2563eb', strong: '#1d4ed8', ink: '#1e40af', soft: '#eff6ff' }
+            },
+            fontFamily: {
+              sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+              display: ['Newsreader', 'Georgia', 'serif']
+            },
+            fontSize: {
+              'label-sm': ['10px', { lineHeight: '14px', letterSpacing: '0.16em', fontWeight: '700' }],
+              'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.12em', fontWeight: '700' }],
+              'label-lg': ['14px', { lineHeight: '20px', letterSpacing: '0.08em', fontWeight: '600' }],
+              'body-sm': ['13px', { lineHeight: '20px', letterSpacing: '0.01em' }],
+              'body-md': ['15px', { lineHeight: '24px' }],
+              'body-lg': ['18px', { lineHeight: '28px', letterSpacing: '-0.005em' }],
+              'headline-sm': ['22px', { lineHeight: '30px', fontWeight: '500' }],
+              'headline-md': ['28px', { lineHeight: '36px', letterSpacing: '-0.01em' }],
+              'headline-lg': ['40px', { lineHeight: '48px', letterSpacing: '-0.015em' }],
+              'display': ['56px', { lineHeight: '62px', letterSpacing: '-0.02em' }]
+            },
+            /* flat by design — any stray rounded-* utility collapses to a square corner */
+            borderRadius: { DEFAULT: '0', none: '0', sm: '0', md: '0', lg: '0', xl: '0', '2xl': '0', '3xl': '0', full: '9999px' }
+          }
+        }
+      };
+    </script>
     <style>
-      body {
-        font-family: 'Inter', sans-serif;
-      }
-      .font-display {
-        font-family: 'Space Grotesk', sans-serif;
-      }
+      body { font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif; }
+      .font-display, h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', Georgia, serif; font-weight: 400; }
     </style>
   </head>
-  <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+  <body class="bg-surface-low text-ink-soft antialiased min-h-screen flex flex-col">
     
-    <!-- Simple Header -->
-    <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 py-4 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        <a href="/" class="flex items-center gap-2 group">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-display font-bold text-white text-lg shadow-lg shadow-blue-600/20">
-            D
-          </div>
-          <span class="font-display font-bold text-lg text-slate-900 group-hover:text-blue-600 transition-colors">Dany Clean Pro</span>
+    <!-- Masthead -->
+    <header class="bg-surface border-b border-rule sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
+        <a href="/" class="group block">
+          <span class="block font-display text-headline-sm text-ink tracking-tight leading-none group-hover:text-accent transition-colors">Dany Clean Pro</span>
+          <span class="block text-label-sm uppercase text-accent mt-1">Residential &amp; Commercial Care</span>
         </a>
-        <a href="/" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">
-          Back to Home Page
-        </a>
+        <a href="/" class="text-label-md uppercase text-ink-muted hover:text-ink transition-colors">Back to home</a>
       </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="relative overflow-hidden bg-gradient-to-b from-slate-950 to-slate-900 py-16 sm:py-24">
-      <div class="absolute inset-0 opacity-30 select-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent"></div>
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 text-white">
+    <!-- Masthead band -->
+    <section class="w-full bg-ink py-16 sm:py-24">
+      <div class="max-w-7xl mx-auto px-6 lg:px-12">
         <div class="max-w-3xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full text-xs font-semibold mb-6">
-            <span>Dany Clean Pro Security & Client Trust</span>
+          <div class="flex items-center gap-3 mb-5">
+            <span class="w-1.5 h-1.5 bg-white/60"></span>
+            <span class="text-label-sm uppercase text-white/60">Security &amp; Client Trust</span>
           </div>
-          <h1 class="text-3xl sm:text-5xl font-display font-black text-white tracking-tight leading-none mb-6">
-            Privacy Policy
-          </h1>
-          <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl">
-            Your trust is our most valuable asset. This policy outlines how we safely process, utilize, and protect your information as we coordinate premium, family-focused cleaning services for your home or business in Connecticut.
-          </p>
-          <div class="mt-8 flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400">
-            <span class="bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 uppercase tracking-widest font-bold">Effective: May 21, 2026</span>
-            <span class="bg-white/5 px-3 py-1.5 rounded-xl border border-white/10 uppercase tracking-widest font-bold">Standard: US-TCPA Compliant</span>
+          <h1 class="font-display text-headline-lg sm:text-display text-white tracking-tight mb-6">Privacy Policy</h1>
+          <p class="text-body-lg text-white/70 max-w-2xl">Your trust is our most valuable asset. This policy sets out how we process, use and protect your information while coordinating cleaning services in Connecticut.</p>
+          <div class="mt-10 pt-8 border-t border-white/15 flex flex-wrap items-center gap-x-8 gap-y-3">
+            <span class="text-label-sm uppercase text-white/60">Effective: May 21, 2026</span>
+            <span class="hidden sm:block w-px h-4 bg-white/20"></span>
+            <span class="text-label-sm uppercase text-white/60">Standard: US-TCPA compliant</span>
           </div>
         </div>
       </div>
@@ -63,56 +85,56 @@
         
         <!-- Sidebar Navigation -->
         <aside class="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
-          <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
-            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100 font-mono">
+          <div class="bg-surface p-6 border border-rule/80">
+            <h3 class="text-label-md text-ink uppercase mb-4 pb-3 border-b border-rule font-mono">
               Document Sections
             </h3>
             <nav class="space-y-1.5 text-xs sm:text-sm">
-              <a href="#introduction" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">1. Introduction</a>
-              <a href="#information-collected" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">2. Information We Collect</a>
-              <a href="#how-we-use" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">3. How We Use Your Data</a>
-              <a href="#tcpa-compliance" class="block py-1.5 px-2.5 rounded-lg text-blue-600 bg-blue-50/50 hover:bg-blue-50 transition-colors font-semibold">4. SMS & TCPA Compliance</a>
-              <a href="#tracking-tech" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">5. Cookies & Tracking</a>
-              <a href="#third-party-sharing" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">6. Third-Party Sharing</a>
-              <a href="#limitation-liability" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">7. Limitation of Liability</a>
-              <a href="#contractor-disclaimer" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">8. Independent Contractors</a>
-              <a href="#security-measures" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">9. Platform Security</a>
-              <a href="#data-retention" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">10. Data Retention</a>
-              <a href="#user-rights" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">11. Your Legal Rights</a>
-              <a href="#minor-privacy" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">12. Children's Privacy</a>
-              <a href="#policy-updates" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">13. Policy Updates</a>
-              <a href="#contact-us" class="block py-1.5 px-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-colors font-medium">14. Contact Operations</a>
+              <a href="#introduction" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">1. Introduction</a>
+              <a href="#information-collected" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">2. Information We Collect</a>
+              <a href="#how-we-use" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">3. How We Use Your Data</a>
+              <a href="#tcpa-compliance" class="block py-1.5 px-2.5 text-accent bg-accent-soft/50 hover:bg-accent-soft transition-colors font-semibold">4. SMS & TCPA Compliance</a>
+              <a href="#tracking-tech" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">5. Cookies & Tracking</a>
+              <a href="#third-party-sharing" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">6. Third-Party Sharing</a>
+              <a href="#limitation-liability" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">7. Limitation of Liability</a>
+              <a href="#contractor-disclaimer" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">8. Independent Contractors</a>
+              <a href="#security-measures" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">9. Platform Security</a>
+              <a href="#data-retention" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">10. Data Retention</a>
+              <a href="#user-rights" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">11. Your Legal Rights</a>
+              <a href="#minor-privacy" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">12. Children's Privacy</a>
+              <a href="#policy-updates" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">13. Policy Updates</a>
+              <a href="#contact-us" class="block py-1.5 px-2.5 text-ink-muted hover:bg-surface-low hover:text-accent transition-colors font-medium">14. Contact Operations</a>
             </nav>
           </div>
 
           <!-- Contact Support Card -->
-          <div class="bg-slate-900 text-white rounded-3xl p-6 border border-slate-800 shadow-xl relative overflow-hidden">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-3 font-mono">
+          <div class="bg-ink text-white p-6 border border-white/10 relative overflow-hidden">
+            <h4 class="text-label-md uppercase text-accent mb-3 font-mono">
               Privacy Inquiries
             </h4>
-            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            <p class="text-xs text-ink-faint leading-relaxed mb-4">
               If you have queries regarding data deletion, CCPA compliance, or our communication practices, our operations team is ready to assist:
             </p>
             <div class="space-y-3 text-xs">
-              <p>Phone: <a href="tel:+12183575938" class="text-blue-400 hover:underline font-semibold font-mono">+1 (218) 357-5938</a></p>
-              <p>Email: <a href="mailto:danycleanenpro@gmail.com" class="text-blue-400 hover:underline font-semibold">danycleanenpro@gmail.com</a></p>
+              <p>Phone: <a href="tel:+12183575938" class="text-accent hover:underline font-semibold font-mono">+1 (218) 357-5938</a></p>
+              <p>Email: <a href="mailto:danycleanenpro@gmail.com" class="text-accent hover:underline font-semibold">danycleanenpro@gmail.com</a></p>
             </div>
           </div>
         </aside>
 
         <!-- Privacy Content Pane -->
-        <main class="lg:col-span-8 bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 lg:p-12 shadow-sm space-y-10 text-slate-700 leading-relaxed text-sm sm:text-base">
+        <main class="lg:col-span-8 bg-surface border border-rule/80 p-6 sm:p-10 lg:p-12 space-y-10 text-ink-soft leading-relaxed text-sm sm:text-base">
           
-          <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs">
-            <p class="font-bold text-slate-900 uppercase font-mono tracking-wider mb-2">Notice of Privacy Integrity</p>
-            <p class="text-slate-600">
+          <div class="bg-surface-low border border-rule p-4 text-xs">
+            <p class="font-bold text-ink uppercase font-mono tracking-wider mb-2">Notice of Privacy Integrity</p>
+            <p class="text-ink-muted">
               We operate as a client-first, family-driven cleaning provider. Under no circumstances do we sell, lease, or distribute your private contact details for third-party commercial marketing. All the below categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties.
             </p>
           </div>
 
           <!-- 1. Introduction -->
           <section id="introduction" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               1. Introduction
             </h2>
             <p>
@@ -122,13 +144,13 @@
 
           <!-- 2. Information We Collect -->
           <section id="information-collected" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               2. Information We Collect
             </h2>
             <p>
               We collect the following classes of data to securely coordinate premium cleaning jobs:
             </p>
-            <ul class="list-disc pl-5 space-y-1.5 text-slate-600 text-xs sm:text-sm">
+            <ul class="list-disc pl-5 space-y-1.5 text-ink-muted text-xs sm:text-sm">
               <li><strong>Contact Identifiers:</strong> Your full name, telephone number, mailing/physical address, and email addresses.</li>
               <li><strong>Booking Details:</strong> Selected dates, preferred time constraints, number of rooms, commercial/residential parameters, and special request comments.</li>
               <li><strong>Billing Assets:</strong> Information strictly processed securely through encrypted third-party merchant channels. No payment credit numbers are retained on our servers.</li>
@@ -137,51 +159,51 @@
 
           <!-- 3. How We Use Your Data -->
           <section id="how-we-use" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               3. How We Use Your Data
             </h2>
             <p>
               The information we gather is exclusively leveraged to:
             </p>
             <div class="grid md:grid-cols-2 gap-4 my-2">
-              <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl">
-                <h4 class="font-bold text-slate-900 text-xs sm:text-sm mb-1">Service Scheduling</h4>
-                <p class="text-xs text-slate-600">Securing booking slots, assigning coordinators, and planning regional transit routes.</p>
+              <div class="p-4 bg-surface-low border border-rule">
+                <h4 class="font-bold text-ink text-xs sm:text-sm mb-1">Service Scheduling</h4>
+                <p class="text-xs text-ink-muted">Securing booking slots, assigning coordinators, and planning regional transit routes.</p>
               </div>
-              <div class="p-4 bg-slate-50 border border-slate-100 rounded-xl">
-                <h4 class="font-bold text-slate-900 text-xs sm:text-sm mb-1">Automated Alerts</h4>
-                <p class="text-xs text-slate-600">Sending live dispatch updates, ETA alerts, booking confirmations, and follow-up surveys.</p>
+              <div class="p-4 bg-surface-low border border-rule">
+                <h4 class="font-bold text-ink text-xs sm:text-sm mb-1">Automated Alerts</h4>
+                <p class="text-xs text-ink-muted">Sending live dispatch updates, ETA alerts, booking confirmations, and follow-up surveys.</p>
               </div>
             </div>
           </section>
 
           <!-- 4. SMS & TCPA Compliance -->
-          <section id="tcpa-compliance" class="scroll-mt-24 space-y-4 bg-blue-50/20 border border-blue-100/50 p-6 rounded-3xl">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-105 pb-2">
+          <section id="tcpa-compliance" class="scroll-mt-24 space-y-4 bg-accent-soft/20 border border-accent/50 p-6">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               4. SMS and TCPA Compliance
             </h2>
-            <p class="font-semibold text-slate-850">
+            <p class="font-semibold text-ink">
               Dany Clean Pro is fully committed to compliance under the United States Telephone Consumer Protection Act (TCPA) and applicable Connecticut communication regulations. Mobile information will not be shared with third parties or affiliates for marketing or promotional purposes.
             </p>
             
-            <div class="bg-white border border-blue-100 rounded-2xl p-5 space-y-3 text-xs sm:text-sm">
-              <p class="font-bold text-slate-900 font-mono tracking-wider uppercase text-xs text-blue-700">Consent, Help, and Opt-Out Protocols:</p>
-              <ul class="list-disc pl-5 space-y-2 text-slate-600">
+            <div class="bg-surface border border-accent/20 p-5 space-y-3 text-xs sm:text-sm">
+              <p class="text-ink font-mono uppercase text-label-md text-accent-ink">Consent, Help, and Opt-Out Protocols:</p>
+              <ul class="list-disc pl-5 space-y-2 text-ink-muted">
                 <li><strong>Consent Authorization:</strong> By providing your mobile telephone number on any form or lead collector on our website (https://danycleanpro.com), you provide written consent to receive operational text messages and MMS related to estimates, schedules, team ETAs, confirmations, and follow-ups from Dany Clean Pro.</li>
-                <li><strong>Opt-Out Protocol:</strong> You can cancel our text messaging connection at any time. Simply reply <strong class="text-blue-600 font-mono">STOP</strong> to any SMS you receive. After sending "STOP", we will transmit a concluding text confirming you have been cleanly opted out.</li>
+                <li><strong>Opt-Out Protocol:</strong> You can cancel our text messaging connection at any time. Simply reply <strong class="text-accent font-mono">STOP</strong> to any SMS you receive. After sending "STOP", we will transmit a concluding text confirming you have been cleanly opted out.</li>
                 <li><strong>Carrier Rates:</strong> Message and data rates as applied by your wireless provider may apply under standard mobile parameters.</li>
                 <li><strong>Frequency Guarantee:</strong> Text messages are dispatched only as logically needed to organize scheduled operations. We do not dispatch unsolicited mass promotional text streams.</li>
               </ul>
             </div>
             
-            <p class="text-xs text-slate-500">
+            <p class="text-xs text-ink-muted">
               All the above categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties or affiliates.
             </p>
           </section>
 
           <!-- 5. Cookies & Tracking Technologies -->
           <section id="tracking-tech" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               5. Cookies & Tracking Technologies
             </h2>
             <p>
@@ -191,17 +213,17 @@
 
           <!-- 6. Third-Party Sharing -->
           <section id="third-party-sharing" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               6. Third-Party Sharing & Infrastructure
             </h2>
             <p>
-              To execute regular operation layers, some data is processed through safe cloud partners (e.g. Google Firebase, Twilio). <span class="font-bold text-slate-900">SMS opt-in data, consent, and mobile information are kept strictly confidential and will NOT be shared with third parties or affiliates for marketing or promotional reasons!</span>
+              To execute regular operation layers, some data is processed through safe cloud partners (e.g. Google Firebase, Twilio). <span class="font-bold text-ink">SMS opt-in data, consent, and mobile information are kept strictly confidential and will NOT be shared with third parties or affiliates for marketing or promotional reasons!</span>
             </p>
           </section>
 
           <!-- 7. Limitation of Liability -->
           <section id="limitation-liability" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               7. Limitation of Liability
             </h2>
             <p>
@@ -211,7 +233,7 @@
 
           <!-- 8. Independent Contractors -->
           <section id="contractor-disclaimer" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               8. Independent Contractors
             </h2>
             <p>
@@ -221,7 +243,7 @@
 
           <!-- 9. Platform Security -->
           <section id="security-measures" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               9. Platform Security & Prohibited Activities
             </h2>
             <p>
@@ -231,7 +253,7 @@
 
           <!-- 10. Data Retention -->
           <section id="data-retention" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               10. Data Retention Policy
             </h2>
             <p>
@@ -241,7 +263,7 @@
 
           <!-- 11. Your Legal Rights -->
           <section id="user-rights" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               11. Your Legal Rights & Data Controls
             </h2>
             <p>
@@ -251,7 +273,7 @@
 
           <!-- 12. Children's Privacy -->
           <section id="minor-privacy" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               12. Children's Privacy
             </h2>
             <p>
@@ -261,7 +283,7 @@
 
           <!-- 13. Policy Updates -->
           <section id="policy-updates" class="scroll-mt-24 space-y-3">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               13. Policy Updates
             </h2>
             <p>
@@ -271,18 +293,18 @@
 
           <!-- 14. Contact Operations -->
           <section id="contact-us" class="scroll-mt-24 space-y-4">
-            <h2 class="text-lg sm:text-xl font-display font-black text-slate-900 border-b border-slate-100 pb-2">
+            <h2 class="text-lg sm:text-xl font-display font-bold text-ink border-b border-rule pb-2">
               14. Contact Operations
             </h2>
             <p>
               For any questions regarding your data privacy, opt-out protocols, or data erasure, please contact us immediately:
             </p>
-            <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-2 text-xs sm:text-sm">
-              <p class="font-bold text-slate-900">Dany Clean Pro Administrative Team</p>
+            <div class="bg-surface-low p-6 border border-rule space-y-2 text-xs sm:text-sm">
+              <p class="font-bold text-ink">Dany Clean Pro Administrative Team</p>
               <p> Stamford, Connecticut, United States</p>
               <p>Phone: +1 (218) 357-5938</p>
               <p>Email: danycleanenpro@gmail.com</p>
-              <p>Web: <a href="https://danycleanpro.com" class="text-blue-650 hover:underline">https://danycleanpro.com</a></p>
+              <p>Web: <a href="https://danycleanpro.com" class="text-accent hover:underline">https://danycleanpro.com</a></p>
             </div>
           </section>
 
@@ -292,11 +314,11 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-xs text-center mt-auto">
+    <footer class="bg-ink text-ink-faint py-8 border-t border-white/10 text-xs text-center mt-auto">
       <div class="max-w-7xl mx-auto px-4">
         <p>(c) May 2026 Dany Clean Pro. All rights reserved.</p>
         <div class="mt-4 flex justify-center gap-6">
-          <a href="/privacy-policy" class="hover:text-white transition-colors font-bold text-slate-200">Privacy Policy</a>
+          <a href="/privacy-policy" class="hover:text-white transition-colors font-bold text-rule">Privacy Policy</a>
           <a href="/terms" class="hover:text-white transition-colors">Terms & Conditions</a>
         </div>
       </div>

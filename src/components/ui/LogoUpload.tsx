@@ -141,37 +141,37 @@ export default function LogoUpload({ onLogoChange, className }: LogoUploadProps)
       onClick={() => fileInputRef.current?.click()}
     >
       <div className={cn(
-        "w-24 h-24 rounded-2xl flex items-center justify-center overflow-hidden transition-all duration-300 relative border-2 border-dashed",
-        preview ? "bg-white shadow-sm border-transparent" : "bg-blue-50 border-slate-200 hover:border-blue-400"
+        "w-24 h-24 flex items-center justify-center overflow-hidden transition-all duration-300 relative border-2 border-dashed",
+        preview ? "bg-surface border-transparent": "bg-accent-soft border-rule hover:border-blue-400"
       )}>
         {preview ? (
           <img src={preview} alt="Logo Preview" className="w-full h-full object-contain p-2" />
         ) : (
-          <div className="flex flex-col items-center gap-2 text-slate-400">
+          <div className="flex flex-col items-center gap-2 text-ink-faint">
             <Camera size={24} />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-center">Add Logo</span>
+            <span className="text-label-sm uppercase text-center">Add Logo</span>
           </div>
         )}
         
         {isSaving && (
           <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center">
-            <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
         {/* Hover Overlay */}
         {preview && (
-          <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 rounded-2xl">
+          <div className="absolute inset-0 bg-ink/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
             <button 
               onClick={handleDownload}
-              className="p-2 bg-white rounded-xl shadow-lg text-slate-900 hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110"
+              className="p-2 bg-surface text-ink hover:bg-accent hover:text-white transition-all transform hover:scale-110"
               title="Download Logo"
             >
               <Download size={16} />
             </button>
             <button 
               onClick={handleClear}
-              className="p-2 bg-white rounded-xl shadow-lg text-slate-900 hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
+              className="p-2 bg-surface text-ink hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
               title="Remove Logo"
             >
               <Trash2 size={16} />

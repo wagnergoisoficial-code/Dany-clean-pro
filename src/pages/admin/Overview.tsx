@@ -1,5 +1,4 @@
-import { Users, Calendar, CheckCircle2, LayoutDashboard, ArrowUpRight } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { Users, Calendar, CheckCircle2, Clock, ArrowUpRight } from 'lucide-react';
 import { Lead } from '../../types';
 
 interface OverviewProps {
@@ -8,75 +7,67 @@ interface OverviewProps {
 }
 
 export default function Overview({ leads, isLoading }: OverviewProps) {
+  const count = (status: string) => leads?.filter(l => l.status === status)?.length || 0;
+
   const stats = [
-    { 
-      label: 'New Leads', 
-      value: leads?.filter(l => l.status === 'new')?.length || 0, 
-      icon: Users, 
-      color: 'text-blue-600 bg-blue-50',
-      trend: '+12%'
-    },
-    { 
-      label: 'Scheduled', 
-      value: leads?.filter(l => l.status === 'scheduled')?.length || 0, 
-      icon: Calendar, 
-      color: 'text-green-600 bg-green-50',
-      trend: '+5%'
-    },
-    { 
-      label: 'Completed', 
-      value: leads?.filter(l => l.status === 'completed')?.length || 0, 
-      icon: CheckCircle2, 
-      color: 'text-purple-600 bg-purple-50',
-      trend: '+18%'
-    }
+    { index: '01', label: 'New Leads', hint: 'Awaiting first contact', value: count('new'), icon: Users },
+    { index: '02', label: 'Scheduled', hint: 'Visit booked', value: count('scheduled'), icon: Calendar },
+    { index: '03', label: 'Completed', hint: 'Service delivered', value: count('completed'), icon: CheckCircle2 },
+    { index: '04', label: 'Total Leads', hint: 'All time, every source', value: leads?.length || 0, icon: Clock },
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard Overview</h1>
-        <p className="text-slate-500 text-sm">Welcome back to your operational control center.</p>
+    <div className="animate-in fade-in duration-500">
+      <div className="mb-10">
+        <span className="block text-label-sm uppercase text-accent mb-2">Operational Control</span>
+        <h1 className="font-display text-headline-md text-ink">Dashboard Overview</h1>
+        <p className="text-body-md text-ink-muted mt-2">
+          Every lead captured by the site, the SMS receptionist and the AI call line lands here.
+        </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-             <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-2xl ${stat.color}`}>
-                  <stat.icon size={24} />
-                </div>
-                <span className="flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full uppercase tracking-widest">
-                  {stat.trend} <ArrowUpRight size={10} />
-                </span>
-             </div>
-             <p className="text-3xl font-bold text-slate-900 mb-1">{stat.value}</p>
-             <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
+      {/* Ledger of counts — no cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-rule border border-rule mb-10">
+        {stats.map((stat) => (
+          <div key={stat.index} className="bg-surface p-6">
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-label-sm text-accent tabular-nums">{stat.index}</span>
+              <stat.icon size={16} className="text-ink-faint" />
+            </div>
+            <p className="font-display text-headline-lg text-ink leading-none mb-2 tabular-nums">
+              {isLoading ? '—' : stat.value}
+            </p>
+            <p className="text-label-md uppercase text-ink">{stat.label}</p>
+            <p className="text-body-sm text-ink-muted mt-1">{stat.hint}</p>
           </div>
         ))}
       </div>
 
-      {/* Welcome Card for CRM Transition */}
-      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-lg shadow-blue-600/20">
-        <div className="max-w-2xl">
-          <h2 className="text-2xl font-bold mb-4">CRM Modular Evolution</h2>
-          <p className="text-blue-100 mb-6 leading-relaxed">
-            We are currently transitioning your admin panel into a full operational CRM. 
-            This structural update improves reliability and prepares the ground for advanced features like 
-            customer management, automated scheduling, and route optimization.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium border border-white/10">
-              ✓ Modular Architecture
+      {/* Status note */}
+      <div className="bg-ink text-white p-8 lg:p-10">
+        <span className="block text-label-sm uppercase text-white/50 mb-3">Platform Status</span>
+        <h2 className="font-display text-headline-sm text-white mb-4 max-w-2xl">
+          CRM modular evolution
+        </h2>
+        <p className="text-body-md text-white/70 max-w-2xl mb-8">
+          The admin panel is being built out into a full operational CRM. The structure below is live;
+          customer management and automated scheduling arrive in the next phase.
+        </p>
+        <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-white/10 border-y border-white/10">
+          {[
+            { state: 'done', label: 'Modular architecture' },
+            { state: 'done', label: 'Editorial layout' },
+            { state: 'next', label: 'Customer module (phase 2)' },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-3 py-4 sm:px-6 sm:first:pl-0">
+              {item.state === 'done'
+                ? <CheckCircle2 size={14} className="text-white shrink-0" />
+                : <ArrowUpRight size={14} className="text-white/40 shrink-0" />}
+              <span className={item.state === 'done' ? "text-label-md uppercase text-white" : "text-label-md uppercase text-white/50"}>
+                {item.label}
+              </span>
             </div>
-            <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium border border-white/10">
-              ✓ Improved Layout
-            </div>
-            <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium border border-white/10">
-              ⌛ Customer Module (Phase 2)
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

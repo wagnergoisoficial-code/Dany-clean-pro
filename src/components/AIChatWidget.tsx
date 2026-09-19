@@ -156,7 +156,7 @@ export default function AIChatWidget() {
             {/* Header */}
             <div className="bg-ink p-4 text-white flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden border border-white/30">
+                <div className="w-10 h-10 bg-surface rounded-full flex items-center justify-center overflow-hidden border border-white/30">
                   <img 
                     src="/avatar.png" 
                     alt="Dany" 
@@ -176,7 +176,7 @@ export default function AIChatWidget() {
                   </p>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-1">
+              <button onClick={() => setIsOpen(false)} className="hover:bg-surface p-1">
                 <X size={20} />
               </button>
             </div>

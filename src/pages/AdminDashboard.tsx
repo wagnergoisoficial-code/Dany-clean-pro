@@ -86,17 +86,17 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
   });
 
   const stats = [
-    { label: 'New Leads', value: leads?.filter(l => l.status === 'new')?.length || 0, icon: Users, color: 'text-blue-600 bg-blue-50' },
+    { label: 'New Leads', value: leads?.filter(l => l.status === 'new')?.length || 0, icon: Users, color: 'text-accent bg-accent-soft' },
     { label: 'Scheduled', value: leads?.filter(l => l.status === 'scheduled')?.length || 0, icon: Calendar, color: 'text-green-600 bg-green-50' },
     { label: 'Completed', value: leads?.filter(l => l.status === 'completed')?.length || 0, icon: CheckCircle2, color: 'text-purple-600 bg-purple-50' }
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-surface-low flex">
       {/* Mobile Drawer Backdrop */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 bg-ink/50 z-40 lg:hidden backdrop-blur-sm transition-opacity duration-300"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -125,7 +125,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
         <div className="p-4 sm:p-8 overflow-y-auto">
           {/* Diagnostic Banner */}
           {(process.env.NODE_ENV !== 'production' || fbUser) && (
-            <div className="mb-4 p-4 bg-slate-100 rounded-xl text-[10px] font-mono whitespace-pre-wrap break-all border border-slate-200">
+            <div className="mb-4 p-4 bg-surface-mid text-[10px] font-mono whitespace-pre-wrap break-all border border-rule">
               CRM OPERATIONAL NODE v1.0 | 
               FB User: {fbUser ? `${fbUser.email}` : 'NULL'} | 
               API Status: {leadsError ? 'ERROR' : 'OK'}
@@ -133,19 +133,19 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
           )}
 
           {!fbUser && (
-            <div className="mb-8 bg-blue-50 border border-blue-100 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="flex items-center gap-4 text-blue-900">
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-blue-600 shrink-0">
+            <div className="mb-8 bg-accent-soft border border-accent/20 p-6 flex flex-col md:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="flex items-center gap-4 text-accent-ink">
+                <div className="w-12 h-12 bg-surface flex items-center justify-center text-accent shrink-0">
                   <Globe size={24} />
                 </div>
                 <div>
                   <h4 className="font-bold whitespace-nowrap">Connect Your Google Account</h4>
-                  <p className="text-sm text-blue-700">To save settings and manage real-time data, you need to be authenticated via Firebase.</p>
+                  <p className="text-sm text-accent-ink">To save settings and manage real-time data, you need to be authenticated via Firebase.</p>
                 </div>
               </div>
               <button 
                 onClick={() => navigate('/admin/login')}
-                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all shrink-0 w-full md:w-auto"
+                className="bg-accent text-white px-6 py-3 font-bold text-sm hover:bg-accent-strong transition-all shrink-0 w-full md:w-auto"
               >
                 Connect Now
               </button>

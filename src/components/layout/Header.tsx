@@ -160,7 +160,7 @@ export default function Header() {
                 className={cn(
                   "w-10 h-10 flex items-center justify-center transition-colors 2xl:hidden",
                   overlay
-                    ? "text-white bg-white/10 hover:bg-white/20"
+                    ? "text-white bg-surface hover:bg-surface"
                     : "text-ink-muted bg-surface-low hover:bg-surface-mid hover:text-ink"
                 )}
               >
@@ -173,7 +173,7 @@ export default function Header() {
                 className={cn(
                   "w-10 h-10 flex items-center justify-center transition-colors",
                   overlay
-                    ? "text-white bg-white/10 hover:bg-white/20"
+                    ? "text-white bg-surface hover:bg-surface"
                     : "text-ink-muted bg-surface-low hover:bg-surface-mid hover:text-ink"
                 )}
               >
@@ -185,7 +185,7 @@ export default function Header() {
                 className={cn(
                   "w-10 h-10 flex items-center justify-center transition-colors",
                   overlay
-                    ? "text-white bg-white/10 hover:bg-white/20"
+                    ? "text-white bg-surface hover:bg-surface"
                     : "text-ink-muted bg-surface-low hover:bg-surface-mid hover:text-ink"
                 )}
               >
@@ -199,7 +199,7 @@ export default function Header() {
               className={cn(
                 "inline-flex items-center justify-center text-label-md uppercase px-6 py-3.5 transition-colors whitespace-nowrap",
                 overlay
-                  ? "bg-white text-ink hover:bg-white/90"
+                  ? "bg-surface text-ink hover:bg-surface"
                   : "bg-accent text-white hover:bg-accent-strong"
               )}
             >
@@ -215,7 +215,7 @@ export default function Header() {
               title="Call us"
               className={cn(
                 "w-10 h-10 flex items-center justify-center transition-colors",
-                overlay ? "text-white bg-white/10" : "text-ink-muted bg-surface-low"
+                overlay ? "text-white bg-surface" : "text-ink-muted bg-surface-low"
               )}
             >
               <Phone size={16} />
@@ -225,7 +225,7 @@ export default function Header() {
               onClick={(e) => handleLinkClick(e, '#quote')}
               className={cn(
                 "inline-flex items-center justify-center text-label-sm uppercase px-4 py-3 transition-colors",
-                overlay ? "bg-white text-ink" : "bg-accent text-white"
+                overlay ? "bg-surface text-ink" : "bg-accent text-white"
               )}
             >
               Estimate
@@ -235,7 +235,7 @@ export default function Header() {
               aria-label="Toggle navigation"
               className={cn(
                 "w-10 h-10 flex items-center justify-center transition-colors",
-                overlay ? "text-white bg-white/10" : "text-white bg-ink"
+                overlay ? "text-white bg-surface" : "text-white bg-ink"
               )}
             >
               {isOpen ? <X size={18} /> : <Menu size={18} />}
@@ -248,7 +248,7 @@ export default function Header() {
             aria-label="Toggle navigation"
             className={cn(
               "hidden md:flex xl:hidden w-10 h-10 items-center justify-center transition-colors",
-              overlay ? "text-white bg-white/10" : "text-ink-muted bg-surface-low hover:text-ink"
+              overlay ? "text-white bg-surface" : "text-ink-muted bg-surface-low hover:text-ink"
             )}
           >
             {isOpen ? <X size={18} /> : <Menu size={18} />}

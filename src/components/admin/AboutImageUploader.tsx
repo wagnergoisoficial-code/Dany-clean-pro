@@ -132,13 +132,13 @@ export default function AboutImageUploader({ className }: AboutImageUploaderProp
     <div className={cn("w-full mb-12", className)}>
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h4 className="text-sm font-black uppercase tracking-[0.15em] text-emerald-900 flex items-center gap-2">
+          <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-emerald-900 flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
             ABOUT SECTION IMAGE
           </h4>
-          <p className="text-xs text-slate-500 mt-0.5">Controls ONLY the Connecticut/About section image</p>
+          <p className="text-xs text-ink-muted mt-0.5">Controls ONLY the Connecticut/About section image</p>
         </div>
-        <div className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+        <div className="text-label-sm uppercase text-emerald-600 bg-emerald-50 px-3 py-1 border border-emerald-100">
           Emerald Theme • About Core
         </div>
       </div>
@@ -146,10 +146,10 @@ export default function AboutImageUploader({ className }: AboutImageUploaderProp
       <div 
         onClick={() => fileInputRef.current?.click()}
         className={cn(
-          "relative w-full rounded-[2rem] lg:rounded-[3rem] overflow-hidden border-2 border-dashed transition-all duration-500 cursor-pointer group flex flex-col items-center justify-center bg-slate-900",
+          "relative w-full overflow-hidden border-2 border-dashed transition-all duration-500 cursor-pointer group flex flex-col items-center justify-center bg-ink",
           aboutImage 
             ? "border-transparent h-[220px] sm:h-[280px] lg:h-[460px] shadow-2xl" 
-            : "border-emerald-300/60 h-[180px] sm:h-[220px] lg:h-[300px] hover:border-emerald-500 hover:bg-slate-950"
+            : "border-emerald-300/60 h-[180px] sm:h-[220px] lg:h-[300px] hover:border-emerald-500 hover:bg-ink"
         )}
       >
         {aboutImage ? (
@@ -159,17 +159,17 @@ export default function AboutImageUploader({ className }: AboutImageUploaderProp
               alt="About Section Cover" 
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+            <div className="absolute inset-0 bg-ink/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                <button 
                  onClick={handleDownload}
-                 className="p-3 bg-white rounded-2xl shadow-xl text-slate-900 hover:bg-emerald-600 hover:text-white transition-all transform hover:scale-110"
+                 className="p-3 bg-surface text-ink hover:bg-emerald-600 hover:text-white transition-all transform hover:scale-110"
                  title="Download Image"
                >
                  <Download size={20} />
                </button>
                <button 
                  onClick={handleClear}
-                 className="p-3 bg-white rounded-2xl shadow-xl text-slate-900 hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
+                 className="p-3 bg-surface text-ink hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
                  title="Remove Image"
                >
                  <Trash2 size={20} />
@@ -179,14 +179,14 @@ export default function AboutImageUploader({ className }: AboutImageUploaderProp
             {/* Action Badge */}
             <div className="absolute top-6 right-6 flex items-center gap-2">
                {isSaving && (
-                 <div className="px-4 py-2 bg-emerald-600 text-white rounded-full shadow-lg flex items-center gap-2 text-[10px] font-black uppercase tracking-widest animate-pulse">
-                   <div className="w-2 h-2 rounded-full bg-white border-2 border-white/30 border-t-transparent animate-spin" />
+                 <div className="px-4 py-2 bg-emerald-600 text-white flex items-center gap-2 text-label-sm uppercase animate-pulse">
+                   <div className="w-2 h-2 rounded-full bg-surface border-2 border-white/30 border-t-transparent animate-spin" />
                    Saving...
                  </div>
                )}
-               <div className="px-4 py-2 bg-white/95 backdrop-blur-md rounded-full shadow-lg border border-emerald-100 flex items-center gap-2">
+               <div className="px-4 py-2 bg-white/95 backdrop-blur-md border border-emerald-100 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">ABOUT SECTION ACTIVE [LIVE]</span>
+                  <span className="text-label-sm uppercase text-ink">ABOUT SECTION ACTIVE [LIVE]</span>
                </div>
             </div>
           </>
@@ -200,19 +200,19 @@ export default function AboutImageUploader({ className }: AboutImageUploaderProp
             />
             <div className="flex flex-col items-center gap-4 text-center px-6 relative z-10">
               {isSaving && (
-                <div className="absolute top-6 right-6 px-4 py-2 bg-emerald-600 text-white rounded-full shadow-lg flex items-center gap-2 text-[10px] font-black uppercase tracking-widest animate-pulse z-20">
-                  <div className="w-2 h-2 rounded-full bg-white border-2 border-white/30 border-t-transparent animate-spin" />
+                <div className="absolute top-6 right-6 px-4 py-2 bg-emerald-600 text-white flex items-center gap-2 text-label-sm uppercase animate-pulse z-20">
+                  <div className="w-2 h-2 rounded-full bg-surface border-2 border-white/30 border-t-transparent animate-spin" />
                   Saving...
                 </div>
               )}
-              <div className="w-16 h-16 rounded-3xl bg-slate-800 shadow-xl flex items-center justify-center text-emerald-450 group-hover:text-emerald-300 group-hover:scale-110 transition-all duration-500">
+              <div className="w-16 h-16 bg-ink flex items-center justify-center text-emerald-450 group-hover:text-emerald-300 group-hover:scale-110 transition-all duration-500">
                  <Upload size={28} />
               </div>
               <div>
                 <p className="text-lg font-display font-bold text-white">Upload About Image</p>
-                <p className="text-xs font-black uppercase tracking-widest text-slate-400 mt-1">Recommended: 4:5 or Square Ratio (Premium Kitchen)</p>
+                <p className="text-label-md uppercase text-ink-faint mt-1">Recommended: 4:5 or Square Ratio (Premium Kitchen)</p>
               </div>
-              <button className="mt-2 bg-emerald-600 text-white px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-emerald-600/20">
+              <button className="mt-2 bg-emerald-600 text-white px-6 py-3 text-label-sm uppercase shadow-emerald-600/20">
                  Select Image File
               </button>
             </div>
@@ -232,12 +232,12 @@ export default function AboutImageUploader({ className }: AboutImageUploaderProp
       <div className="flex justify-between items-center mt-4 px-4">
          <div className="flex items-center gap-2">
             <ImageIcon size={14} className="text-emerald-500" />
-            <span className="text-[11px] font-semibold text-slate-400">Fallback: Premium CT Interior Kitchen & Living Room</span>
+            <span className="text-[11px] font-semibold text-ink-faint">Fallback: Premium CT Interior Kitchen & Living Room</span>
          </div>
          {aboutImage && (
            <button 
              onClick={handleDownload}
-             className="text-[11px] font-black uppercase tracking-widest text-emerald-600 hover:text-emerald-700 flex items-center gap-2"
+             className="text-label-sm uppercase text-emerald-600 hover:text-emerald-700 flex items-center gap-2"
            >
              Download Current About Image <Download size={14} />
            </button>

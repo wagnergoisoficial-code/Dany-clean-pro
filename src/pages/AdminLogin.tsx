@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
+import { Lock, User, ArrowRight, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
@@ -87,118 +87,128 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full"
-      >
-        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
-          <div className="bg-blue-600 p-10 text-white text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/20 rounded-full -ml-12 -mb-12 blur-xl" />
-            
-            <div className="relative z-10">
-              <div className="w-20 h-20 bg-white/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 backdrop-blur-md border border-white/30 shadow-xl">
-                <Lock size={36} />
-              </div>
-              <h1 className="text-3xl font-display font-bold">Admin Panel</h1>
-              <p className="text-blue-100/80 text-sm mt-3 font-medium uppercase tracking-widest text-[10px]">Secure Access</p>
-              
-              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-                <div className={`w-1.5 h-1.5 rounded-full ${serverStatus === 'up' ? 'bg-green-400 animate-pulse' : serverStatus === 'down' ? 'bg-red-400' : 'bg-slate-400'}`} />
-                <span className="text-[8px] font-black uppercase tracking-widest text-white/70">
-                  System: {serverStatus === 'up' ? 'Online' : serverStatus === 'down' ? 'Offline' : 'Checking...'}
-                </span>
-              </div>
+    <div className="min-h-screen bg-surface-low flex flex-col">
+      {/* Masthead */}
+      <header className="border-b border-rule bg-surface">
+        <div className="max-w-6xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
+          <div>
+            <span className="block font-display text-headline-sm text-ink tracking-tight leading-none">
+              Dany Clean Pro
+            </span>
+            <span className="block text-label-sm uppercase text-accent mt-1">Operations Desk</span>
+          </div>
+          <a href="/" className="text-label-md uppercase text-ink-muted hover:text-ink transition-colors">
+            Back to site
+          </a>
+        </div>
+      </header>
+
+      <div className="flex-grow flex items-center justify-center px-6 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="w-full max-w-md"
+        >
+          <div className="mb-10">
+            <div className="flex items-center gap-3 mb-4">
+              <span className={`w-1.5 h-1.5 rounded-full ${serverStatus === 'up' ? 'bg-green-500' : serverStatus === 'down' ? 'bg-red-500' : 'bg-amber-500 animate-pulse'}`} />
+              <span className="text-label-sm uppercase text-ink-muted">
+                System {serverStatus === 'up' ? 'online' : serverStatus === 'down' ? 'offline' : 'checking…'}
+              </span>
             </div>
+            <h1 className="font-display text-headline-lg text-ink tracking-tight mb-3">Admin access</h1>
+            <p className="text-body-md text-ink-muted">
+              Sign in to manage leads, gallery photos, reviews and site settings.
+            </p>
           </div>
 
-          <div className="p-10 space-y-8">
-            <button 
+          <div className="bg-surface border border-rule p-8 lg:p-10">
+            <button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-100 py-4 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 hover:border-blue-100 transition-all active:scale-[0.98] shadow-sm disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-3 border border-rule py-4 text-label-md uppercase text-ink hover:bg-surface-low hover:border-ink transition-colors disabled:opacity-50"
             >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 text-blue-600" />
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" className="w-4 h-4" />
               Sign in with Google
             </button>
 
-            <div className="relative">
+            <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-100"></div>
+                <div className="w-full border-t border-rule" />
               </div>
-              <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
-                <span className="bg-white px-4 text-slate-300">Or use system account</span>
+              <div className="relative flex justify-center">
+                <span className="bg-surface px-4 text-label-sm uppercase text-ink-faint">
+                  Or use a system account
+                </span>
               </div>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleLogin} className="flex flex-col gap-6">
               {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm border border-red-100 flex items-center gap-3 animate-shake">
-                  <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse shrink-0" />
-                  <p className="font-medium">{error}</p>
+                <div className="bg-red-50 border border-red-100 text-red-700 p-4 flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0 mt-2" />
+                  <p className="text-body-sm">{error}</p>
                 </div>
               )}
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Username</label>
+              <div className="flex flex-col">
+                <label className="text-label-md uppercase text-ink mb-2" htmlFor="admin-user">Username</label>
                 <div className="relative group">
-                  <User size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
-                  <input 
+                  <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint group-focus-within:text-accent transition-colors" />
+                  <input
+                    id="admin-user"
                     type="text"
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Enter your username"
-                    className="w-full pl-14 pr-5 py-4 rounded-2xl bg-slate-50/50 border border-slate-100 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all font-medium text-slate-900"
+                    className="w-full pl-11 pr-4 py-3.5 bg-surface-low border border-transparent text-body-md text-ink placeholder:text-ink-faint focus:bg-surface focus:border-accent outline-none transition-colors"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Password</label>
+              <div className="flex flex-col">
+                <label className="text-label-md uppercase text-ink mb-2" htmlFor="admin-pass">Password</label>
                 <div className="relative group">
-                  <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
-                  <input 
+                  <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-faint group-focus-within:text-accent transition-colors" />
+                  <input
+                    id="admin-pass"
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-14 pr-5 py-4 rounded-2xl bg-slate-50/50 border border-slate-100 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all font-medium text-slate-900"
+                    className="w-full pl-11 pr-4 py-3.5 bg-surface-low border border-transparent text-body-md text-ink placeholder:text-ink-faint focus:bg-surface focus:border-accent outline-none transition-colors"
                   />
                 </div>
               </div>
 
-              <button 
+              <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98] disabled:opacity-70 group"
+                className="w-full bg-ink text-white py-4 text-label-md uppercase flex items-center justify-center gap-3 hover:bg-accent transition-colors disabled:opacity-70 group"
               >
                 {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Enter Dashboard</span>
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    Enter Dashboard
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </button>
-              
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest text-center">
-                  <ShieldCheck size={14} className="text-green-500" /> Authorized Personnel Only
-                </div>
-              </div>
             </form>
           </div>
-        </div>
-        
-        <p className="text-center mt-12 text-slate-400 text-xs font-medium">
-          Dany Clean Pro &bull; Operational Integrity System v2.0
-        </p>
-      </motion.div>
+
+          <div className="mt-8 flex items-center justify-between gap-4 border-t border-rule pt-6">
+            <span className="flex items-center gap-2 text-label-sm uppercase text-ink-muted">
+              <ShieldCheck size={13} className="text-accent" /> Authorized personnel only
+            </span>
+            <span className="text-label-sm uppercase text-ink-faint">Integrity system v2.0</span>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

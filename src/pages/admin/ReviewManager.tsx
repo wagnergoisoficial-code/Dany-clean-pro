@@ -110,43 +110,43 @@ export default function ReviewManager({ auth }: ReviewManagerProps) {
   });
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 sm:p-8 animate-in fade-in duration-500">
+    <div className="bg-surface border border-rule p-4 sm:p-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="font-bold text-xl sm:text-2xl text-slate-900">Review Moderation</h3>
-          <p className="text-sm text-slate-500">Manage customer feedback visibility on your site.</p>
+          <h3 className="font-bold text-xl sm:text-2xl text-ink">Review Moderation</h3>
+          <p className="text-sm text-ink-muted">Manage customer feedback visibility on your site.</p>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="text-slate-400 italic py-8">Loading reviews...</div>
+        <div className="text-ink-faint italic py-8">Loading reviews...</div>
       ) : (
         <div className="space-y-4">
-          {reviews?.length === 0 && <p className="text-slate-400 italic py-8 text-center bg-slate-50 rounded-2xl">No reviews yet.</p>}
+          {reviews?.length === 0 && <p className="text-ink-faint italic py-8 text-center bg-surface-low">No reviews yet.</p>}
           {reviews?.map((review: any) => {
             const isPublished = review.isPublished !== undefined ? review.isPublished : review.is_published;
             return (
               <div key={review.id} className={cn(
-                "p-4 sm:p-6 rounded-2xl border transition-all",
-                isPublished ? "bg-white border-slate-100" : "bg-slate-50 border-slate-200 opacity-60"
+                "p-4 sm:p-6 border transition-all",
+                isPublished ? "bg-surface border-rule": "bg-surface-low border-rule opacity-60"
               )}>
                 <div className="flex justify-between items-start gap-4">
                   <div className="min-w-0 flex-grow">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                       <span className="font-bold text-slate-900 truncate">{review.author}</span>
+                       <span className="font-bold text-ink truncate">{review.author}</span>
                        <div className="flex text-amber-500">
                          {[...Array(review.rating)].map((_, i) => <Star key={i} size={10} fill="currentColor" />)}
                        </div>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-600 mb-2">{review.comment}</p>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{review.date}</span>
+                    <p className="text-xs sm:text-sm text-ink-muted mb-2">{review.comment}</p>
+                    <span className="text-label-sm text-ink-faint uppercase">{review.date}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => toggleReview.mutate(review)}
                       className={cn(
-                        "p-2 rounded-xl transition-all",
-                        isPublished ? "bg-blue-50 text-blue-600 hover:bg-blue-100" : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                        "p-2 transition-all",
+                        isPublished ? "bg-accent-soft text-accent hover:bg-accent-soft": "bg-surface-high text-ink-muted hover:bg-surface-high"
                       )}
                       title={isPublished ? "Unpublish Review" : "Publish Review"}
                     >
@@ -154,7 +154,7 @@ export default function ReviewManager({ auth }: ReviewManagerProps) {
                     </button>
                     <button 
                       onClick={() => { if(confirm('Are you sure you want to delete this review?')) deleteReview.mutate(String(review.id)) }}
-                      className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
+                      className="p-2 bg-red-50 text-red-600 hover:bg-red-100 transition-all"
                       title="Delete Review"
                     >
                       <Trash2 size={18} />

@@ -1,11 +1,4 @@
-import { 
-  Menu, 
-  ExternalLink, 
-  User as UserIcon,
-  CheckCircle2,
-  AlertCircle,
-  Database
-} from 'lucide-react';
+import { Menu, ExternalLink, User as UserIcon } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { AuthState } from '../../../types';
 import { User as FirebaseUser } from 'firebase/auth';
@@ -23,67 +16,62 @@ export default function AdminTopbar({ auth, fbUser, onMenuClick, hasError }: Adm
   const connectionReady = isFirebaseReady();
 
   return (
-    <header className="bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex justify-between items-center shrink-0 sticky top-0 z-30 shadow-sm shadow-slate-100/50">
-      <div className="flex items-center gap-3">
+    <header className="bg-surface border-b border-rule px-4 sm:px-8 h-20 flex justify-between items-center shrink-0 sticky top-0 z-30">
+      <div className="flex items-center gap-3 min-w-0">
         <button 
-          className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-50 rounded-lg transition-colors border border-slate-100"
+          className="lg:hidden w-10 h-10 -ml-2 flex items-center justify-center text-ink-muted hover:bg-surface-low transition-colors"
           onClick={onMenuClick}
+          aria-label="Toggle navigation"
         >
-          <Menu size={24} />
+          <Menu size={20} />
         </button>
-        <div className="flex flex-col">
-          <h2 className="text-sm font-bold text-slate-900 truncate">
-            Hello, {userName}!
+        <div className="min-w-0">
+          <span className="block text-label-sm uppercase text-accent">Operational Node</span>
+          <h2 className="font-display text-headline-sm text-ink truncate leading-tight">
+            Hello, {userName}
           </h2>
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-slate-400">
-              <Database size={8} /> Operational Node
-            </span>
-          </div>
         </div>
       </div>
-      
-      <div className="flex items-center gap-2 sm:gap-6">
-         {/* Status Indicators */}
-         <div className="hidden sm:flex items-center gap-4 border-r border-slate-100 pr-6 mr-2">
-            <div className="flex items-center gap-1.5" title={hasError ? "API Error Detected" : "API Connected"}>
-               <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", hasError ? "bg-red-500" : "bg-green-500")} />
-               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Core API</span>
-            </div>
-            <div className="flex items-center gap-1.5" title={connectionReady ? "Firestore Connected" : "Firestore Initializing"}>
-               <div className={cn("w-1.5 h-1.5 rounded-full", connectionReady ? "bg-green-500" : "bg-amber-500")} />
-               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Database</span>
-            </div>
-         </div>
 
-         <div className="flex items-center gap-3">
-           <a 
-             href="/" 
-             target="_blank" 
-             className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors"
-           >
-             Go to Site <ExternalLink size={12} />
-           </a>
-           
-           <div className="flex items-center gap-3 pl-2">
-             <div className="text-right hidden md:block">
-               <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 leading-tight">
-                 {fbUser ? 'Firebase Cloud' : 'Legacy Auth'}
-               </p>
-               <p className="text-[10px] text-slate-400 font-medium">{fbUser?.email || auth.user?.username}</p>
-             </div>
-             
-             <div className="w-10 h-10 bg-slate-50 rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-inner group">
-               {fbUser?.photoURL ? (
-                 <img src={fbUser.photoURL} alt="Profile" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-               ) : (
-                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400 font-bold">
-                   <UserIcon size={20} />
-                 </div>
-               )}
-             </div>
-           </div>
-         </div>
+      <div className="flex items-center gap-4 sm:gap-8 shrink-0">
+        {/* Status rail */}
+        <div className="hidden sm:flex items-center gap-6 border-r border-rule pr-6">
+          <div className="flex items-center gap-2" title={hasError ? "API error detected" : "API connected"}>
+            <span className={cn("w-1.5 h-1.5 rounded-full", hasError ? "bg-red-500 animate-pulse" : "bg-green-500")} />
+            <span className="text-label-sm uppercase text-ink-muted">Core API</span>
+          </div>
+          <div className="flex items-center gap-2" title={connectionReady ? "Firestore connected" : "Firestore initializing"}>
+            <span className={cn("w-1.5 h-1.5 rounded-full", connectionReady ? "bg-green-500" : "bg-amber-500")} />
+            <span className="text-label-sm uppercase text-ink-muted">Database</span>
+          </div>
+        </div>
+
+        <a 
+          href="/" 
+          target="_blank" 
+          className="hidden sm:inline-flex items-center gap-2 text-label-md uppercase text-ink hover:text-accent transition-colors"
+        >
+          Go to Site <ExternalLink size={12} />
+        </a>
+
+        <div className="flex items-center gap-3">
+          <div className="text-right hidden md:block">
+            <span className="block text-label-sm uppercase text-accent">
+              {fbUser ? 'Firebase Cloud' : 'Legacy Auth'}
+            </span>
+            <span className="block text-body-sm text-ink-muted truncate max-w-[180px]">
+              {fbUser?.email || auth.user?.username}
+            </span>
+          </div>
+
+          <div className="w-10 h-10 bg-surface-low border border-rule overflow-hidden flex items-center justify-center shrink-0">
+            {fbUser?.photoURL ? (
+              <img src={fbUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <UserIcon size={18} className="text-ink-faint" />
+            )}
+          </div>
+        </div>
       </div>
     </header>
   );

@@ -31,18 +31,18 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-10 text-center space-y-6">
+        <div className="min-h-screen bg-surface-low flex items-center justify-center p-6">
+          <div className="max-w-md w-full bg-surface p-10 text-center space-y-6">
             <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
               <AlertCircle size={40} />
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-slate-900">Something went wrong</h1>
-              <p className="text-slate-600">The application encountered an unexpected error. Please try refreshing the page.</p>
+              <h1 className="text-2xl font-bold text-ink">Something went wrong</h1>
+              <p className="text-ink-muted">The application encountered an unexpected error. Please try refreshing the page.</p>
             </div>
             <button 
               onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+              className="w-full bg-accent text-white py-4 font-bold hover:bg-accent-strong transition-colors"
             >
               Refresh Page
             </button>
@@ -118,10 +118,10 @@ export default function App() {
 
   if (fbLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-low flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate-500 font-medium animate-pulse">Initializing Dany Clean Pro Platform...</p>
+          <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+          <p className="text-ink-muted font-medium animate-pulse">Initializing Dany Clean Pro Platform...</p>
         </div>
       </div>
     );

@@ -217,7 +217,7 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 text-center text-slate-400 italic">
+      <div className="bg-surface border border-rule p-8 text-center text-ink-faint italic">
         Loading leads data...
       </div>
     );
@@ -225,18 +225,18 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
 
   if (leadsError) {
     return (
-      <div className="bg-red-50 rounded-3xl border border-red-100 p-8 text-center text-red-600">
+      <div className="bg-red-50 border border-red-100 p-8 text-center text-red-600">
         Error loading leads: {leadsError instanceof Error ? leadsError.message : 'Unknown error'}
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 sm:p-8 animate-in fade-in duration-500">
+    <div className="bg-surface border border-rule p-4 sm:p-8 animate-in fade-in duration-500">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
         <div>
-          <h3 className="font-bold text-xl sm:text-2xl text-slate-900">Manage All Leads</h3>
-          <p className="text-sm text-slate-500">
+          <h3 className="font-bold text-xl sm:text-2xl text-ink">Manage All Leads</h3>
+          <p className="text-sm text-ink-muted">
             Showing {filteredLeads.length} of {leads?.length || 0} leads
           </p>
         </div>
@@ -244,11 +244,11 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
           {/* Search Input */}
           <div className="relative flex-grow sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" size={16} />
             <input 
               type="text" 
               placeholder="Search name, phone, city..." 
-              className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full"
+              className="pl-10 pr-4 py-2 bg-surface-low border border-rule text-sm focus:ring-2 focus:ring-accent outline-none w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -257,21 +257,21 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
           {/* Sort Toggle */}
           <button 
             onClick={() => setSortBy(sortBy === 'newest' ? 'oldest' : 'newest')}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-surface border border-rule text-xs font-bold text-ink-muted hover:bg-surface-low transition-all"
           >
             <ArrowUpDown size={14} />
             {sortBy === 'newest' ? 'Newest First' : 'Oldest First'}
           </button>
 
           {/* Status Filter (Dropdown on mobile, pills on desktop if space allows, but let's use a clean pill row) */}
-          <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 bg-surface-low p-1 border border-rule overflow-x-auto no-scrollbar">
             {['all', 'new', 'contacted', 'scheduled', 'completed'].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
-                  filter === f ? "bg-white text-blue-600 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                  "px-3 py-1.5 text-label-sm uppercase transition-all whitespace-nowrap",
+                  filter === f ? "bg-surface text-accent border border-rule": "text-ink-faint hover:text-ink-muted"
                 )}
               >
                 {f}
@@ -283,7 +283,7 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
       
       <div className="overflow-x-auto -mx-4 sm:mx-0">
           <table className="w-full text-left min-w-[800px] sm:min-w-full">
-            <thead className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <thead className="bg-surface-low text-label-sm text-ink-faint uppercase">
               <tr>
                 <th className="px-4 sm:px-6 py-4">Date</th>
                 <th className="px-4 sm:px-6 py-4">Client</th>
@@ -296,7 +296,7 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {filteredLeads?.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-12 text-slate-400 italic">No leads found for this filter.</td></tr>
+                <tr><td colSpan={7} className="text-center py-12 text-ink-faint italic">No leads found for this filter.</td></tr>
               ) : filteredLeads?.map((lead) => {
                 const isExpanded = expandedLeadId === lead.id;
                 
@@ -304,12 +304,12 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                   <React.Fragment key={lead.id}>
                     <tr 
                       className={cn(
-                        "hover:bg-slate-50/50 transition-colors cursor-pointer",
-                        isExpanded ? "bg-slate-50/80" : ""
+                        "hover:bg-surface-low/50 transition-colors cursor-pointer",
+                        isExpanded ? "bg-surface-low/80": ""
                       )}
                       onClick={() => setExpandedLeadId(isExpanded ? null : lead.id)}
                     >
-                      <td className="px-4 sm:px-6 py-4 text-[10px] text-slate-400 font-mono">
+                      <td className="px-4 sm:px-6 py-4 text-[10px] text-ink-faint font-mono">
                         {(() => {
                           const date = (lead as any).createdAt && (lead as any).createdAt.toDate ? (lead as any).createdAt.toDate() : 
                                        (lead as any).createdAt ? new Date((lead as any).createdAt) : null;
@@ -317,39 +317,39 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                         })()}
                       </td>
                       <td className="px-4 sm:px-6 py-4">
-                         <p className="font-bold text-slate-900 text-sm">{lead.name}</p>
+                         <p className="font-bold text-ink text-sm">{lead.name}</p>
                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                           <span className="text-[10px] text-slate-400 uppercase font-bold">{lead.service_type}</span>
+                           <span className="text-label-sm text-ink-faint uppercase">{lead.service_type}</span>
                            {(lead as any).lead_score !== undefined && (lead as any).lead_score !== null && (
                              <span className={cn(
-                               "text-[9px] font-bold px-1.5 py-0.5 rounded-full font-mono",
-                               (lead as any).lead_score >= 75 ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
-                               (lead as any).lead_score >= 40 ? "bg-amber-50 text-amber-700 border border-amber-100" :
-                               "bg-slate-50 text-slate-600 border border-slate-100"
+                               "text-[9px] font-bold px-1.5 py-0.5 font-mono",
+                               (lead as any).lead_score >= 75 ? "bg-emerald-50 text-emerald-700 border border-emerald-100":
+                               (lead as any).lead_score >= 40 ? "bg-amber-50 text-amber-700 border border-amber-100":
+                               "bg-surface-low text-ink-muted border border-rule"
                              )}>
                                Score: {(lead as any).lead_score}
                              </span>
                            )}
                            {(lead as any).intent_category && (
-                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                             <span className="text-[9px] font-bold px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100">
                                {(lead as any).intent_category}
                              </span>
                            )}
                          </div>
                       </td>
                       <td className="px-4 sm:px-6 py-4">
-                         <p className="text-xs font-medium text-slate-600">{lead.phone}</p>
-                         <p className="text-[10px] text-slate-400">{lead.email || 'No email'}</p>
+                         <p className="text-xs font-medium text-ink-muted">{lead.phone}</p>
+                         <p className="text-[10px] text-ink-faint">{lead.email || 'No email'}</p>
                       </td>
-                      <td className="px-4 sm:px-6 py-4 text-xs text-slate-600">
+                      <td className="px-4 sm:px-6 py-4 text-xs text-ink-muted">
                         {lead.city || 'N/A'}, {lead.zip_code || ''}
                       </td>
                       <td className="px-4 sm:px-12 py-4">
-                         <p className="text-[10px] text-slate-900 font-medium">
+                         <p className="text-[10px] text-ink font-medium">
                            {lead.bedrooms}B / {lead.bathrooms}Ba
                          </p>
                          <div className="flex items-center gap-1.5 mt-0.5">
-                           <p className="text-[10px] text-slate-400 italic line-clamp-1">"{lead.message || 'No initial message'}"</p>
+                           <p className="text-[10px] text-ink-faint italic line-clamp-1">"{lead.message || 'No initial message'}"</p>
                            {(lead as any).revenue_estimate !== undefined && (lead as any).revenue_estimate !== null && (
                              <span className="text-[9px] font-mono font-bold text-emerald-600 shrink-0 ml-1">
                                Est: ${(lead as any).revenue_estimate}
@@ -360,11 +360,11 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                       <td className="px-4 sm:px-6 py-4" onClick={(e) => e.stopPropagation()}>
                          <select 
                            className={cn(
-                             "text-[10px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg px-2 py-1 outline-none",
-                             lead.status === 'new' ? "bg-blue-50 text-blue-700 border-blue-100" :
-                             lead.status === 'scheduled' || lead.status === 'estimate_scheduled' ? "bg-green-50 text-green-700 border-green-100" :
-                             lead.status === 'awaiting_photos' ? "bg-amber-50 text-amber-700 border-amber-100" :
-                             "bg-white text-slate-600"
+                             "text-label-sm uppercase border border-rule px-2 py-1 outline-none",
+                             lead.status === 'new' ? "bg-accent-soft text-accent-ink border-accent/20":
+                             lead.status === 'scheduled' || lead.status === 'estimate_scheduled' ? "bg-green-50 text-green-700 border-green-100":
+                             lead.status === 'awaiting_photos' ? "bg-amber-50 text-amber-700 border-amber-100":
+                             "bg-surface text-ink-muted"
                            )}
                            value={lead.status}
                            onChange={(e) => updateLeadStatus.mutate({ id: String(lead.id), status: e.target.value })}
@@ -385,14 +385,14 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                          <div className="flex items-center gap-2">
                            <a 
                              href={`tel:${lead.phone}`}
-                             className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all flex items-center justify-center"
+                             className="p-2 bg-accent-soft text-accent hover:bg-accent-soft transition-all flex items-center justify-center"
                              title="Call Client"
                            >
                              <ExternalLink size={14} />
                            </a>
                            <button 
                              onClick={() => { if(confirm(`Convert ${lead.name} to a regular customer?`)) convertToCustomer.mutate(lead) }}
-                             className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all flex items-center justify-center"
+                             className="p-2 bg-green-50 text-green-600 hover:bg-green-100 transition-all flex items-center justify-center"
                              title="Convert to Customer"
                              disabled={convertToCustomer.isPending}
                            >
@@ -403,72 +403,72 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                     </tr>
 
                     {isExpanded && (
-                      <tr className="bg-slate-50/70 border-b border-slate-100">
+                      <tr className="bg-surface-low/70 border-b border-rule">
                         <td colSpan={7} className="px-6 py-6" onClick={(e) => e.stopPropagation()}>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-slate-700">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-ink-soft">
                             {/* Column 1: Detailed Metadata Info */}
-                            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-                              <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400">Lead Metadata & CRM Specs</h4>
+                            <div className="bg-surface p-5 border border-rule space-y-4">
+                              <h4 className="text-label-md uppercase text-ink-faint">Lead Metadata & CRM Specs</h4>
                               <div className="grid grid-cols-2 gap-4 text-xs">
                                 <div>
-                                  <p className="text-slate-400 font-medium">Property Type</p>
-                                  <p className="font-bold text-slate-800">{lead.property_type || "House / Apartment"}</p>
+                                  <p className="text-ink-faint font-medium">Property Type</p>
+                                  <p className="font-bold text-ink-soft">{lead.property_type || "House / Apartment"}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 font-medium">Detailed Address</p>
-                                  <p className="font-bold text-slate-800">{lead.address || "Not specified"}</p>
+                                  <p className="text-ink-faint font-medium">Detailed Address</p>
+                                  <p className="font-bold text-ink-soft">{lead.address || "Not specified"}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 font-medium">Estimate Style Preference</p>
-                                  <p className="font-bold text-slate-800 text-blue-600 font-mono">{lead.estimate_option || "Pending option"}</p>
+                                  <p className="text-ink-faint font-medium">Estimate Style Preference</p>
+                                  <p className="font-bold text-ink-soft text-accent font-mono">{lead.estimate_option || "Pending option"}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 font-medium">Estimated Price Range</p>
+                                  <p className="text-ink-faint font-medium">Estimated Price Range</p>
                                   <p className="font-bold text-green-600 text-sm font-mono">{lead.estimated_price || "TBD (No Price Given)"}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 font-medium">Preferred Time Range</p>
-                                  <p className="font-bold text-slate-800">{lead.preferred_time || "N/A"}</p>
+                                  <p className="text-ink-faint font-medium">Preferred Time Range</p>
+                                  <p className="font-bold text-ink-soft">{lead.preferred_time || "N/A"}</p>
                                 </div>
                                 <div>
-                                  <p className="text-slate-400 font-medium">Initial Contact Message</p>
-                                  <p className="font-medium text-slate-600 italic">"{lead.message || "Hi, I would like a cleaning quote."}"</p>
+                                  <p className="text-ink-faint font-medium">Initial Contact Message</p>
+                                  <p className="font-medium text-ink-muted italic">"{lead.message || "Hi, I would like a cleaning quote."}"</p>
                                 </div>
                               </div>
 
                               {/* SHADOW MODE INSIGHTS SECTION */}
                               {((lead as any).lead_score !== undefined && (lead as any).lead_score !== null || (lead as any).ai_summary) && (
-                                <div className="pt-4 border-t border-slate-100 space-y-3">
+                                <div className="pt-4 border-t border-rule space-y-3">
                                   <div className="flex items-center justify-between">
-                                    <h4 className="font-bold text-xs uppercase tracking-wider text-indigo-600 flex items-center gap-1.5">
+                                    <h4 className="text-label-md uppercase text-indigo-600 flex items-center gap-1.5">
                                       <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
                                       Shadow Mode Insights
                                     </h4>
-                                    <span className="text-[9px] bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-widest font-mono border border-indigo-100">
+                                    <span className="text-label-sm bg-indigo-50 text-indigo-700 px-2.5 py-0.5 uppercase font-mono border border-indigo-100">
                                       PASSIVO (READ-ONLY)
                                     </span>
                                   </div>
                                   <div className="grid grid-cols-3 gap-3">
-                                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Lead Score</p>
+                                    <div className="bg-surface-low p-2.5 border border-rule">
+                                      <p className="text-label-sm text-ink-faint uppercase leading-none mb-1">Lead Score</p>
                                       <div className="flex items-baseline gap-1">
                                         <span className={cn(
-                                          "text-lg font-black font-mono",
-                                          (lead as any).lead_score >= 75 ? "text-emerald-600" :
-                                          (lead as any).lead_score >= 40 ? "text-amber-500" :
+                                          "text-lg font-bold font-mono",
+                                          (lead as any).lead_score >= 75 ? "text-emerald-600":
+                                          (lead as any).lead_score >= 40 ? "text-amber-500":
                                           "text-rose-500"
                                         )}>
                                           {(lead as any).lead_score ?? "N/A"}
                                         </span>
-                                        <span className="text-[10px] text-slate-400 font-medium">/100</span>
+                                        <span className="text-[10px] text-ink-faint font-medium">/100</span>
                                       </div>
                                     </div>
-                                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Intent Category</p>
-                                      <p className="font-bold text-slate-700 truncate mt-1 text-xs">{(lead as any).intent_category || "N/A"}</p>
+                                    <div className="bg-surface-low p-2.5 border border-rule">
+                                      <p className="text-label-sm text-ink-faint uppercase leading-none mb-1">Intent Category</p>
+                                      <p className="font-bold text-ink-soft truncate mt-1 text-xs">{(lead as any).intent_category || "N/A"}</p>
                                     </div>
-                                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-1">Revenue Est.</p>
+                                    <div className="bg-surface-low p-2.5 border border-rule">
+                                      <p className="text-label-sm text-ink-faint uppercase leading-none mb-1">Revenue Est.</p>
                                       <p className="font-mono font-bold text-emerald-600 mt-1 text-sm">
                                         {(lead as any).revenue_estimate !== undefined && (lead as any).revenue_estimate !== null 
                                           ? `$${(lead as any).revenue_estimate}` 
@@ -477,9 +477,9 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                                     </div>
                                   </div>
                                   {(lead as any).ai_summary && (
-                                    <div className="bg-indigo-50/20 p-3 rounded-xl border border-indigo-50/50">
-                                      <p className="text-[9px] text-indigo-500 font-bold uppercase tracking-wider mb-1">AI Direct Summary</p>
-                                      <p className="text-xs text-slate-700 leading-relaxed font-semibold italic">
+                                    <div className="bg-indigo-50/20 p-3 border border-indigo-50/50">
+                                      <p className="text-label-sm text-indigo-500 uppercase mb-1">AI Direct Summary</p>
+                                      <p className="text-xs text-ink-soft leading-relaxed font-semibold italic">
                                         {(lead as any).ai_summary}
                                       </p>
                                     </div>
@@ -488,9 +488,9 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                               )}
 
                               {lead.conversation_summary && (
-                                <div className="pt-4 border-t border-slate-100">
-                                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">AI Automated Relationship Summary</p>
-                                  <div className="p-3 bg-slate-50/60 rounded-xl text-xs text-slate-600 leading-relaxed italic">
+                                <div className="pt-4 border-t border-rule">
+                                  <p className="text-label-sm uppercase text-ink-faint mb-1.5">AI Automated Relationship Summary</p>
+                                  <div className="p-3 bg-surface-low/60 text-xs text-ink-muted leading-relaxed italic">
                                     {lead.conversation_summary}
                                   </div>
                                 </div>
@@ -498,10 +498,10 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                             </div>
 
                             {/* Column 2: Conversational Chat logs and Assistant Transcripts */}
-                            <div className="bg-slate-900 text-slate-100 p-5 rounded-2xl shadow-xl flex flex-col h-[320px] overflow-hidden">
-                              <div className="flex justify-between items-center pb-3 border-b border-slate-800 mb-3 shrink-0">
-                                <h4 className="font-mono text-[10px] text-slate-400 uppercase tracking-widest">SMS AI Receptionist Transcript</h4>
-                                <span className="bg-green-500/10 text-green-400 text-[9px] font-mono px-2 py-0.5 rounded-full border border-green-500/20">AGENT BOT</span>
+                            <div className="bg-ink text-white/80 p-5 flex flex-col h-[320px] overflow-hidden">
+                              <div className="flex justify-between items-center pb-3 border-b border-white/10 mb-3 shrink-0">
+                                <h4 className="font-mono text-label-sm text-ink-faint uppercase">SMS AI Receptionist Transcript</h4>
+                                <span className="bg-green-500/10 text-green-400 text-[9px] font-mono px-2 py-0.5 border border-green-500/20">AGENT BOT</span>
                               </div>
 
                               <div className="flex-grow overflow-y-auto space-y-3 pr-1 text-xs scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
@@ -512,27 +512,27 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                                     const cleanText = line.replace(/^(client|customer|assistant):\s*/i, "");
                                     
                                     return (
-                                      <div key={idx} className={cn("flex flex-col max-w-[85%]", isClient ? "mr-auto items-start" : "ml-auto items-end")}>
-                                        <span className="text-[9px] text-slate-500 font-mono mb-0.5">{isClient ? "Client" : "Dany Clean Pro AI"}</span>
-                                        <div className={cn("p-2.5 rounded-xl text-xs leading-relaxed", isClient ? "bg-slate-800 text-slate-200 rounded-tl-none" : "bg-blue-600 text-white rounded-tr-none")}>
+                                      <div key={idx} className={cn("flex flex-col max-w-[85%]", isClient ? "mr-auto items-start": "ml-auto items-end")}>
+                                        <span className="text-[9px] text-ink-muted font-mono mb-0.5">{isClient ? "Client": "Dany Clean Pro AI"}</span>
+                                        <div className={cn("p-2.5 text-xs leading-relaxed", isClient ? "bg-ink text-rule": "bg-accent text-white")}>
                                           {cleanText}
                                         </div>
                                       </div>
                                     );
                                   })
                                 ) : (
-                                  <div className="text-center text-slate-500 font-mono py-12 text-xs">
+                                  <div className="text-center text-ink-muted font-mono py-12 text-xs">
                                     No logged message events.
-                                    <div className="mt-2 text-[10px] text-slate-600 bg-slate-800/40 p-2.5 rounded-xl max-w-sm mx-auto">
+                                    <div className="mt-2 text-[10px] text-ink-muted bg-ink/40 p-2.5 max-w-sm mx-auto">
                                       As the client exchanges SMS messages with your n8n workflow, the database is auto-filled and conversations will log here.
                                     </div>
                                   </div>
                                 )}
 
                                 {lead.ai_reply && (
-                                  <div className="flex flex-col ml-auto items-end max-w-[85%] border-t border-slate-800 pt-3 mt-3 w-full">
-                                    <span className="text-[9px] text-blue-400 font-mono mb-0.5">Most Recent Reply</span>
-                                    <div className="p-2.5 bg-blue-600 text-white rounded-xl rounded-tr-none text-xs leading-relaxed">
+                                  <div className="flex flex-col ml-auto items-end max-w-[85%] border-t border-white/10 pt-3 mt-3 w-full">
+                                    <span className="text-[9px] text-accent font-mono mb-0.5">Most Recent Reply</span>
+                                    <div className="p-2.5 bg-accent text-white text-xs leading-relaxed">
                                       {lead.ai_reply}
                                     </div>
                                   </div>

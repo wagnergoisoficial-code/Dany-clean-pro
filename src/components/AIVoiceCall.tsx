@@ -117,23 +117,23 @@ export default function AIVoiceCall({ onClose }: AIVoiceCallProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-slate-900/90 backdrop-blur-xl flex items-center justify-center p-6"
+      className="fixed inset-0 z-[200] bg-ink/90 backdrop-blur-xl flex items-center justify-center p-6"
     >
-      <div className="w-full max-w-md bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col items-center p-12 text-center space-y-12">
+      <div className="w-full max-w-md bg-surface overflow-hidden shadow-2xl flex flex-col items-center p-12 text-center space-y-12">
         
         {/* Status indicator */}
         <div className="space-y-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-blue-600/20 rounded-full animate-ping" />
-            <div className="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center text-white relative">
+            <div className="absolute inset-0 bg-accent/20 rounded-full animate-ping" />
+            <div className="w-32 h-32 bg-accent rounded-full flex items-center justify-center text-white relative">
               <Phone size={48} className={cn(status === 'connected' && "animate-bounce")} />
             </div>
           </div>
           <div className="space-y-1">
-            <h3 className="text-2xl font-display font-bold text-slate-900 capitalize">
+            <h3 className="text-2xl font-display font-bold text-ink capitalize">
               {status === 'connecting' ? 'Connecting...' : status === 'connected' ? 'Call in Progress' : 'Call Ended'}
             </h3>
-            <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">
+            <p className="text-ink-faint text-label-sm uppercase">
               AI Assistant: Dany
             </p>
           </div>
@@ -154,13 +154,13 @@ export default function AIVoiceCall({ onClose }: AIVoiceCallProps) {
                 delay: i * 0.1,
                 ease: "easeInOut"
               }}
-              className="w-1.5 bg-blue-600 rounded-full"
+              className="w-1.5 bg-accent rounded-full"
             />
           ))}
         </div>
 
         {/* Transcript preview */}
-        <div className="w-full bg-slate-50 rounded-3xl p-6 min-h-[100px] flex items-center justify-center text-sm text-slate-500 italic">
+        <div className="w-full bg-surface-low p-6 min-h-[100px] flex items-center justify-center text-sm text-ink-muted italic">
           {lastModelResponse || "Listening..."}
         </div>
 
@@ -169,8 +169,8 @@ export default function AIVoiceCall({ onClose }: AIVoiceCallProps) {
           <button 
             onClick={() => setIsMuted(!isMuted)}
             className={cn(
-              "p-5 rounded-3xl transition-all",
-              isMuted ? "bg-red-50 text-red-600" : "bg-slate-100 text-slate-600"
+              "p-5 transition-all",
+              isMuted ? "bg-red-50 text-red-600": "bg-surface-mid text-ink-muted"
             )}
           >
             {isMuted ? <MicOff /> : <Mic />}
@@ -178,12 +178,12 @@ export default function AIVoiceCall({ onClose }: AIVoiceCallProps) {
           
           <button 
             onClick={endCall}
-            className="p-8 bg-red-600 text-white rounded-[2rem] shadow-xl shadow-red-600/20 hover:bg-red-700 transition-all scale-110"
+            className="p-8 bg-red-600 text-white hover:bg-red-700 transition-all scale-110"
           >
             <PhoneOff size={32} />
           </button>
           
-          <div className="p-5 bg-slate-100 text-slate-600 rounded-3xl">
+          <div className="p-5 bg-surface-mid text-ink-muted">
             <Volume2 />
           </div>
         </div>

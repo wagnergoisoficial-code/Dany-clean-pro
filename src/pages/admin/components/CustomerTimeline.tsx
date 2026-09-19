@@ -35,11 +35,11 @@ export default function CustomerTimeline({ customerId }: CustomerTimelineProps) 
   const getEventStyles = (type: TimelineEvent['type']) => {
     switch (type) {
       case 'customer_created': return { icon: UserPlus, color: 'text-green-600', bg: 'bg-green-50' };
-      case 'converted_from_lead': return { icon: CheckCircle2, color: 'text-blue-600', bg: 'bg-blue-50' };
+      case 'converted_from_lead': return { icon: CheckCircle2, color: 'text-accent', bg: 'bg-accent-soft' };
       case 'status_changed': return { icon: RotateCcw, color: 'text-amber-600', bg: 'bg-amber-50' };
-      case 'notes_updated': return { icon: Info, color: 'text-slate-600', bg: 'bg-slate-50' };
+      case 'notes_updated': return { icon: Info, color: 'text-ink-muted', bg: 'bg-surface-low' };
       case 'customer_updated': return { icon: HistoryIcon, color: 'text-indigo-600', bg: 'bg-indigo-50' };
-      default: return { icon: Info, color: 'text-slate-400', bg: 'bg-slate-50' };
+      default: return { icon: Info, color: 'text-ink-faint', bg: 'bg-surface-low' };
     }
   };
 
@@ -50,12 +50,12 @@ export default function CustomerTimeline({ customerId }: CustomerTimelineProps) 
   };
 
   if (isLoading) {
-    return <div className="py-10 text-center text-slate-400 text-sm animate-pulse">Loading timeline...</div>;
+    return <div className="py-10 text-center text-ink-faint text-sm animate-pulse">Loading timeline...</div>;
   }
 
   if (error) {
     return (
-      <div className="p-6 bg-red-50 border border-red-100 rounded-3xl text-red-600 text-sm flex items-center gap-3">
+      <div className="p-6 bg-red-50 border border-red-100 text-red-600 text-sm flex items-center gap-3">
         <AlertCircle size={18} />
         <p>Could not load customer history. Unauthorized or connection error.</p>
       </div>
@@ -64,41 +64,41 @@ export default function CustomerTimeline({ customerId }: CustomerTimelineProps) 
 
   if (!events || events.length === 0) {
     return (
-      <div className="py-20 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-        <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 text-slate-300">
+      <div className="py-20 text-center bg-surface-low border border-dashed border-rule">
+        <div className="w-12 h-12 bg-surface flex items-center justify-center mx-auto mb-4 text-ink-faint">
           <HistoryIcon size={24} />
         </div>
-        <p className="text-slate-500 font-medium">No history available</p>
-        <p className="text-slate-400 text-xs mt-1">Operational logs will appear here as they are registered.</p>
+        <p className="text-ink-muted font-medium">No history available</p>
+        <p className="text-ink-faint text-xs mt-1">Operational logs will appear here as they are registered.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-px before:bg-slate-100">
+    <div className="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-px before:bg-surface-mid">
       {events.map((event) => {
         const styles = getEventStyles(event.type);
         return (
           <div key={event.id} className="relative pl-12 group">
             <div className={cn(
-              "absolute left-0 top-0 w-10 h-10 rounded-xl flex items-center justify-center border-4 border-white shadow-sm z-10 transition-transform group-hover:scale-110",
+              "absolute left-0 top-0 w-10 h-10 flex items-center justify-center border-4 border-white z-10 transition-transform group-hover:scale-110",
               styles.bg,
               styles.color
             )}>
               <styles.icon size={16} />
             </div>
             
-            <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group-hover:translate-x-1">
+            <div className="bg-surface p-5 border border-rule transition-all group-hover:translate-x-1">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <h5 className="font-bold text-slate-900 text-sm">{event.title}</h5>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                <h5 className="font-bold text-ink text-sm">{event.title}</h5>
+                <span className="text-label-sm text-ink-faint uppercase flex items-center gap-1">
                   <Clock size={10} /> {formatDate(event.createdAt)}
                 </span>
               </div>
-              <p className="text-slate-600 text-sm leading-relaxed">{event.description}</p>
+              <p className="text-ink-muted text-sm leading-relaxed">{event.description}</p>
               {event.createdBy && (
-                <div className="mt-3 pt-3 border-t border-slate-50 flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">
-                  <UserPlus size={10} /> Executed by: <span className="text-slate-900">{event.createdBy}</span>
+                <div className="mt-3 pt-3 border-t border-rule flex items-center gap-2 text-label-sm text-ink-faint uppercase">
+                  <UserPlus size={10} /> Executed by: <span className="text-ink">{event.createdBy}</span>
                 </div>
               )}
             </div>
