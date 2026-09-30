@@ -15,6 +15,25 @@ export const handler: Handler = async (event) => {
   };
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
+
+  // GET is a health check: confirms the provider key landed in the environment
+  // without exposing it. Handy right after setting the variable in Netlify.
+  if (event.httpMethod === 'GET') {
+    const provider = process.env.RESEND_API_KEY ? 'resend'
+      : process.env.SENDGRID_API_KEY ? 'sendgrid'
+      : null;
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        configured: !!provider,
+        provider,
+        to: (process.env.LEAD_NOTIFY_TO || 'danycleanenpro@gmail.com').split(',').map(s => s.trim()),
+        from: process.env.LEAD_NOTIFY_FROM || '(default sender)',
+      }),
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
   }
