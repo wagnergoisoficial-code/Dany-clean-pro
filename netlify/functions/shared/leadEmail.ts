@@ -5,14 +5,16 @@
  * Firestore, the API fallback, and the chat/SMS assistant — funnels through
  * `sendLeadEmail` so the inbox always mirrors the dashboard.
  *
- * Provider is chosen by whichever key is present, so no extra dependency is
- * needed (both are plain HTTPS calls):
- *   RESEND_API_KEY    -> https://resend.com   (recommended)
- *   SENDGRID_API_KEY  -> https://sendgrid.com
+ * Provider is whichever one is configured, checked in this order:
+ *   1. SMTP  — GMAIL_USER + GMAIL_APP_PASSWORD (sends from the business inbox
+ *      itself, no third-party service), or SMTP_HOST/PORT/USER/PASS for any
+ *      other mail server
+ *   2. RESEND_API_KEY    -> https://resend.com
+ *   3. SENDGRID_API_KEY  -> https://sendgrid.com
  *
  * Related env vars:
  *   LEAD_NOTIFY_TO    comma separated recipients (default danycleanenpro@gmail.com)
- *   LEAD_NOTIFY_FROM  verified sender (default onboarding@resend.dev, test only)
+ *   LEAD_NOTIFY_FROM  sender; defaults to the SMTP user when sending over SMTP
  */
 
 export interface LeadEmailPayload {
@@ -144,6 +146,40 @@ export function buildLeadEmail(lead: LeadEmailPayload) {
   return { subject, html, text };
 }
 
+
+/**
+ * Gmail needs an App Password (2-Step Verification on, "less secure apps" was
+ * dropped in 2024). Any other provider can be pointed at with SMTP_HOST/PORT.
+ */
+function smtpConfig(): { host: string; port: number; user: string; pass: string } | null {
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD;
+  if (gmailUser && gmailPass) {
+    return {
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: Number(process.env.SMTP_PORT || 587),
+      user: gmailUser,
+      // Google displays the App Password in groups of four; strip the spaces.
+      pass: gmailPass.replace(/\s+/g, ''),
+    };
+  }
+
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  if (host && user && pass) {
+    return { host, port: Number(process.env.SMTP_PORT || 587), user, pass };
+  }
+  return null;
+}
+
+export function mailProviderName(): string | null {
+  if (smtpConfig()) return 'smtp';
+  if (process.env.RESEND_API_KEY) return 'resend';
+  if (process.env.SENDGRID_API_KEY) return 'sendgrid';
+  return null;
+}
+
 export async function sendLeadEmail(lead: LeadEmailPayload): Promise<{ sent: boolean; provider?: string; error?: string }> {
   const to = (process.env.LEAD_NOTIFY_TO || DEFAULT_TO).split(',').map(s => s.trim()).filter(Boolean);
   const from = process.env.LEAD_NOTIFY_FROM || DEFAULT_FROM;
@@ -152,13 +188,35 @@ export async function sendLeadEmail(lead: LeadEmailPayload): Promise<{ sent: boo
 
   const resendKey = process.env.RESEND_API_KEY;
   const sendgridKey = process.env.SENDGRID_API_KEY;
+  const smtp = smtpConfig();
 
-  if (!resendKey && !sendgridKey) {
-    console.warn('[leadEmail] no RESEND_API_KEY or SENDGRID_API_KEY set — skipping notification');
+  if (!smtp && !resendKey && !sendgridKey) {
+    console.warn('[leadEmail] no mail provider configured — skipping notification');
     return { sent: false, error: 'no provider configured' };
   }
 
   try {
+    if (smtp) {
+      // Imported lazily so the function still loads if the dependency is absent.
+      const nodemailer = (await import('nodemailer')).default;
+      const transport = nodemailer.createTransport({
+        host: smtp.host,
+        port: smtp.port,
+        secure: smtp.port === 465,   // 587 negotiates STARTTLS instead
+        auth: { user: smtp.user, pass: smtp.pass },
+      });
+      await transport.sendMail({
+        from: process.env.LEAD_NOTIFY_FROM || `Dany Clean Pro <${smtp.user}>`,
+        to: to.join(', '),
+        subject,
+        html,
+        text,
+        ...(replyTo ? { replyTo } : {}),
+      });
+      console.log('[leadEmail] sent via smtp to', to.join(', '));
+      return { sent: true, provider: 'smtp' };
+    }
+
     if (resendKey) {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',

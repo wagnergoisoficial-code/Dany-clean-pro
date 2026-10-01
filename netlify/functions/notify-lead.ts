@@ -1,5 +1,5 @@
 import { Handler } from '@netlify/functions';
-import { sendLeadEmail, LeadEmailPayload } from './shared/leadEmail';
+import { sendLeadEmail, mailProviderName, LeadEmailPayload } from './shared/leadEmail';
 
 /**
  * Notification endpoint for leads the browser wrote straight to Firestore.
@@ -19,9 +19,7 @@ export const handler: Handler = async (event) => {
   // GET is a health check: confirms the provider key landed in the environment
   // without exposing it. Handy right after setting the variable in Netlify.
   if (event.httpMethod === 'GET') {
-    const provider = process.env.RESEND_API_KEY ? 'resend'
-      : process.env.SENDGRID_API_KEY ? 'sendgrid'
-      : null;
+    const provider = mailProviderName();
     return {
       statusCode: 200,
       headers,

@@ -67,21 +67,42 @@ quando o cliente pedir para falar com alguém, dentro do horário comercial.
 
 ## E-mail dos pedidos
 
-Os leads (site **e** telefone) mandam e-mail automático. Depende de **uma**
-variável no Netlify:
+Os leads (site **e** telefone) mandam e-mail automático. Escolha **uma** opção
+e configure em Netlify → Site settings → Environment variables.
+
+### Opção A — pelo Gmail da Dany (sem serviço terceiro)
 
 | Variável | Valor |
 |---|---|
-| `RESEND_API_KEY` | chave criada em resend.com (grátis até 3.000/mês) |
+| `GMAIL_USER` | `danycleanenpro@gmail.com` |
+| `GMAIL_APP_PASSWORD` | App Password de 16 letras (pode colar com espaços) |
 | `LEAD_NOTIFY_TO` | `danycleanenpro@gmail.com` (aceita vários, separados por vírgula) |
-| `LEAD_NOTIFY_FROM` | `Dany Clean Pro <requests@danycleanpro.com>` — o domínio precisa estar verificado na Resend |
 
-Conferir se pegou, depois do deploy:
+Como gerar o App Password:
 
-```bash
-curl https://danycleanpro.com/api/notify-lead
-# {"configured":true,"provider":"resend","to":["danycleanenpro@gmail.com"], ...}
+1. myaccount.google.com → **Segurança**
+2. Ativar a **Verificação em duas etapas** (obrigatório — sem isso a opção nem aparece)
+3. Buscar por **Senhas de app** → criar uma chamada "Site Dany Clean"
+4. Copiar as 16 letras
+
+Limite do Gmail: ~500 e-mails/dia. Muito acima do volume de leads.
+
+### Opção B — Resend (melhor entrega em volume alto)
+
+| Variável | Valor |
+|---|---|
+| `RESEND_API_KEY` | chave de resend.com |
+| `LEAD_NOTIFY_TO` | destinatários |
+| `LEAD_NOTIFY_FROM` | `Dany Clean Pro <requests@danycleanpro.com>` (domínio verificado) |
+
+### Conferir se pegou
+
+Depois do deploy, abrir no navegador:
+
+```
+https://danycleanpro.com/api/notify-lead
 ```
 
-Se vier `"configured": false`, a chave não chegou no ambiente — conferir em
-Netlify → Site settings → Environment variables, e refazer o deploy.
+Resposta esperada: `{"configured":true,"provider":"smtp", ...}`.
+Se vier `"configured": false`, a variável não chegou no ambiente — conferir o
+nome e refazer o deploy (variável nova só vale em deploy novo).
