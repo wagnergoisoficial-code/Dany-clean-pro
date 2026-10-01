@@ -180,18 +180,29 @@ export function mailProviderName(): string | null {
   return null;
 }
 
-export async function sendLeadEmail(lead: LeadEmailPayload): Promise<{ sent: boolean; provider?: string; error?: string }> {
-  const to = (process.env.LEAD_NOTIFY_TO || DEFAULT_TO).split(',').map(s => s.trim()).filter(Boolean);
-  const from = process.env.LEAD_NOTIFY_FROM || DEFAULT_FROM;
-  const { subject, html, text } = buildLeadEmail(lead);
-  const replyTo = present(lead.email) ? String(lead.email) : undefined;
+export interface MailMessage {
+  subject: string;
+  html: string;
+  text: string;
+  to?: string[];
+  replyTo?: string;
+}
 
+/** Single transport used by both the owner notification and the client e-mails. */
+export async function sendMail(message: MailMessage): Promise<{ sent: boolean; provider?: string; error?: string }> {
+  const to = (message.to && message.to.length
+    ? message.to
+    : (process.env.LEAD_NOTIFY_TO || DEFAULT_TO).split(',')
+  ).map(s => s.trim()).filter(Boolean);
+
+  const { subject, html, text, replyTo } = message;
   const resendKey = process.env.RESEND_API_KEY;
   const sendgridKey = process.env.SENDGRID_API_KEY;
   const smtp = smtpConfig();
+  const from = process.env.LEAD_NOTIFY_FROM || (smtp ? `Dany Clean Pro <${smtp.user}>` : DEFAULT_FROM);
 
   if (!smtp && !resendKey && !sendgridKey) {
-    console.warn('[leadEmail] no mail provider configured — skipping notification');
+    console.warn('[leadEmail] no mail provider configured — skipping');
     return { sent: false, error: 'no provider configured' };
   }
 
@@ -206,11 +217,7 @@ export async function sendLeadEmail(lead: LeadEmailPayload): Promise<{ sent: boo
         auth: { user: smtp.user, pass: smtp.pass },
       });
       await transport.sendMail({
-        from: process.env.LEAD_NOTIFY_FROM || `Dany Clean Pro <${smtp.user}>`,
-        to: to.join(', '),
-        subject,
-        html,
-        text,
+        from, to: to.join(', '), subject, html, text,
         ...(replyTo ? { replyTo } : {}),
       });
       console.log('[leadEmail] sent via smtp to', to.join(', '));
@@ -254,4 +261,11 @@ export async function sendLeadEmail(lead: LeadEmailPayload): Promise<{ sent: boo
     console.error('[leadEmail] send threw:', err?.message || err);
     return { sent: false, error: err?.message || 'unknown error' };
   }
+}
+
+/** The owner's notification: every request, mirrored from the CRM into the inbox. */
+export async function sendLeadEmail(lead: LeadEmailPayload) {
+  const { subject, html, text } = buildLeadEmail(lead);
+  const replyTo = present(lead.email) ? String(lead.email) : undefined;
+  return sendMail({ subject, html, text, replyTo });
 }

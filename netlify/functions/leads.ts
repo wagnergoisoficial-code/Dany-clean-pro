@@ -2,6 +2,7 @@ import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
 import { enrichLeadWithShadowAI } from './shared/shadowEngine';
 import { sendLeadEmail } from './shared/leadEmail';
+import { sendClientEmail } from './shared/clientEmail';
 
 // Initialize Firebase Admin outside the handler for reuse
 const initializeAdmin = () => {
@@ -404,6 +405,15 @@ export const handler: Handler = async (event) => {
         source: sanitize(getOptionalVal('source')) || 'api',
       };
       await sendLeadEmail({ ...notifyPayload, leadId: docRef.id });
+
+      // Confirm to the client straight away. Waiting on a human here is what
+      // loses the booking to whoever answers first.
+      if (email) {
+        const ack = await sendClientEmail('confirmation', notifyPayload);
+        if (ack.sent) {
+          await docRef.update({ automation_log: admin.firestore.FieldValue.arrayUnion('confirmation') });
+        }
+      }
 
       return {
         statusCode: 200,

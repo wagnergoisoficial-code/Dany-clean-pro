@@ -106,3 +106,39 @@ https://danycleanpro.com/api/notify-lead
 Resposta esperada: `{"configured":true,"provider":"smtp", ...}`.
 Se vier `"configured": false`, a variável não chegou no ambiente — conferir o
 nome e refazer o deploy (variável nova só vale em deploy novo).
+
+---
+
+## Automação de acompanhamento
+
+Uma função roda **de hora em hora** e manda o que venceu. Nada é enviado
+enquanto `AUTOMATION_ENABLED` não for exatamente `true`.
+
+| Quando | Para quem | O que |
+|---|---|---|
+| Lead entra | cliente | Confirmação na hora: "recebemos, retornamos em algumas horas" |
+| Lead `new` há 2h | Dany | "Lead parado há 2 horas" |
+| `contacted` há 3 dias | cliente | "Ainda de pé?" — pede nova data ou um "já resolvi" |
+| `completed` há 1 dia (até 7 dias) | cliente | Pede avaliação, e oferece re-limpeza se algo não ficou bom |
+| `completed` há 45 dias | cliente | Convite para voltar |
+
+O status vem da tela **Manage Leads** — mudar o status lá é o que dispara tudo.
+
+### Regras de segurança embutidas
+
+- **Nunca repete:** cada lead guarda em `automation_log` o que já recebeu.
+- **Nunca manda dois e-mails ao mesmo cliente na mesma rodada.**
+- **Para de mandar** se o cliente tem `automation_opt_out`, ou se "stop"/
+  "unsubscribe" aparece no histórico dele.
+- **Não mexe no passado:** leads com mais de 90 dias são ignorados, então ligar
+  a automação não dispara um ano de histórico.
+- **Teto por rodada:** 25 e-mails por regra, por hora.
+
+### Como ligar com segurança
+
+1. `AUTOMATION_ENABLED=true` **e** `AUTOMATION_DRY_RUN=true`
+2. Esperar uma hora e ler o log em Netlify → Functions → `scheduled-automations`.
+   Ele lista o que *teria* enviado, sem enviar.
+3. Se a lista fizer sentido, tirar o `AUTOMATION_DRY_RUN`.
+
+Para desligar tudo na hora: `AUTOMATION_ENABLED=false` e refazer o deploy.
