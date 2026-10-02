@@ -1,5 +1,29 @@
 import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { extendTailwindMerge } from 'tailwind-merge';
+
+/**
+ * The design system adds its own type scale (text-label-md, text-headline-lg…).
+ * tailwind-merge cannot know those are font sizes, so it files them under
+ * text-colour and drops whatever colour came before — `cn("text-white
+ * text-label-md")` silently resolved to `text-label-md`, leaving the element
+ * with the inherited body colour. White icons on a blue button, invisible.
+ *
+ * Declaring the scale here fixes every cn() call at once.
+ */
+const TYPE_SCALE = [
+  'label-sm', 'label-md', 'label-lg',
+  'body-sm', 'body-md', 'body-lg',
+  'headline-sm', 'headline-md', 'headline-lg',
+  'display',
+];
+
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [{ text: TYPE_SCALE }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
