@@ -3,6 +3,7 @@ import admin from 'firebase-admin';
 import { enrichLeadWithShadowAI } from './shared/shadowEngine';
 import { sendLeadEmail } from './shared/leadEmail';
 import { sendClientEmail } from './shared/clientEmail';
+import { firestore, databaseLabel } from './shared/firestore';
 
 // Initialize Firebase Admin outside the handler for reuse
 const initializeAdmin = () => {
@@ -223,7 +224,8 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const db = admin.firestore();
+    const db = firestore();
+    console.log('[leads] using Firestore database:', databaseLabel());
     const leadsRef = db.collection('leads');
 
     console.log(`Searching Firestore for existing lead with phone: ${finalPhone}`);

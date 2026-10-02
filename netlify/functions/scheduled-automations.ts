@@ -2,6 +2,7 @@ import { schedule } from '@netlify/functions';
 import admin from 'firebase-admin';
 import { sendClientEmail, ClientEmailKind } from './shared/clientEmail';
 import { sendMail } from './shared/leadEmail';
+import { firestore, databaseLabel } from './shared/firestore';
 
 /**
  * Hourly sweep over the leads.
@@ -122,7 +123,8 @@ export const handler = schedule('@hourly', async () => {
     return { statusCode: 500, body: JSON.stringify({ error: 'firebase not configured' }) };
   }
 
-  const db = admin.firestore();
+  const db = firestore();
+  console.log('[automations] using Firestore database:', databaseLabel());
   const cutoff = new Date(Date.now() - LOOKBACK_DAYS * 24 * 36e5);
   const snapshot = await db.collection('leads').where('createdAt', '>=', cutoff).get();
 
