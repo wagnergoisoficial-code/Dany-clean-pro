@@ -6,4 +6,5 @@
 /api/chat-lead     /.netlify/functions/chat-lead 200!
 /api/notify-lead   /.netlify/functions/notify-lead 200!
 /api/voice-lead    /.netlify/functions/voice-lead 200!
+/api/diagnostics   /.netlify/functions/diagnostics 200!
 /*                 /index.html                   200

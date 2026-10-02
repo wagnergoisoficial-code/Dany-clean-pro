@@ -34,6 +34,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/diagnostics"
+  to = "/.netlify/functions/diagnostics"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/voice-lead"
   to = "/.netlify/functions/voice-lead"
   status = 200
