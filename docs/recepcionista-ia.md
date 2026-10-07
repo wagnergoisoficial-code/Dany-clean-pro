@@ -1,20 +1,56 @@
 # Recepcionista de IA — configuração
 
-Atende as ligações 24h, qualifica o cliente e joga o lead no dashboard e no
+Atende ligações e SMS 24h, qualifica o cliente e joga o lead no dashboard e no
 e-mail, sem ninguém precisar atender.
 
-Plataforma: **Goodcall**, plano Starter ($79/mês, minutos ilimitados).
+Existem **dois caminhos**, e eles usam o mesmo número Twilio:
+
+| | A. Twilio + nosso código | B. Goodcall |
+|---|---|---|
+| Custo | só o uso do Twilio e do Gemini (centavos por ligação) | $79/mês |
+| Disponível | **já pronto** — só apontar o webhook | depois de criar conta |
+| Como soa | uma pergunta por vez, voz sintética, pausa entre turnos | conversa fluida, interrompível |
+| Quando usar | começar hoje, volume baixo | quando o volume justificar |
+
+As duas gravam o lead do mesmo jeito. Dá para começar na A e migrar para a B
+sem mexer em mais nada.
 
 ---
 
-## 1. Conta e número
+## Caminho A — no próprio Twilio (já implementado)
+
+No console do Twilio, em **Phone Numbers → o seu número**:
+
+| Seção | Campo | Valor |
+|---|---|---|
+| Voice | *A call comes in* → Webhook | `https://danycleanpro.com/api/voice` (POST) |
+| Messaging | *A message comes in* → Webhook | `https://danycleanpro.com/api/sms` (POST) |
+
+E em Netlify, as variáveis `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` e
+`TWILIO_PHONE_NUMBER`.
+
+O `TWILIO_AUTH_TOKEN` não é opcional: ele é o que prova que a chamada veio
+mesmo do Twilio. Sem ele os webhooks respondem a qualquer um, e cada acesso
+gasta crédito de Gemini e de SMS.
+
+A ligação coleta nome, cidade, tipo de limpeza, quartos, banheiros e melhor
+dia — uma pergunta por vez — e encerra em no máximo 8 turnos, gravando a
+transcrição no lead. A IA **nunca** passa preço.
+
+---
+
+## Caminho B — Goodcall ($79/mês)
+
+---
+
+### 1. Conta e número
 
 1. Criar conta em goodcall.com (tem teste grátis).
 2. Em **Phone setup**, escolher *forward your existing line* e encaminhar o
    (218) 357-5938 para o número que a Goodcall fornecer.
    O número publicado no site continua o mesmo.
 
-## 2. Perguntas do agente
+### 2. Perguntas do agente
 
 Configurar exatamente estes campos — são os mesmos do formulário do site, para
 o lead da ligação ficar idêntico ao lead do site no dashboard:
@@ -35,7 +71,7 @@ o lead da ligação ficar idêntico ao lead do site no dashboard:
 confirmado depois da avaliação. Orientar: *"I'll pass this to the team and
 you'll get your estimate within a few hours."*
 
-## 3. Enviar o lead para o sistema
+### 3. Enviar o lead para o sistema
 
 Na Goodcall, conectar o Zapier:
 
@@ -58,7 +94,7 @@ curl -X POST https://danycleanpro.com/api/voice-lead \
        "cleaning_type":"Deep Cleaning","beds":3,"baths":2,"notes":"teste"}'
 ```
 
-## 4. Transferência para uma pessoa
+### 4. Transferência para uma pessoa
 
 No plano Starter dá para transferir a ligação. Vale configurar para transferir
 quando o cliente pedir para falar com alguém, dentro do horário comercial.
