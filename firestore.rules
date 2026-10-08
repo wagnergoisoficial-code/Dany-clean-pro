@@ -74,6 +74,13 @@ service cloud.firestore {
     //   - Removed exact keys().size() match (was rejecting valid writes with optional fields)
     //   - Removed bedrooms/bathrooms/zip_code from required (they're optional)
     //   - Added non-empty checks on name/email/phone
+    // The schedule. Written by the server (Admin SDK bypasses these rules);
+    // the dashboard only reads it, and confirming goes through the API.
+    match /appointments/{appointmentId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
     match /leads/{leadId} {
       allow create: if isValidLead(incoming());
       allow read, update, delete: if isAdmin();

@@ -2,6 +2,7 @@ import {
   LayoutDashboard, 
   Users, 
   UserCheck,
+  CalendarDays,
   Image as ImageIcon, 
   MessageSquare, 
   Settings, 
@@ -21,11 +22,12 @@ interface AdminSidebarProps {
 const sidebarLinks = [
   { icon: LayoutDashboard, label: 'Overview', path: '/admin/dashboard', index: '01' },
   { icon: Users, label: 'Manage Leads', path: '/admin/dashboard/leads', index: '02' },
-  { icon: Target, label: 'Command Center', path: '/admin/dashboard/commercial', index: '03' },
-  { icon: UserCheck, label: 'Customers', path: '/admin/dashboard/customers', index: '04' },
-  { icon: ImageIcon, label: 'Gallery', path: '/admin/dashboard/gallery', index: '05' },
-  { icon: MessageSquare, label: 'Reviews', path: '/admin/dashboard/reviews', index: '06' },
-  { icon: Settings, label: 'Settings', path: '/admin/dashboard/settings', index: '07' },
+  { icon: CalendarDays, label: 'Schedule', path: '/admin/dashboard/schedule', index: '03' },
+  { icon: Target, label: 'Command Center', path: '/admin/dashboard/commercial', index: '04' },
+  { icon: UserCheck, label: 'Customers', path: '/admin/dashboard/customers', index: '05' },
+  { icon: ImageIcon, label: 'Gallery', path: '/admin/dashboard/gallery', index: '06' },
+  { icon: MessageSquare, label: 'Reviews', path: '/admin/dashboard/reviews', index: '07' },
+  { icon: Settings, label: 'Settings', path: '/admin/dashboard/settings', index: '08' },
 ];
 
 export default function AdminSidebar({ isMobile, onClose, onLogout }: AdminSidebarProps) {

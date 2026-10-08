@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
 import { firestore } from './shared/firestore';
-import { confirmEvent, cancelEvent } from './shared/calendar';
+import { confirmEvent, cancelEvent } from './shared/schedule';
 
 /**
  * The one tap that turns a held slot into a real appointment — or releases it.

@@ -3,7 +3,7 @@ import admin from 'firebase-admin';
 import twilio from 'twilio';
 import { firestore } from './shared/firestore';
 import { knowledgePrompt } from './shared/businessKnowledge';
-import { findSlots, bookTentative, calendarConfigured, Slot } from './shared/calendar';
+import { findSlots, bookTentative, calendarConfigured, Slot } from './shared/schedule';
 
 /**
  * Twilio Voice webhook — the AI answers the phone on the existing number.

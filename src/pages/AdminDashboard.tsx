@@ -22,6 +22,7 @@ import ReviewManager from './admin/ReviewManager';
 import SettingsManager from './admin/SettingsManager';
 import CustomersManager from './admin/CustomersManager';
 import CommercialCenter from './admin/CommercialCenter';
+import ScheduleManager from './admin/ScheduleManager';
 
 export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthState, fbUser?: FirebaseUser | null, onLogout: () => void }) {
   const queryClient = useQueryClient();
@@ -155,6 +156,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
           <Routes>
             <Route index element={<Overview leads={leads || []} isLoading={isLoading} />} />
             <Route path="leads" element={<LeadsManager auth={auth} />} />
+            <Route path="schedule" element={<ScheduleManager />} />
             <Route path="commercial" element={<CommercialCenter leads={leads || []} isLoading={isLoading} auth={auth} />} />
             <Route path="customers" element={<CustomersManager />} />
             <Route path="gallery" element={<GalleryManager auth={auth} />} />
