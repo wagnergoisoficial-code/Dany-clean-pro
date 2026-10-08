@@ -34,6 +34,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/confirm-booking"
+  to = "/.netlify/functions/confirm-booking"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/voice"
   to = "/.netlify/functions/voice"
   status = 200

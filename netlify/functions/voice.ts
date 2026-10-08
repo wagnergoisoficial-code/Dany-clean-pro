@@ -3,6 +3,7 @@ import admin from 'firebase-admin';
 import twilio from 'twilio';
 import { firestore } from './shared/firestore';
 import { knowledgePrompt } from './shared/businessKnowledge';
+import { findSlots, bookTentative, calendarConfigured, Slot } from './shared/calendar';
 
 /**
  * Twilio Voice webhook — the AI answers the phone on the existing number.
@@ -57,6 +58,11 @@ function initAdmin(): boolean {
     console.error('[voice] admin init failed:', err);
     return false;
   }
+}
+
+/** Rough read of the service from what has been said so far, to size the slot. */
+function serviceGuess(transcript: string): string {
+  return transcript.slice(-400);
 }
 
 const xml = (body: string) => ({ statusCode: 200, headers: { 'Content-Type': 'text/xml' }, body });
@@ -133,8 +139,25 @@ export const handler: Handler = async (event) => {
     return hangUp(HANDOFF);
   }
 
+  // Real openings, so the assistant offers times that actually exist.
+  let slots: Slot[] = [];
+  if (calendarConfigured()) {
+    try {
+      slots = await findSlots(serviceGuess(transcript));
+    } catch (err: any) {
+      console.error('[voice] could not read the calendar (continuing without times):', err?.message || err);
+    }
+  }
+  const slotBlock = slots.length
+    ? `\nAVAILABLE TIMES — offer these, exactly as written, and never invent others:\n`
+      + slots.map(s => `- ${s.label}  (id: ${s.id})`).join('\n')
+      + `\nWhen the customer picks one, copy its id verbatim into "chosen_slot".`
+    : `\nNo openings could be read right now. Take the customer's preferred day and say the team will confirm the time.`;
+
   let reply = '';
   let done = false;
+  let chosen = '';
+  let details: Record<string, any> = {};
   try {
     const { GoogleGenAI, Type } = await import('@google/genai');
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -142,13 +165,17 @@ export const handler: Handler = async (event) => {
       model: MODEL,
       contents: `Conversation so far:\n${transcript}\n\nReply with the next single short spoken sentence.`,
       config: {
-        systemInstruction: `${ROLE}\n\n${await knowledgePrompt()}`,
+        systemInstruction: `${ROLE}\n\n${await knowledgePrompt()}${slotBlock}`,
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
           properties: {
             say: { type: Type.STRING, description: 'One short spoken sentence, under 25 words.' },
             done: { type: Type.BOOLEAN, description: 'True once all six details are collected.' },
+            chosen_slot: { type: Type.STRING, description: 'The id of the time the customer accepted, copied exactly from AVAILABLE TIMES. Empty if none was accepted.' },
+            name: { type: Type.STRING },
+            city: { type: Type.STRING },
+            service_type: { type: Type.STRING },
           },
           required: ['say'],
         },
@@ -161,6 +188,8 @@ export const handler: Handler = async (event) => {
     const parsed = JSON.parse(result.text || '{}');
     reply = String(parsed.say || '').slice(0, 300);
     done = parsed.done === true;
+    chosen = String(parsed.chosen_slot || '').trim();
+    details = parsed;
   } catch (err: any) {
     console.error('[voice] AI step failed:', err?.message || err);
     await saveLead(caller, transcript, false).catch(() => {});
@@ -168,7 +197,15 @@ export const handler: Handler = async (event) => {
   }
 
   if (done || !reply) {
-    await saveLead(caller, `${transcript}\nAssistant: ${reply}`, true).catch(err => console.error('[voice] save failed:', err));
+    const full = `${transcript}\nAssistant: ${reply}`;
+    const booking = chosen
+      ? await bookTentative(chosen, {
+          name: details.name, phone: caller, city: details.city,
+          service_type: details.service_type,
+        })
+      : null;
+    if (booking && !booking.booked) console.error('[voice] hold failed:', booking.error);
+    await saveLead(caller, full, true, booking, details).catch(err => console.error('[voice] save failed:', err));
     return hangUp(reply || HANDOFF);
   }
 
@@ -176,15 +213,42 @@ export const handler: Handler = async (event) => {
 };
 
 /** Record the call against the caller's lead. Best effort — never blocks the call. */
-async function saveLead(phone: string, transcript: string, complete: boolean) {
+async function saveLead(
+  phone: string,
+  transcript: string,
+  complete: boolean,
+  booking?: { booked: boolean; eventId?: string; start?: string; end?: string } | null,
+  details?: Record<string, any>,
+) {
   if (!phone || !initAdmin()) return;
   const db = firestore();
   const note = `AI phone call${complete ? '' : ' (ended early)'}:\n${transcript}`;
+  // A held slot is pending until a person approves it in the dashboard.
+  const bookingFields = booking?.booked
+    ? {
+        booking: {
+          status: 'pending',
+          eventId: booking.eventId,
+          start: booking.start,
+          end: booking.end,
+          heldAt: new Date().toISOString(),
+          source: 'phone-ai',
+        },
+        status: 'scheduled',
+      }
+    : {};
+  const detailFields: Record<string, any> = {};
+  for (const key of ['name', 'city', 'service_type']) {
+    const value = details?.[key];
+    if (value && String(value).trim() && String(value).toLowerCase() !== 'unknown') detailFields[key] = value;
+  }
   const found = await db.collection('leads').where('phone', '==', phone).limit(1).get();
 
   if (!found.empty) {
     await found.docs[0].ref.update({
       message: note,
+      ...detailFields,
+      ...bookingFields,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
   } else {
@@ -193,6 +257,8 @@ async function saveLead(phone: string, transcript: string, complete: boolean) {
       phone,
       message: note,
       status: 'new',
+      ...detailFields,
+      ...bookingFields,
       source: 'phone-ai',
       attribution_channel: 'Twilio Voice',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),

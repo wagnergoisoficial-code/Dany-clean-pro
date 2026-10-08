@@ -3,6 +3,7 @@ import admin from 'firebase-admin';
 import twilio from 'twilio';
 import { firestore } from './shared/firestore';
 import { knowledgePrompt } from './shared/businessKnowledge';
+import { findSlots, bookTentative, calendarConfigured, Slot } from './shared/calendar';
 
 /**
  * Twilio SMS webhook — the receptionist that answers texts.
@@ -143,6 +144,21 @@ export const handler: Handler = async (event) => {
   }
 
   // --- 4. the answer itself ---
+  // Real openings, so the assistant offers times that actually exist.
+  let slots: Slot[] = [];
+  if (calendarConfigured()) {
+    try {
+      slots = await findSlots(lead?.service_type);
+    } catch (err: any) {
+      console.error('[sms] could not read the calendar (continuing without times):', err?.message || err);
+    }
+  }
+  const slotBlock = slots.length
+    ? `\nAVAILABLE TIMES — offer these, exactly as written, and never invent others:\n`
+      + slots.map(s => `- ${s.label}  (id: ${s.id})`).join('\n')
+      + `\nWhen the customer picks one, copy its id verbatim into "chosen_slot".`
+    : `\nNo openings could be read right now. Take the customer's preferred day and say the team will confirm the time.`;
+
   let replyText = FALLBACK;
   let extracted: Record<string, any> = {};
   try {
@@ -168,7 +184,7 @@ Fill in whatever the message reveals, and write the next single caring question 
       model: MODEL,
       contents: prompt,
       config: {
-        systemInstruction: `${ROLE}\n\n${await knowledgePrompt()}`,
+        systemInstruction: `${ROLE}\n\n${await knowledgePrompt()}${slotBlock}`,
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
@@ -180,6 +196,7 @@ Fill in whatever the message reveals, and write the next single caring question 
             bedrooms: { type: Type.STRING },
             bathrooms: { type: Type.STRING },
             preferred_date: { type: Type.STRING },
+            chosen_slot: { type: Type.STRING, description: 'The id of the time the customer accepted, copied exactly from AVAILABLE TIMES. Empty if none was accepted.' },
           },
           required: ['response_message'],
         },
@@ -198,7 +215,21 @@ Fill in whatever the message reveals, and write the next single caring question 
     console.error('[sms] AI step failed, sending fallback:', err?.message || err);
   }
 
-  // --- 5. record the exchange, best effort, after the reply is decided ---
+  // --- 5. hold the slot the customer accepted, before recording anything ---
+  let booking: Awaited<ReturnType<typeof bookTentative>> | null = null;
+  const chosen = String(extracted.chosen_slot || '').trim();
+  if (chosen && calendarConfigured()) {
+    booking = await bookTentative(chosen, {
+      name: extracted.name || lead?.name,
+      phone: clientPhone,
+      email: lead?.email,
+      city: extracted.city || lead?.city,
+      service_type: extracted.service_type || lead?.service_type,
+    });
+    if (!booking.booked) console.error('[sms] hold failed:', booking.error);
+  }
+
+  // --- 6. record the exchange, best effort, after the reply is decided ---
   if (initAdmin()) {
     try {
       const db = firestore();
@@ -211,6 +242,17 @@ Fill in whatever the message reveals, and write the next single caring question 
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         sms_thread: admin.firestore.FieldValue.arrayUnion(...turn),
       };
+      if (booking?.booked) {
+        fields.booking = {
+          status: 'pending',
+          eventId: booking.eventId,
+          start: booking.start,
+          end: booking.end,
+          heldAt: new Date().toISOString(),
+          source: 'twilio-sms',
+        };
+        fields.status = 'scheduled';
+      }
       for (const key of ['name', 'city', 'service_type', 'bedrooms', 'bathrooms', 'preferred_date']) {
         const value = extracted[key];
         if (value && String(value).trim() && String(value).toLowerCase() !== 'unknown') fields[key] = value;

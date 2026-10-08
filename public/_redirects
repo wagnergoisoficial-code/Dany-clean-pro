@@ -9,4 +9,5 @@
 /api/diagnostics   /.netlify/functions/diagnostics 200!
 /api/sms           /.netlify/functions/sms 200!
 /api/voice         /.netlify/functions/voice 200!
+/api/confirm-booking /.netlify/functions/confirm-booking 200!
 /*                 /index.html                   200

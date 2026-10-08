@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, UserCheck, CheckCircle2, Search, ArrowUpDown, Filter, Users } from 'lucide-react';
+import { ExternalLink, UserCheck, CheckCircle2, Search, ArrowUpDown, Filter, Users, CalendarClock, X } from 'lucide-react';
 import { Lead, AuthState, Customer } from '../../types';
 import { cn } from '../../lib/utils';
 import { collection, query, orderBy, getDocs, doc, updateDoc, where, limit, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -76,6 +76,24 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
       return firestoreSuccess && firestoreLeads.length > 0 ? firestoreLeads : apiLeads;
     },
     retry: false
+  });
+
+  // The assistant can hold a slot but never commit one; this is where a person decides.
+  const decideBooking = useMutation({
+    mutationFn: async ({ id, action }: { id: string; action: 'confirm' | 'release' }) => {
+      const response = await fetch('/api/confirm-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadId: id, action }),
+      });
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.error || 'Could not update the calendar');
+      }
+      return response.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-leads'] }),
+    onError: (err: any) => alert(`Booking not updated: ${err.message}`),
   });
 
   const updateLeadStatus = useMutation({
@@ -358,6 +376,49 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                          </div>
                       </td>
                       <td className="px-4 sm:px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                         {(lead as any).booking?.status === 'pending' && (
+                           <div className="mb-2 bg-amber-50 border border-amber-200 px-3 py-2">
+                             <span className="flex items-center gap-1.5 text-label-sm uppercase text-amber-700">
+                               <CalendarClock size={12} /> Held, needs your OK
+                             </span>
+                             <p className="text-body-sm text-ink mt-1">
+                               {new Date((lead as any).booking.start).toLocaleString('en-US', {
+                                 weekday: 'short', month: 'short', day: 'numeric',
+                                 hour: 'numeric', minute: '2-digit',
+                               })}
+                             </p>
+                             <div className="flex items-center gap-2 mt-2">
+                               <button
+                                 type="button"
+                                 disabled={decideBooking.isPending}
+                                 onClick={() => decideBooking.mutate({ id: String(lead.id), action: 'confirm' })}
+                                 className="inline-flex items-center gap-1 bg-ink text-white text-label-sm uppercase px-3 py-1.5 hover:bg-accent transition-colors disabled:opacity-50"
+                               >
+                                 <CheckCircle2 size={11} /> Confirm
+                               </button>
+                               <button
+                                 type="button"
+                                 disabled={decideBooking.isPending}
+                                 onClick={() => {
+                                   if (confirm('Release this time? The slot is freed and the customer is not booked.')) {
+                                     decideBooking.mutate({ id: String(lead.id), action: 'release' });
+                                   }
+                                 }}
+                                 className="inline-flex items-center gap-1 text-label-sm uppercase text-ink-muted hover:text-red-600 transition-colors disabled:opacity-50"
+                               >
+                                 <X size={11} /> Release
+                               </button>
+                             </div>
+                           </div>
+                         )}
+                         {(lead as any).booking?.status === 'confirmed' && (
+                           <p className="mb-2 flex items-center gap-1.5 text-label-sm uppercase text-green-700">
+                             <CheckCircle2 size={12} /> Booked{' '}
+                             {new Date((lead as any).booking.start).toLocaleString('en-US', {
+                               month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+                             })}
+                           </p>
+                         )}
                          <select 
                            className={cn(
                              "text-label-sm uppercase border border-rule px-2 py-1 outline-none",
