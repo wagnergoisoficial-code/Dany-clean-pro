@@ -2,6 +2,7 @@ import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
 import twilio from 'twilio';
 import { firestore } from './shared/firestore';
+import { knowledgePrompt } from './shared/businessKnowledge';
 
 /**
  * Twilio SMS webhook — the receptionist that answers texts.
@@ -23,9 +24,8 @@ const MODEL = process.env.GEMINI_SMS_MODEL || 'gemini-3.5-flash';
 const AI_TIMEOUT_MS = 7000;   // Netlify cuts the function at 10s
 const FALLBACK = "Thanks for reaching out to Dany Clean Pro! We'll get right back to you. For anything urgent, call us at (218) 357-5938.";
 
-const SYSTEM = `You are Dany Clean Pro's warm and professional SMS receptionist for a residential and commercial cleaning company in Connecticut.
+const ROLE = `You are the SMS receptionist for Dany Clean Pro.
 
-Your goal is NOT to quote a price. Prices are confirmed by the team after reviewing the home.
 Guide the customer toward one of three outcomes:
 1. Schedule an estimate appointment
 2. Send photos of the home for review
@@ -168,7 +168,7 @@ Fill in whatever the message reveals, and write the next single caring question 
       model: MODEL,
       contents: prompt,
       config: {
-        systemInstruction: SYSTEM,
+        systemInstruction: `${ROLE}\n\n${await knowledgePrompt()}`,
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,

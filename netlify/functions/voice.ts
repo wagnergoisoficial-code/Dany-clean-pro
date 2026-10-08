@@ -2,6 +2,7 @@ import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
 import twilio from 'twilio';
 import { firestore } from './shared/firestore';
+import { knowledgePrompt } from './shared/businessKnowledge';
 
 /**
  * Twilio Voice webhook — the AI answers the phone on the existing number.
@@ -26,13 +27,11 @@ const GREETING = "Thanks for calling Dany Clean Pro. I can help you set up a cle
 const HANDOFF = "Thank you. I have everything I need. Someone from our team will call you back shortly to confirm your estimate. Have a great day.";
 const TROUBLE = "I'm sorry, I'm having trouble on my end. Please call or text us at 2 1 8, 3 5 7, 5 9 3 8 and we'll help you right away.";
 
-const SYSTEM = `You are the phone receptionist for Dany Clean Pro, a residential and commercial cleaning company in Connecticut.
+const ROLE = `You are the phone receptionist for Dany Clean Pro.
 
 You are on a live phone call, so every reply must be ONE short spoken sentence — under 25 words, no lists, no markdown, nothing that cannot be read aloud naturally.
 
 Collect, one at a time, in this order: name, town, type of cleaning, number of bedrooms, number of bathrooms, and the best day for a visit.
-
-Never quote a price. If asked, say the team confirms pricing after reviewing the home, and keep going.
 When you have the six details, set "done" to true and thank them.`;
 
 const digitsOnly = (raw: string) => {
@@ -143,7 +142,7 @@ export const handler: Handler = async (event) => {
       model: MODEL,
       contents: `Conversation so far:\n${transcript}\n\nReply with the next single short spoken sentence.`,
       config: {
-        systemInstruction: SYSTEM,
+        systemInstruction: `${ROLE}\n\n${await knowledgePrompt()}`,
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
