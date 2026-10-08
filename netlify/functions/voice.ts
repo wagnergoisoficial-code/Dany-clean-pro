@@ -111,8 +111,11 @@ export const handler: Handler = async (event) => {
     const query = event.rawQuery ? `?${event.rawQuery}` : '';
     const url = `${proto}://${event.headers['host'] || ''}${event.path}${query}`;
     if (!signature || !twilio.validateRequest(authToken, String(signature), url, params)) {
-      console.warn('[voice] rejected: bad or missing signature for', url);
-      return { statusCode: 403, body: 'Forbidden' };
+      console.error('[voice] SIGNATURE MISMATCH for', url,
+        '— check that TWILIO_AUTH_TOKEN in Netlify matches the account\'s primary auth token');
+      // Caller hears a sentence, not a Twilio error tone. Static text only:
+      // a forged request never reaches the model, so it costs nothing.
+      return hangUp(TROUBLE);
     }
   }
 

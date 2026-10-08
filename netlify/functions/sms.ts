@@ -101,8 +101,9 @@ export const handler: Handler = async (event) => {
     const url = `${proto}://${host}${event.path}`;
     const valid = signature && twilio.validateRequest(authToken, String(signature), url, params);
     if (!valid) {
-      console.warn('[sms] rejected: bad or missing Twilio signature for', url);
-      return { statusCode: 403, body: 'Forbidden' };
+      console.error('[sms] SIGNATURE MISMATCH for', url,
+        '— check that TWILIO_AUTH_TOKEN in Netlify matches the account\'s primary auth token');
+      return { statusCode: 403, body: 'Forbidden' };   // texts can fail silently; a call cannot
     }
   } else {
     console.warn('[sms] TWILIO_AUTH_TOKEN not set — webhook is running unverified');
