@@ -22,9 +22,25 @@ const MODEL = process.env.GEMINI_VOICE_MODEL || 'gemini-3.5-flash';
 const AI_TIMEOUT_MS = 6000;
 const MAX_TURNS = Number(process.env.VOICE_MAX_TURNS || 8);
 const TRANSCRIPT_LIMIT = 900;        // characters carried between turns
-const VOICE = { voice: 'Polly.Joanna' as const, language: 'en-US' as const };
+/**
+ * Voice quality.
+ *
+ * Polly.Joanna is a standard synthesis voice — it is what makes the line sound
+ * like a machine reading. The Neural and Journey voices are a different class:
+ * they carry intonation across a sentence instead of pronouncing word by word.
+ * Swappable with an env var so the voice can be judged by ear, not by argument.
+ *   Polly.Joanna-Neural   warm, neutral American (default)
+ *   Polly.Danielle-Neural softer
+ *   Polly.Ruth-Neural     closest to a receptionist
+ *   Google.en-US-Journey-F  built for dialogue, the most conversational
+ */
+const VOICE = {
+  voice: (process.env.VOICE_NAME || 'Polly.Joanna-Neural') as any,
+  language: 'en-US' as const,
+};
 
-const GREETING = "Thanks for calling Dany Clean Pro. I can help you set up a cleaning estimate. To start, what's your name?";
+// Short on purpose: every second of preamble is a second the caller waits.
+const GREETING = "Thanks for calling Dany Clean Pro! I can get your cleaning estimate started. What's your name?";
 const HANDOFF = "Thank you. I have everything I need. Someone from our team will call you back shortly to confirm your estimate. Have a great day.";
 const TROUBLE = "I'm sorry, I'm having trouble on my end. Please call or text us at 2 1 8, 3 5 7, 5 9 3 8 and we'll help you right away.";
 
@@ -33,7 +49,13 @@ const ROLE = `You are the phone receptionist for Dany Clean Pro.
 You are on a live phone call, so every reply must be ONE short spoken sentence — under 25 words, no lists, no markdown, nothing that cannot be read aloud naturally.
 
 Collect, one at a time, in this order: name, town, type of cleaning, number of bedrooms, number of bathrooms, and the best day for a visit.
-When you have the six details, set "done" to true and thank them.`;
+When you have the six details, set "done" to true and thank them.
+
+HOW TO SOUND
+- Speak the way a person actually does: contractions ("I'll", "that's", "we'll"), short words, no formal phrasing.
+- Acknowledge what they just said in two or three words before the next question — "Got it, Sarah." then ask. Never restate their whole answer.
+- One question per reply, under 18 words. Long sentences are what make this sound read aloud.
+- Never say "please provide", "may I ask", "I will now", or anything nobody says on the phone.`;
 
 const digitsOnly = (raw: string) => {
   const d = String(raw || '').replace(/\D/g, '');
@@ -75,12 +97,19 @@ function ask(question: string, transcript: string, turn: number) {
     input: ['speech'],
     action: next,
     method: 'POST',
+    // 'auto' waits for a natural pause instead of a fixed countdown, which is
+    // most of the dead air people read as "the robot is thinking".
     speechTimeout: 'auto',
+    // Tuned for back-and-forth speech rather than dictation: faster to settle
+    // and far better with half-sentences and hesitation.
+    speechModel: 'experimental_conversations',
+    enhanced: true,
     language: 'en-US',
-  });
+    profanityFilter: false,
+  } as any);
   gather.say(VOICE, question);
   // Nothing said: try once more, then hand off rather than loop forever.
-  response.say(VOICE, "Sorry, I didn't catch that.");
+  response.say(VOICE, "Sorry, I missed that.");
   response.redirect({ method: 'POST' }, next);
   return xml(response.toString());
 }
@@ -132,7 +161,7 @@ export const handler: Handler = async (event) => {
   // First contact: greet and start listening.
   if (turn === 0) return ask(GREETING, '', 0);
 
-  if (!heard) return ask("Sorry, I didn't catch that. Could you say it again?", carried, turn);
+  if (!heard) return ask("Sorry, say that again?", carried, turn);
 
   const transcript = `${carried}\nCaller: ${heard}`.trim();
 
