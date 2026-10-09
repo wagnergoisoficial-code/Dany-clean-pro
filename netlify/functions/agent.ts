@@ -1,0 +1,204 @@
+import { Handler } from '@netlify/functions';
+import admin from 'firebase-admin';
+import { firestore } from './shared/firestore';
+import { findSlots, bookTentative, calendarConfigured } from './shared/schedule';
+import { knowledgePrompt } from './shared/businessKnowledge';
+import { sendLeadEmail } from './shared/leadEmail';
+import { sendClientEmail } from './shared/clientEmail';
+import { softly } from './shared/withTimeout';
+
+/**
+ * Tools for a hosted voice agent (Phonely, Vapi, Retell, Bland…).
+ *
+ * Those platforms run the conversation themselves — streaming audio, barge-in,
+ * sub-second turns — and call out to an HTTP endpoint when the agent needs to
+ * do something. This is that endpoint, so the business logic stays here and
+ * the platform stays replaceable.
+ *
+ *   POST /api/agent/slots   what times are free        -> { slots: [...] }
+ *   POST /api/agent/hold    hold one for approval      -> { ok, when }
+ *   POST /api/agent/lead    record the call            -> { ok }
+ *   GET  /api/agent/brief   the business facts         -> { brief }
+ *
+ * Protected by AGENT_API_KEY: these endpoints spend money (they write to the
+ * calendar and send mail), so they are not left open to the internet.
+ */
+
+const json = (statusCode: number, body: any) => ({
+  statusCode,
+  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+  body: JSON.stringify(body),
+});
+
+function initAdmin(): boolean {
+  if (admin.apps.length) return true;
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const rawKey = process.env.FIREBASE_PRIVATE_KEY || '';
+  if (!projectId || !clientEmail || !rawKey) return false;
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId, clientEmail,
+        privateKey: rawKey.trim().replace(/^["']|["']$/g, '').replace(/,$/, '').replace(/\\n/g, '\n'),
+      }),
+    });
+    return true;
+  } catch { return false; }
+}
+
+const digitsOnly = (raw: any) => {
+  const d = String(raw ?? '').replace(/\D/g, '');
+  return d.length === 11 && d.startsWith('1') ? d.slice(1) : d;
+};
+
+export const handler: Handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, X-Agent-Key, Authorization',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      },
+      body: '',
+    };
+  }
+
+  // Shared secret. Accepted as a header or a bearer token, because platforms
+  // differ in which of the two they let you configure.
+  const expected = process.env.AGENT_API_KEY;
+  if (expected) {
+    const given = event.headers['x-agent-key']
+      || (event.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
+    if (given !== expected) {
+      console.warn('[agent] rejected: bad or missing AGENT_API_KEY');
+      return json(401, { error: 'unauthorized' });
+    }
+  } else {
+    console.warn('[agent] AGENT_API_KEY not set — these endpoints are open');
+  }
+
+  let body: any = {};
+  try {
+    body = event.body ? JSON.parse(event.isBase64Encoded
+      ? Buffer.from(event.body, 'base64').toString('utf8')
+      : event.body) : {};
+  } catch {
+    return json(400, { error: 'invalid JSON' });
+  }
+
+  // Platforms vary in how they nest tool arguments.
+  const args = body.arguments || body.parameters || body.args || body;
+  const action = String(
+    (event.path || '').split('/').filter(Boolean).pop() || args.action || ''
+  ).toLowerCase();
+
+  switch (action) {
+    /* ---------------------------------------------------------- */
+    case 'brief': {
+      // Lets the agent be configured once and stay in step with the site.
+      return json(200, { brief: await knowledgePrompt() });
+    }
+
+    /* ---------------------------------------------------------- */
+    case 'slots': {
+      if (!calendarConfigured() || !initAdmin()) {
+        return json(200, { slots: [], message: 'The calendar is unavailable. Take the customer\'s preferred day and tell them the team will confirm the time.' });
+      }
+      const slots = await softly(findSlots(args.service_type), 4000, 'slots', []);
+      return json(200, {
+        slots: slots.map(s => ({ id: s.id, when: s.label })),
+        message: slots.length
+          ? 'Offer these times. Send back the id of the one the customer accepts.'
+          : 'No openings in the next few days. Take their preferred day instead.',
+      });
+    }
+
+    /* ---------------------------------------------------------- */
+    case 'hold': {
+      const slotId = String(args.slot_id || args.id || '').trim();
+      const phone = digitsOnly(args.phone);
+      if (!slotId) return json(400, { ok: false, error: 'slot_id is required' });
+      if (!initAdmin()) return json(200, { ok: false, message: 'Could not reach the calendar — tell the customer the team will confirm the time.' });
+
+      const result = await bookTentative(slotId, {
+        name: args.name, phone, email: args.email,
+        city: args.city, address: args.address, service_type: args.service_type,
+      });
+
+      if (!result.booked) {
+        return json(200, {
+          ok: false,
+          message: result.error === 'that time was just taken'
+            ? 'Someone just took that time. Ask for the slots again and offer another.'
+            : 'Could not hold that time. Take their preferred day and say the team will confirm.',
+        });
+      }
+
+      const when = new Date(result.start!).toLocaleString('en-US', {
+        weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
+        timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
+      });
+      return json(200, {
+        ok: true, when, eventId: result.eventId,
+        message: `Held for ${when}. Tell the customer it is reserved and the team will confirm shortly.`,
+      });
+    }
+
+    /* ---------------------------------------------------------- */
+    case 'lead': {
+      const phone = digitsOnly(args.phone);
+      if (!phone) return json(400, { ok: false, error: 'phone is required' });
+
+      const lead = {
+        name: args.name || 'Phone caller',
+        phone,
+        email: args.email || '',
+        city: args.city || '',
+        address: args.address || '',
+        service_type: args.service_type || '',
+        bedrooms: args.bedrooms ?? '',
+        bathrooms: args.bathrooms ?? '',
+        preferred_date: args.preferred_date || '',
+        message: [args.notes, args.summary, args.transcript].filter(Boolean).join('\n\n'),
+        source: args.source || 'phone-ai',
+      };
+
+      // The inbox must hear about the call even if the database is refusing writes.
+      await sendLeadEmail({ ...lead, leadId: null });
+      if (lead.email) await sendClientEmail('confirmation', lead).catch(() => {});
+
+      let stored = false;
+      if (initAdmin()) {
+        stored = await softly((async () => {
+          const db = firestore();
+          const found = await db.collection('leads').where('phone', '==', phone).limit(1).get();
+          const payload = {
+            ...lead,
+            status: 'new',
+            attribution_channel: 'Phone AI',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          };
+          if (found.empty) {
+            await db.collection('leads').add({ ...payload, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+          } else {
+            await found.docs[0].ref.update(payload);
+          }
+          return true;
+        })(), 4000, 'lead write', false);
+      }
+
+      console.log('[agent] call recorded', phone, '| stored:', stored);
+      return json(200, { ok: true, stored, message: 'Recorded. Thank the customer and end the call.' });
+    }
+
+    /* ---------------------------------------------------------- */
+    default:
+      return json(404, {
+        error: 'unknown action',
+        actions: ['brief', 'slots', 'hold', 'lead'],
+        hint: 'POST to /api/agent/slots, /api/agent/hold or /api/agent/lead',
+      });
+  }
+};

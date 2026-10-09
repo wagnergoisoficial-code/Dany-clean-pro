@@ -7,6 +7,7 @@
 /api/notify-lead   /.netlify/functions/notify-lead 200!
 /api/voice-lead    /.netlify/functions/voice-lead 200!
 /api/diagnostics   /.netlify/functions/diagnostics 200!
+/api/agent/*       /.netlify/functions/agent 200!
 /api/sms           /.netlify/functions/sms 200!
 /api/voice         /.netlify/functions/voice 200!
 /api/confirm-booking /.netlify/functions/confirm-booking 200!
