@@ -3,6 +3,7 @@ import admin from 'firebase-admin';
 import twilio from 'twilio';
 import { firestore } from './shared/firestore';
 import { knowledgePrompt } from './shared/businessKnowledge';
+import { softly } from './shared/withTimeout';
 import { findSlots, bookTentative, calendarConfigured, Slot } from './shared/schedule';
 
 /**
@@ -131,16 +132,14 @@ export const handler: Handler = async (event) => {
   let history: Array<{ sender: string; message: string }> = [];
 
   if (initAdmin()) {
-    try {
-      const db = firestore();
-      const found = await db.collection('leads').where('phone', '==', clientPhone).limit(1).get();
-      if (!found.empty) {
-        leadRef = found.docs[0].ref;
-        lead = found.docs[0].data();
-        history = Array.isArray(lead.sms_thread) ? lead.sms_thread.slice(-15) : [];
-      }
-    } catch (err: any) {
-      console.error('[sms] could not read lead (replying anyway):', err?.message || err);
+    const found = await softly(
+      firestore().collection('leads').where('phone', '==', clientPhone).limit(1).get(),
+      2000, 'lead lookup', null as any,
+    );
+    if (found && !found.empty) {
+      leadRef = found.docs[0].ref;
+      lead = found.docs[0].data();
+      history = Array.isArray(lead.sms_thread) ? lead.sms_thread.slice(-15) : [];
     }
   }
 
@@ -148,11 +147,7 @@ export const handler: Handler = async (event) => {
   // Real openings, so the assistant offers times that actually exist.
   let slots: Slot[] = [];
   if (calendarConfigured()) {
-    try {
-      slots = await findSlots(lead?.service_type);
-    } catch (err: any) {
-      console.error('[sms] could not read the calendar (continuing without times):', err?.message || err);
-    }
+    slots = await softly(findSlots(lead?.service_type), 2000, 'calendar', []);
   }
   const slotBlock = slots.length
     ? `\nAVAILABLE TIMES — offer these, exactly as written, and never invent others:\n`

@@ -3,6 +3,7 @@ import admin from 'firebase-admin';
 import twilio from 'twilio';
 import { firestore } from './shared/firestore';
 import { knowledgePrompt } from './shared/businessKnowledge';
+import { softly } from './shared/withTimeout';
 import { findSlots, bookTentative, calendarConfigured, Slot } from './shared/schedule';
 
 /**
@@ -174,11 +175,7 @@ export const handler: Handler = async (event) => {
   // Real openings, so the assistant offers times that actually exist.
   let slots: Slot[] = [];
   if (calendarConfigured()) {
-    try {
-      slots = await findSlots(serviceGuess(transcript));
-    } catch (err: any) {
-      console.error('[voice] could not read the calendar (continuing without times):', err?.message || err);
-    }
+    slots = await softly(findSlots(serviceGuess(transcript)), 2000, 'calendar', []);
   }
   const slotBlock = slots.length
     ? `\nAVAILABLE TIMES — offer these, exactly as written, and never invent others:\n`

@@ -1,4 +1,5 @@
 import { firestore } from './firestore';
+import { softly } from './withTimeout';
 
 /**
  * What the AI knows about the business.
@@ -99,14 +100,15 @@ ${extra ? `\nADDITIONAL NOTES FROM THE OWNER\n${extra}` : ''}
 
 /** Prompt block for the assistants. Owner notes are merged when reachable. */
 export async function knowledgePrompt(): Promise<string> {
-  let extra = '';
-  try {
-    const snap = await firestore().collection('settings').doc('ai_knowledge').get();
-    const value = snap.exists ? (snap.data() as any)?.value : '';
-    if (value && String(value).trim()) extra = String(value).trim().slice(0, 4000);
-  } catch {
-    // Defaults are enough; never let this stop a call or a text.
-  }
+  // Defaults are enough; this read is a bonus, never a dependency.
+  const extra = await softly(
+    (async () => {
+      const snap = await firestore().collection('settings').doc('ai_knowledge').get();
+      const value = snap.exists ? (snap.data() as any)?.value : '';
+      return value && String(value).trim() ? String(value).trim().slice(0, 4000) : '';
+    })(),
+    1500, 'owner notes', '',
+  );
   return render(extra);
 }
 
