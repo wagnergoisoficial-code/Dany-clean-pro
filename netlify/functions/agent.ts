@@ -52,6 +52,26 @@ const digitsOnly = (raw: any) => {
   return d.length === 11 && d.startsWith('1') ? d.slice(1) : d;
 };
 
+function safeParse(text: string): any {
+  try { return JSON.parse(text); } catch { return {}; }
+}
+
+const canonical = (key: string) =>
+  key.toLowerCase().replace(/[\s_-]+/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+/** Expose each value under both the key given and its snake_case form. */
+function normaliseKeys(input: Record<string, any>): Record<string, any> {
+  const known = ['service_type', 'slot_id', 'phone', 'name', 'email', 'city', 'address',
+                 'bedrooms', 'bathrooms', 'preferred_date', 'summary', 'notes', 'transcript', 'action'];
+  const out: Record<string, any> = { ...input };
+  for (const [key, value] of Object.entries(input)) {
+    const c = canonical(key);
+    const match = known.find(k => canonical(k) === c);
+    if (match && out[match] === undefined) out[match] = value;
+  }
+  return out;
+}
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -94,8 +114,16 @@ export const handler: Handler = async (event) => {
     return json(400, { error: 'invalid JSON' });
   }
 
-  // Platforms vary in how they nest tool arguments.
-  const args = body.arguments || body.parameters || body.args || body;
+  // Platforms vary in how they nest tool arguments, and some humanise the
+  // property names on the way out ("Service Type" for service_type). Flatten
+  // the nesting and index every key by a normalised form so a console's
+  // formatting cannot silently drop a field.
+  const raw = body.arguments || body.parameters || body.args
+    || body?.message?.toolCalls?.[0]?.function?.arguments
+    || body?.message?.functionCall?.parameters
+    || body;
+  const parsed = typeof raw === 'string' ? safeParse(raw) : raw;
+  const args = normaliseKeys(parsed && typeof parsed === 'object' ? parsed : {});
   const action = String(
     (event.path || '').split('/').filter(Boolean).pop() || args.action || ''
   ).toLowerCase();
