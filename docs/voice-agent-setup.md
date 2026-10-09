@@ -1,9 +1,17 @@
-# Phonely — configuração do agente de voz
+# Agente de voz — configuração
 
-A conversa roda na Phonely (áudio em tempo real, sem as pausas do sistema
-atual). As decisões do negócio continuam aqui: a agenda, o lead, o e-mail.
+A conversa roda numa plataforma de áudio em tempo real (sem as pausas do
+sistema atual). As decisões do negócio continuam aqui: a agenda, o lead,
+o e-mail.
 
-Plano grátis: 100 minutos/mês, ~50 ligações, sem cartão.
+**Plataforma escolhida: Vapi.** Cadastro aberto, US$ 5 de crédito grátis para
+testar, e importa o número do Twilio com SID e token — sem porta­bilidade.
+
+A Phonely foi descartada: só libera conta depois de reunião com vendedor.
+
+Custo depois do crédito: cerca de US$ 0,09 a 0,14 por minuto, somando a
+plataforma, a transcrição, o modelo, a voz e a telefonia. A ~400 minutos/mês
+dá algo entre US$ 36 e US$ 56.
 
 ---
 
@@ -23,11 +31,12 @@ e eles gastam dinheiro (escrevem na agenda e mandam e-mail).
 
 ## 2. Número
 
-Na Phonely, pegue o número gratuito do plano e **encaminhe** o
-(218) 357-5938 para ele no console do Twilio
-(Voice → "A call comes in" → Forward to / ou o número da Phonely).
+Na Vapi: **Phone Numbers → Import from Twilio**. Informe o Account SID e o
+Auth Token, e o número (218) 357-5938.
 
-O número publicado no site não muda, e o registro A2P continua valendo.
+A Vapi assume o atendimento das ligações. O número continua sendo seu, no
+Twilio, com o registro A2P válido — e o SMS continua vindo para o nosso
+`/api/sms`, que já funciona.
 
 ## 3. Primeira fala do agente
 
@@ -62,6 +71,8 @@ RULES
 ```
 
 ## 5. Ferramentas (tools)
+
+Na Vapi: **Assistant → Tools → Add Tool → Custom Tool / Function**.
 
 Nas três, adicionar o cabeçalho:
 
@@ -111,6 +122,17 @@ Deve devolver horários reais. Se vier `401`, a chave está errada.
 
 ## Trocar de plataforma depois
 
-Vapi, Retell e Bland usam o mesmo desenho: prompt + ferramentas HTTP. Os três
-endpoints acima servem igual — muda só onde você cola. Nada aqui precisa ser
-reescrito.
+Retell, Bland e Synthflow usam o mesmo desenho: prompt + ferramentas HTTP. Os
+três endpoints acima servem igual — muda só onde você cola. Nada aqui precisa
+ser reescrito.
+
+Referência rápida, a ~400 minutos/mês:
+
+| Plataforma | Custo/mês | Cadastro aberto |
+|---|---|---|
+| Vapi | US$ 36–56 | sim, US$ 5 de crédito |
+| Bland | ~US$ 36 | sim |
+| Retell | ~US$ 46 | sim, exige tronco SIP para o número |
+| Synthflow | ~US$ 60 | sim |
+| Goodcall | US$ 79 fixo | sim |
+| Phonely | — | **não**, só por reunião |
