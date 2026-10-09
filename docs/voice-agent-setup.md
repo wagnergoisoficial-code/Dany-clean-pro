@@ -72,17 +72,26 @@ RULES
 
 ## 5. Ferramentas (tools)
 
-Na Vapi: **Assistant → Tools → Add Tool → Custom Tool / Function**.
+Na Vapi as ferramentas se criam no **menu esquerdo → Tools → Create Tool**,
+não dentro do assistente. Lá dentro você só anexa as que já existem.
 
-Nas três, adicionar o cabeçalho:
+Tipo: **Function tool**. Campos: *Tool Name*, *Description*, *Parameters*,
+*Server URL*.
+
+O painel da Vapi **não tem campo de header** para esse tipo de ferramenta, por
+isso a chave vai na própria URL:
 
 ```
-X-Agent-Key: <o mesmo valor de AGENT_API_KEY>
+...?key=<o valor de AGENT_API_KEY>
 ```
+
+Os endpoints aceitam a chave de três formas — header `X-Agent-Key`, bearer
+token, ou `?key=` — então outras plataformas podem usar o header, que é o
+jeito mais seguro.
 
 ### get_slots — horários livres
 ```
-POST https://danycleanpro.com/api/agent/slots
+POST https://danycleanpro.com/api/agent/slots?key=SUA_CHAVE
 ```
 Parâmetros: `service_type` (texto, opcional)
 
@@ -91,7 +100,7 @@ devolver no hold.
 
 ### hold_slot — segura o horário
 ```
-POST https://danycleanpro.com/api/agent/hold
+POST https://danycleanpro.com/api/agent/hold?key=SUA_CHAVE
 ```
 Parâmetros: `slot_id` (obrigatório), `name`, `phone`, `city`, `service_type`
 
@@ -100,7 +109,7 @@ oferecer outro. O horário fica **pendente** até alguém aprovar no dashboard.
 
 ### save_lead — registra a ligação
 ```
-POST https://danycleanpro.com/api/agent/lead
+POST https://danycleanpro.com/api/agent/lead?key=SUA_CHAVE
 ```
 Parâmetros: `phone` (obrigatório), `name`, `email`, `city`, `address`,
 `service_type`, `bedrooms`, `bathrooms`, `preferred_date`, `summary`
@@ -111,8 +120,8 @@ e-mail do cliente, a confirmação para ele.
 ## 6. Conferir
 
 ```bash
-curl -X POST https://danycleanpro.com/api/agent/slots \
-  -H "X-Agent-Key: SUA_CHAVE" -H "Content-Type: application/json" \
+curl -X POST "https://danycleanpro.com/api/agent/slots?key=SUA_CHAVE" \
+  -H "Content-Type: application/json" \
   -d '{"service_type":"Deep cleaning"}'
 ```
 

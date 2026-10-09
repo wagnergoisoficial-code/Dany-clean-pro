@@ -69,8 +69,14 @@ export const handler: Handler = async (event) => {
   // differ in which of the two they let you configure.
   const expected = process.env.AGENT_API_KEY;
   if (expected) {
+    // Three ways in, because platforms differ in what they let you configure.
+    // Vapi's dashboard has no header field for function tools, so the key has
+    // to ride in the query string — weaker (it lands in logs), but it is what
+    // the console supports, and the alternative is no auth at all.
     const given = event.headers['x-agent-key']
-      || (event.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
+      || (event.headers['authorization'] || '').replace(/^Bearer\s+/i, '')
+      || (event.queryStringParameters || {}).key
+      || '';
     if (given !== expected) {
       console.warn('[agent] rejected: bad or missing AGENT_API_KEY');
       return json(401, { error: 'unauthorized' });
