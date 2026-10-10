@@ -24,11 +24,41 @@ import { softly } from './shared/withTimeout';
  * calendar and send mail), so they are not left open to the internet.
  */
 
-const json = (statusCode: number, body: any) => ({
-  statusCode,
-  headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-  body: JSON.stringify(body),
-});
+const HEADERS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+
+/**
+ * Vapi will not read a bare JSON body. It matches a tool result by id and
+ * wants the payload as a flat string:
+ *   { results: [ { toolCallId, result } ] }
+ * Anything else reaches the model as "no result returned" — which is why the
+ * assistant started inventing appointment times and then lost the call.
+ *
+ * Other platforms (Goodcall, Zapier, a plain curl) expect the plain object, so
+ * the envelope is only used when the request carried a tool call id. Vapi also
+ * wants HTTP 200 even for failures, with the text under `error`.
+ */
+function reply(toolCallId: string | null, statusCode: number, body: any) {
+  if (!toolCallId) {
+    return { statusCode, headers: HEADERS, body: JSON.stringify(body) };
+  }
+  const failed = statusCode >= 400 || body?.ok === false;
+  const text = typeof body === 'string' ? body : JSON.stringify(body);
+  return {
+    statusCode: 200,
+    headers: HEADERS,
+    body: JSON.stringify({ results: [failed ? { toolCallId, error: text } : { toolCallId, result: text }] }),
+  };
+}
+
+/** The id Vapi expects echoed back, wherever this platform puts it. */
+function toolCallIdFrom(body: any): string | null {
+  const m = body?.message || {};
+  return body?.toolCallId
+    || m?.toolCallList?.[0]?.id
+    || m?.toolCalls?.[0]?.id
+    || m?.toolWithToolCallList?.[0]?.toolCall?.id
+    || null;
+}
 
 function initAdmin(): boolean {
   if (admin.apps.length) return true;
@@ -85,6 +115,17 @@ export const handler: Handler = async (event) => {
     };
   }
 
+  let body: any = {};
+  let toolCallId: string | null = null;
+  try {
+    body = event.body ? JSON.parse(event.isBase64Encoded
+      ? Buffer.from(event.body, 'base64').toString('utf8')
+      : event.body) : {};
+  } catch {
+    return reply(null, 400, { error: 'invalid JSON' });
+  }
+  toolCallId = toolCallIdFrom(body);
+
   // Shared secret. Accepted as a header or a bearer token, because platforms
   // differ in which of the two they let you configure.
   const expected = process.env.AGENT_API_KEY;
@@ -99,27 +140,21 @@ export const handler: Handler = async (event) => {
       || '';
     if (given !== expected) {
       console.warn('[agent] rejected: bad or missing AGENT_API_KEY');
-      return json(401, { error: 'unauthorized' });
+      return reply(toolCallId, 401, { error: 'unauthorized' });
     }
   } else {
     console.warn('[agent] AGENT_API_KEY not set — these endpoints are open');
   }
 
-  let body: any = {};
-  try {
-    body = event.body ? JSON.parse(event.isBase64Encoded
-      ? Buffer.from(event.body, 'base64').toString('utf8')
-      : event.body) : {};
-  } catch {
-    return json(400, { error: 'invalid JSON' });
-  }
 
   // Platforms vary in how they nest tool arguments, and some humanise the
   // property names on the way out ("Service Type" for service_type). Flatten
   // the nesting and index every key by a normalised form so a console's
   // formatting cannot silently drop a field.
   const raw = body.arguments || body.parameters || body.args
+    || body?.message?.toolCallList?.[0]?.arguments
     || body?.message?.toolCalls?.[0]?.function?.arguments
+    || body?.message?.toolWithToolCallList?.[0]?.toolCall?.function?.arguments
     || body?.message?.functionCall?.parameters
     || body;
   const parsed = typeof raw === 'string' ? safeParse(raw) : raw;
@@ -132,16 +167,16 @@ export const handler: Handler = async (event) => {
     /* ---------------------------------------------------------- */
     case 'brief': {
       // Lets the agent be configured once and stay in step with the site.
-      return json(200, { brief: await knowledgePrompt() });
+      return reply(toolCallId, 200, { brief: await knowledgePrompt() });
     }
 
     /* ---------------------------------------------------------- */
     case 'slots': {
       if (!calendarConfigured() || !initAdmin()) {
-        return json(200, { slots: [], message: 'The calendar is unavailable. Take the customer\'s preferred day and tell them the team will confirm the time.' });
+        return reply(toolCallId, 200, { slots: [], message: 'The calendar is unavailable. Take the customer\'s preferred day and tell them the team will confirm the time.' });
       }
       const slots = await softly(findSlots(args.service_type), 4000, 'slots', []);
-      return json(200, {
+      return reply(toolCallId, 200, {
         slots: slots.map(s => ({ id: s.id, when: s.label })),
         message: slots.length
           ? 'Offer two of these, not all of them. Send back the id of the one the customer accepts.'
@@ -153,8 +188,8 @@ export const handler: Handler = async (event) => {
     case 'hold': {
       const slotId = String(args.slot_id || args.id || '').trim();
       const phone = digitsOnly(args.phone);
-      if (!slotId) return json(400, { ok: false, error: 'slot_id is required' });
-      if (!initAdmin()) return json(200, { ok: false, message: 'Could not reach the calendar — tell the customer the team will confirm the time.' });
+      if (!slotId) return reply(toolCallId, 400, { ok: false, error: 'slot_id is required' });
+      if (!initAdmin()) return reply(toolCallId, 200, { ok: false, message: 'Could not reach the calendar — tell the customer the team will confirm the time.' });
 
       const result = await bookTentative(slotId, {
         name: args.name, phone, email: args.email,
@@ -163,7 +198,7 @@ export const handler: Handler = async (event) => {
 
       if (!result.booked) {
         if (result.error === 'that time was just taken') {
-          return json(200, { ok: false, message: 'Someone just took that time. Ask for the slots again and offer another.' });
+          return reply(toolCallId, 200, { ok: false, message: 'Someone just took that time. Ask for the slots again and offer another.' });
         }
         // The write failed, but the customer already said a time out loud.
         // Carry it to save_lead rather than dropping it — and never leave the
@@ -172,7 +207,7 @@ export const handler: Handler = async (event) => {
           weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
           timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
         });
-        return json(200, {
+        return reply(toolCallId, 200, {
           ok: true,
           pending: true,
           when: spoken,
@@ -184,7 +219,7 @@ export const handler: Handler = async (event) => {
         weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
         timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
       });
-      return json(200, {
+      return reply(toolCallId, 200, {
         ok: true, when, eventId: result.eventId,
         message: `Held for ${when}. Tell the customer it is reserved and the team will confirm shortly.`,
       });
@@ -193,7 +228,7 @@ export const handler: Handler = async (event) => {
     /* ---------------------------------------------------------- */
     case 'lead': {
       const phone = digitsOnly(args.phone);
-      if (!phone) return json(400, { ok: false, error: 'phone is required' });
+      if (!phone) return reply(toolCallId, 400, { ok: false, error: 'phone is required' });
 
       const lead = {
         name: args.name || 'Phone caller',
@@ -234,12 +269,12 @@ export const handler: Handler = async (event) => {
       }
 
       console.log('[agent] call recorded', phone, '| stored:', stored);
-      return json(200, { ok: true, stored, message: 'Recorded. Thank the customer and end the call.' });
+      return reply(toolCallId, 200, { ok: true, stored, message: 'Recorded. Thank the customer and end the call.' });
     }
 
     /* ---------------------------------------------------------- */
     default:
-      return json(404, {
+      return reply(toolCallId, 404, {
         error: 'unknown action',
         actions: ['brief', 'slots', 'hold', 'lead'],
         hint: 'POST to /api/agent/slots, /api/agent/hold or /api/agent/lead',
