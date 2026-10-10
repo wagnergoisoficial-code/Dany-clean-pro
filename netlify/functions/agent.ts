@@ -144,8 +144,8 @@ export const handler: Handler = async (event) => {
       return json(200, {
         slots: slots.map(s => ({ id: s.id, when: s.label })),
         message: slots.length
-          ? 'Offer these times. Send back the id of the one the customer accepts.'
-          : 'No openings in the next few days. Take their preferred day instead.',
+          ? 'Offer two of these, not all of them. Send back the id of the one the customer accepts.'
+          : 'Could not read the calendar. Ask which day and roughly what time suits them, say the team will confirm, and put their answer in save_lead as preferred_date. Do not end the call here.',
       });
     }
 
@@ -162,11 +162,21 @@ export const handler: Handler = async (event) => {
       });
 
       if (!result.booked) {
+        if (result.error === 'that time was just taken') {
+          return json(200, { ok: false, message: 'Someone just took that time. Ask for the slots again and offer another.' });
+        }
+        // The write failed, but the customer already said a time out loud.
+        // Carry it to save_lead rather than dropping it — and never leave the
+        // assistant without a next line, which is what ends calls abruptly.
+        const spoken = new Date(slotId).toLocaleString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
+          timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
+        });
         return json(200, {
-          ok: false,
-          message: result.error === 'that time was just taken'
-            ? 'Someone just took that time. Ask for the slots again and offer another.'
-            : 'Could not hold that time. Take their preferred day and say the team will confirm.',
+          ok: true,
+          pending: true,
+          when: spoken,
+          message: `Tell the customer you've put them down for ${spoken} and the team will call to confirm it. Then continue, and include that time in save_lead as preferred_date.`,
         });
       }
 
@@ -194,7 +204,7 @@ export const handler: Handler = async (event) => {
         service_type: args.service_type || '',
         bedrooms: args.bedrooms ?? '',
         bathrooms: args.bathrooms ?? '',
-        preferred_date: args.preferred_date || '',
+        preferred_date: args.preferred_date || args.preferred_time || '',
         message: [args.notes, args.summary, args.transcript].filter(Boolean).join('\n\n'),
         source: args.source || 'phone-ai',
       };

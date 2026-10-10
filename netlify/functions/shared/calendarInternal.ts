@@ -22,23 +22,42 @@ import { durationFor } from './scheduling';
 
 const COLLECTION = 'appointments';
 
-async function busyPeriods(): Promise<Busy[]> {
+/** Returns null when the store cannot be read, so callers can tell the
+ *  difference between "nothing is booked" and "I don't know what's booked". */
+async function busyPeriods(): Promise<Busy[] | null> {
   const { from, to } = searchWindow();
+  try {
   const snap = await firestore()
     .collection(COLLECTION)
     .where('start', '>=', from.toISOString())
     .where('start', '<=', to.toISOString())
     .get();
 
-  return snap.docs
-    .map(d => d.data() as any)
-    .filter(a => a.status !== 'released' && a.start && a.end)
-    .map(a => ({ start: new Date(a.start), end: new Date(a.end) }));
+    return snap.docs
+      .map(d => d.data() as any)
+      .filter(a => a.status !== 'released' && a.start && a.end)
+      .map(a => ({ start: new Date(a.start), end: new Date(a.end) }));
+  } catch (err: any) {
+    console.error('[schedule] cannot read appointments:', err?.message || err);
+    return null;
+  }
 }
 
+/**
+ * Offering nothing is the worst answer on a live call — the assistant runs out
+ * of script and the caller is left hanging. When the store is unreachable we
+ * still propose times from the working-hours rules, treating the calendar as
+ * empty. Every booking is confirmed by a person anyway, so a proposal that
+ * turns out to clash costs a phone call, not a wasted trip.
+ */
 export async function findSlots(serviceType?: string | null, limit?: number): Promise<Slot[]> {
   const busy = await busyPeriods();
-  return slotsFrom(busy, serviceType, limit);
+  return slotsFrom(busy ?? [], serviceType, limit);
+}
+
+/** True when the last read failed — the caller should soften what it promises. */
+export async function scheduleIsAuthoritative(): Promise<boolean> {
+  return (await busyPeriods()) !== null;
 }
 
 export async function bookTentative(slotId: string, lead: {
@@ -50,9 +69,12 @@ export async function bookTentative(slotId: string, lead: {
     const end = new Date(start.getTime() + durationFor(lead.service_type) * 60000);
 
     // Last line of defence against two callers accepting the same time within
-    // seconds of each other: re-check immediately before writing.
-    const clash = (await busyPeriods()).some(b => start < b.end && b.start < end);
-    if (clash) return { booked: false, error: 'that time was just taken' };
+    // seconds of each other: re-check immediately before writing. A read that
+    // fails is not a clash — it just means we cannot rule one out.
+    const busy = await busyPeriods();
+    if (busy && busy.some(b => start < b.end && b.start < end)) {
+      return { booked: false, error: 'that time was just taken' };
+    }
 
     const doc = await firestore().collection(COLLECTION).add({
       start: start.toISOString(),
