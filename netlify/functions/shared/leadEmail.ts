@@ -269,3 +269,55 @@ export async function sendLeadEmail(lead: LeadEmailPayload) {
   const replyTo = present(lead.email) ? String(lead.email) : undefined;
   return sendMail({ subject, html, text, replyTo });
 }
+
+/**
+ * The moment a caller accepts a time, before the call can drop.
+ *
+ * The database is not required for the business to work — this message is. If
+ * it reaches the inbox, the appointment exists as far as anyone cares; the
+ * record is a convenience on top.
+ */
+export async function sendBookingEmail(booking: {
+  when: string;
+  name?: string; phone?: string; email?: string; city?: string;
+  address?: string; service_type?: string; bedrooms?: any; bathrooms?: any;
+  held: boolean;
+}) {
+  const rows: Array<[string, string]> = [
+    ['When', booking.when],
+    ['Name', String(booking.name || '')],
+    ['Phone', String(booking.phone || '')],
+    ['Email', String(booking.email || '')],
+    ['City', String(booking.city || '')],
+    ['Address', String(booking.address || '')],
+    ['Service', String(booking.service_type || '')],
+    ['Home size', [booking.bedrooms ? `${booking.bedrooms} bed` : '', booking.bathrooms ? `${booking.bathrooms} bath` : ''].filter(Boolean).join(' · ')],
+  ].filter((row): row is [string, string] => !!row[1] && row[1].trim() !== '');
+
+  const status = booking.held
+    ? 'Held on the calendar, pending your confirmation.'
+    : 'Agreed on the call. Not on the calendar — confirm it with the customer.';
+
+  const html = `<!doctype html><html><body style="margin:0;background:#f8fafc;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 16px;"><tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border:1px solid #e2e8f0;">
+      <tr><td style="background:#0f172a;padding:28px 32px;">
+        <div style="font:700 10px/14px Helvetica,Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6);">Dany Clean Pro · Time requested</div>
+        <div style="font:400 28px/36px Georgia,serif;color:#fff;margin-top:8px;">${esc(booking.when)}</div>
+      </td></tr>
+      <tr><td style="padding:24px 32px;">
+        <p style="margin:0 0 20px;font:400 15px/24px Helvetica,Arial,sans-serif;color:#334155;"><strong>${esc(status)}</strong></p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${rows.map(([l, v]) => `<tr>
+            <td style="padding:12px 0;border-bottom:1px solid #e2e8f0;width:38%;"><span style="font:700 10px/14px Helvetica,Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#2563eb;">${esc(l)}</span></td>
+            <td style="padding:12px 0;border-bottom:1px solid #e2e8f0;"><span style="font:400 15px/24px Helvetica,Arial,sans-serif;color:#0f172a;">${esc(v)}</span></td>
+          </tr>`).join('')}
+        </table>
+      </td></tr>
+    </table>
+  </td></tr></table></body></html>`;
+
+  const text = [`TIME REQUESTED — ${booking.when}`, '', status, '', ...rows.map(([l, v]) => `${l}: ${v}`)].join('\n');
+
+  return sendMail({ subject: `Time requested — ${booking.when}`, html, text });
+}

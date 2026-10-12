@@ -111,7 +111,15 @@ POST https://danycleanpro.com/api/agent/hold?key=SUA_CHAVE
 Parâmetros: `slot_id` (obrigatório), `name`, `phone`, `city`, `service_type`
 
 Se o horário tiver acabado de ser pego, a resposta diz isso e instrui a
-oferecer outro. O horário fica **pendente** até alguém aprovar no dashboard.
+oferecer outro.
+
+**No momento em que o cliente aceita, a Dany recebe um e-mail** com o horário
+e os dados — antes do fim da ligação, para o horário não se perder se a
+chamada cair. O e-mail diz se o horário entrou no calendário ou se é só
+pedido a confirmar.
+
+O banco de dados não é necessário para isso funcionar: ele acrescenta a tela
+de agenda e a proteção contra marcar duas casas no mesmo horário.
 
 ### save_lead — registra a ligação
 ```

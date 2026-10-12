@@ -3,7 +3,7 @@ import admin from 'firebase-admin';
 import { firestore } from './shared/firestore';
 import { findSlots, bookTentative, calendarConfigured } from './shared/schedule';
 import { knowledgePrompt } from './shared/businessKnowledge';
-import { sendLeadEmail } from './shared/leadEmail';
+import { sendLeadEmail, sendBookingEmail } from './shared/leadEmail';
 import { sendClientEmail } from './shared/clientEmail';
 import { softly } from './shared/withTimeout';
 
@@ -275,6 +275,14 @@ export const handler: Handler = async (event) => {
         city: args.city, address: args.address, service_type: args.service_type,
       });
 
+      const announce = (when: string, held: boolean) =>
+        sendBookingEmail({
+          when, held,
+          name: args.name, phone, email: args.email, city: args.city,
+          address: args.address, service_type: args.service_type,
+          bedrooms: args.bedrooms, bathrooms: args.bathrooms,
+        }).catch(err => console.error('[agent] booking e-mail failed:', err?.message || err));
+
       if (!result.booked) {
         if (result.error === 'that time was just taken') {
           return reply(toolCallId, 200, { ok: false, message: 'Someone just took that time. Ask for the slots again and offer another.' });
@@ -286,6 +294,7 @@ export const handler: Handler = async (event) => {
           weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
           timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
         });
+        await announce(spoken, false);
         return reply(toolCallId, 200, {
           ok: true,
           pending: true,
@@ -298,6 +307,7 @@ export const handler: Handler = async (event) => {
         weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
         timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
       });
+      await announce(when, true);
       return reply(toolCallId, 200, {
         ok: true, when, eventId: result.eventId,
         message: `Held for ${when}. Tell the customer it is reserved and the team will confirm shortly.`,
