@@ -3,6 +3,7 @@ import admin from 'firebase-admin';
 import { mailProviderName } from './shared/leadEmail';
 import { firestore, databaseLabel } from './shared/firestore';
 import { pausedResources } from './shared/withTimeout';
+import { backendName } from './shared/schedule';
 
 /**
  * One read-only URL that answers "is production actually wired up?".
@@ -18,6 +19,7 @@ export const handler: Handler = async () => {
       configured: !!mailProviderName(),
       notifies: (process.env.LEAD_NOTIFY_TO || 'danycleanenpro@gmail.com').split(',').map(s => s.trim()),
     },
+    scheduling: backendName(),
     paused: pausedResources(),
     automation: {
       enabled: process.env.AUTOMATION_ENABLED === 'true',

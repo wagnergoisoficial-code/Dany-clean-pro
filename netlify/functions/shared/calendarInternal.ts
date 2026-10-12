@@ -23,11 +23,15 @@ import { softly } from './withTimeout';
 
 const COLLECTION = 'appointments';
 
-/** Returns null when the store cannot be read, so callers can tell the
- *  difference between "nothing is booked" and "I don't know what's booked". */
-async function busyPeriods(): Promise<Busy[] | null> {
+/**
+ * Throws when the store cannot be read. It must throw rather than return null:
+ * the caller wraps this in a circuit breaker, and a swallowed error looks like
+ * success — which had us re-attempting a refused database on every call and
+ * paying the full timeout each time.
+ */
+async function busyPeriods(): Promise<Busy[]> {
   const { from, to } = searchWindow();
-  try {
+  {
   const snap = await firestore()
     .collection(COLLECTION)
     .where('start', '>=', from.toISOString())
@@ -38,9 +42,6 @@ async function busyPeriods(): Promise<Busy[] | null> {
       .map(d => d.data() as any)
       .filter(a => a.status !== 'released' && a.start && a.end)
       .map(a => ({ start: new Date(a.start), end: new Date(a.end) }));
-  } catch (err: any) {
-    console.error('[schedule] cannot read appointments:', err?.message || err);
-    return null;
   }
 }
 
@@ -58,9 +59,9 @@ export async function findSlots(serviceType?: string | null, limit?: number): Pr
   return slotsFrom(busy ?? [], serviceType, limit);
 }
 
-/** True when the last read failed — the caller should soften what it promises. */
+/** True when the store answers — the caller can promise a real hold. */
 export async function scheduleIsAuthoritative(): Promise<boolean> {
-  return (await busyPeriods()) !== null;
+  return (await softly(() => busyPeriods(), 1000, 'appointments read', null)) !== null;
 }
 
 export async function bookTentative(slotId: string, lead: {
@@ -74,7 +75,8 @@ export async function bookTentative(slotId: string, lead: {
     // Last line of defence against two callers accepting the same time within
     // seconds of each other: re-check immediately before writing. A read that
     // fails is not a clash — it just means we cannot rule one out.
-    const busy = await busyPeriods();
+    // A read that fails is not a clash — it only means we cannot rule one out.
+    const busy = await softly(() => busyPeriods(), 1000, 'appointments read', null);
     if (busy && busy.some(b => start < b.end && b.start < end)) {
       return { booked: false, error: 'that time was just taken' };
     }
