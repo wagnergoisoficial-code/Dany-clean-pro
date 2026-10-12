@@ -3,6 +3,7 @@ import admin from 'firebase-admin';
 import { sendClientEmail, ClientEmailKind } from './shared/clientEmail';
 import { sendMail } from './shared/leadEmail';
 import { firestore, databaseLabel } from './shared/firestore';
+import { softly } from './shared/withTimeout';
 
 /**
  * Hourly sweep over the leads.
@@ -126,7 +127,17 @@ export const handler = schedule('@hourly', async () => {
   const db = firestore();
   console.log('[automations] using Firestore database:', databaseLabel());
   const cutoff = new Date(Date.now() - LOOKBACK_DAYS * 24 * 36e5);
-  const snapshot = await db.collection('leads').where('createdAt', '>=', cutoff).get();
+  // Unbounded, this read is what turns a refused database into a 502: the
+  // retries outlast the function and the whole sweep dies instead of simply
+  // doing nothing this hour.
+  const snapshot = await softly(
+    db.collection('leads').where('createdAt', '>=', cutoff).get(),
+    8000, 'leads sweep', null as any,
+  );
+  if (!snapshot) {
+    console.warn('[automations] leads unreadable this run — nothing sent');
+    return { statusCode: 200, body: JSON.stringify({ skipped: 'leads unreadable' }) };
+  }
 
   const report: Record<string, number> = {};
   const mailedThisRun = new Set<string>();
