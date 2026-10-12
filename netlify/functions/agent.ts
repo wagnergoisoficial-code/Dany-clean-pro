@@ -18,6 +18,9 @@ import { softly } from './shared/withTimeout';
  *   POST /api/agent/slots   what times are free        -> { slots: [...] }
  *   POST /api/agent/hold    hold one for approval      -> { ok, when }
  *   POST /api/agent/lead    record the call            -> { ok }
+ *
+ * No reply here ever tells the model to end the call. Tools report facts; the
+ * conversation decides when it is over.
  *   GET  /api/agent/brief   the business facts         -> { brief }
  *
  * Protected by AGENT_API_KEY: these endpoints spend money (they write to the
@@ -173,14 +176,14 @@ export const handler: Handler = async (event) => {
     /* ---------------------------------------------------------- */
     case 'slots': {
       if (!calendarConfigured() || !initAdmin()) {
-        return reply(toolCallId, 200, { slots: [], message: 'The calendar is unavailable. Take the customer\'s preferred day and tell them the team will confirm the time.' });
+        return reply(toolCallId, 200, { slots: [], message: 'The calendar is unavailable. Ask which day and roughly what time suits them, say the team will confirm, and carry on with the call.' });
       }
       const slots = await softly(findSlots(args.service_type), 4000, 'slots', []);
       return reply(toolCallId, 200, {
         slots: slots.map(s => ({ id: s.id, when: s.label })),
         message: slots.length
           ? 'Offer two of these, not all of them. Send back the id of the one the customer accepts.'
-          : 'Could not read the calendar. Ask which day and roughly what time suits them, say the team will confirm, and put their answer in save_lead as preferred_date. Do not end the call here.',
+          : 'Could not read the calendar. Ask which day and roughly what time suits them, say the team will confirm, put their answer in save_lead as preferred_date, and carry on with the call.',
       });
     }
 
@@ -189,7 +192,7 @@ export const handler: Handler = async (event) => {
       const slotId = String(args.slot_id || args.id || '').trim();
       const phone = digitsOnly(args.phone);
       if (!slotId) return reply(toolCallId, 400, { ok: false, error: 'slot_id is required' });
-      if (!initAdmin()) return reply(toolCallId, 200, { ok: false, message: 'Could not reach the calendar — tell the customer the team will confirm the time.' });
+      if (!initAdmin()) return reply(toolCallId, 200, { ok: false, message: 'Could not reach the calendar. Ask which day suits them, say the team will confirm, and carry on with the call.' });
 
       const result = await bookTentative(slotId, {
         name: args.name, phone, email: args.email,
@@ -269,7 +272,15 @@ export const handler: Handler = async (event) => {
       }
 
       console.log('[agent] call recorded', phone, '| stored:', stored);
-      return reply(toolCallId, 200, { ok: true, stored, message: 'Recorded. Thank the customer and end the call.' });
+      // Never tell the model to hang up. A tool reports a fact; when the call
+      // ends is the conversation's business. "End the call" here was being
+      // obeyed the moment the model reached for save_lead mid-booking, which
+      // is exactly how a caller lost the line while times were being offered.
+      return reply(toolCallId, 200, {
+        ok: true,
+        stored,
+        message: 'Saved. Keep going — ask if there is anything else they need, and only say goodbye once they are done.',
+      });
     }
 
     /* ---------------------------------------------------------- */
