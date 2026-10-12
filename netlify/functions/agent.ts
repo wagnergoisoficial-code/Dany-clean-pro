@@ -105,6 +105,38 @@ function normaliseKeys(input: Record<string, any>): Record<string, any> {
   return out;
 }
 
+/**
+ * A plain sentence about why a requested time cannot be served, or null when it
+ * can. Hours live in scheduling.ts, so this never drifts from what the rest of
+ * the system honours.
+ */
+function describeIfOutsideHours(text: string): string | null {
+  const t = text.toLowerCase();
+  const m = t.match(/(\d{1,2})\s*[:h]?\s*(\d{2})?\s*(am|pm|a\.m|p\.m)?/);
+  if (!m) return null;
+
+  let hour = parseInt(m[1], 10);
+  const minute = m[2] ? parseInt(m[2], 10) : 0;
+  const meridiem = m[3];
+  if (meridiem?.startsWith('p') && hour < 12) hour += 12;
+  if (meridiem?.startsWith('a') && hour === 12) hour = 0;
+  // "six thirty in the evening" with no am/pm marker
+  if (!meridiem && hour <= 7 && /(evening|night|tarde|noite)/.test(t)) hour += 12;
+  if (hour > 23) return null;
+
+  const saturday = /saturday|s[aá]bado/.test(t);
+  const sunday = /sunday|domingo/.test(t);
+  if (sunday) return 'Sundays are not a service day.';
+
+  const open = saturday ? 9 : 8;
+  const close = saturday ? 16 : 18;
+  const asMinutes = hour * 60 + minute;
+
+  if (asMinutes < open * 60) return `The team starts at ${open === 9 ? '9am' : '8am'}, so that is earlier than they can be there.`;
+  if (asMinutes >= close * 60) return `The team finishes at ${close === 16 ? '4pm' : '6pm'}, so that is later than they can be there.`;
+  return null;
+}
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -178,12 +210,31 @@ export const handler: Handler = async (event) => {
       if (!calendarConfigured() || !initAdmin()) {
         return reply(toolCallId, 200, { slots: [], message: 'The calendar is unavailable. Ask which day and roughly what time suits them, say the team will confirm, and carry on with the call.' });
       }
+
       const slots = await softly(findSlots(args.service_type), 4000, 'slots', []);
+      const offered = slots.map(s => ({ id: s.id, when: s.label }));
+
+      // A caller who has already named a time deserves an answer about that
+      // time. Asking for 6:30pm and hearing three unrelated mornings read out
+      // is where the conversation stalls — the assistant has nothing sensible
+      // to say, so say it for it.
+      const wanted = String(args.preferred_time || args.preferred_date || '').trim();
+      const outside = wanted ? describeIfOutsideHours(wanted) : null;
+
+      if (!offered.length) {
+        return reply(toolCallId, 200, {
+          slots: [],
+          message: 'Could not read the calendar. Ask which day and roughly what time suits them, say the team will confirm, put their answer in save_lead as preferred_date, and carry on with the call.',
+        });
+      }
+
       return reply(toolCallId, 200, {
-        slots: slots.map(s => ({ id: s.id, when: s.label })),
-        message: slots.length
-          ? 'Offer two of these, not all of them. Send back the id of the one the customer accepts.'
-          : 'Could not read the calendar. Ask which day and roughly what time suits them, say the team will confirm, put their answer in save_lead as preferred_date, and carry on with the call.',
+        slots: offered,
+        asked_for: wanted || undefined,
+        outside_working_hours: !!outside,
+        message: outside
+          ? `${outside} Say that plainly, then offer two of the times listed here as the nearest alternatives.`
+          : 'Offer two of these, not all of them. Send back the id of the one the customer accepts.',
       });
     }
 

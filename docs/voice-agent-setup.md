@@ -95,7 +95,11 @@ jeito mais seguro.
 ```
 POST https://danycleanpro.com/api/agent/slots?key=SUA_CHAVE
 ```
-Parâmetros: `service_type` (texto, opcional)
+Parâmetros: `service_type` (texto, opcional), `preferred_time` (texto, opcional)
+
+Se o cliente já disser um horário ("quinta às 18h30"), passe em `preferred_time`
+no formato normalizado. A ferramenta responde se está fora do expediente e o
+que dizer, em vez de ler horários sem relação com o pedido.
 
 Retorna `slots: [{ id, when }]`. O campo `when` é para falar; o `id` é para
 devolver no hold.
