@@ -236,7 +236,7 @@ export const handler: Handler = async (event) => {
         return reply(toolCallId, 200, { slots: [], message: 'The calendar is unavailable. Ask which day and roughly what time suits them, say the team will confirm, and carry on with the call.' });
       }
 
-      const slots = await softly(findSlots(args.service_type), 4000, 'slots', []);
+      const slots = await softly(findSlots(args.service_type), 1200, 'slots', []);
       const offered = slots.map(s => ({ id: s.id, when: s.label }));
 
       // A caller who has already named a time deserves an answer about that
@@ -344,7 +344,7 @@ export const handler: Handler = async (event) => {
             await found.docs[0].ref.update(payload);
           }
           return true;
-        })(), 4000, 'lead write', false);
+        })(), 2000, 'lead write', false);
       }
 
       console.log('[agent] call recorded', phone, '| stored:', stored);

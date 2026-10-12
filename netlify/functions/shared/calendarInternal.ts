@@ -2,6 +2,7 @@ import admin from 'firebase-admin';
 import { firestore } from './firestore';
 import { slotsFrom, searchWindow, Busy, Slot, BookingResult } from './slotEngine';
 import { durationFor } from './scheduling';
+import { softly } from './withTimeout';
 
 /**
  * The schedule, kept in the project's own database.
@@ -51,7 +52,9 @@ async function busyPeriods(): Promise<Busy[] | null> {
  * turns out to clash costs a phone call, not a wasted trip.
  */
 export async function findSlots(serviceType?: string | null, limit?: number): Promise<Slot[]> {
-  const busy = await busyPeriods();
+  // On a live call a second of silence is expensive. A store that is slow or
+  // refusing reads gets one second to answer; past that the rules decide alone.
+  const busy = await softly(busyPeriods(), 1000, 'appointments read', null);
   return slotsFrom(busy ?? [], serviceType, limit);
 }
 
