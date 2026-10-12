@@ -48,7 +48,13 @@ export const handler: Handler = async () => {
     report.firestore.readable = true;
     report.firestore.leadsVisible = snap.size;
   } catch (err: any) {
-    report.firestore.error = String(err?.message || err).slice(0, 300);
+    // Full text, not a slice: the tail of a Google error names the API and the
+    // reason, which is the difference between "enable an API" and "add a card".
+    report.firestore.error = String(err?.message || err);
+    report.firestore.code = (err as any)?.code ?? null;
+    report.firestore.details = (err as any)?.details ?? null;
+    // The identity being refused — the thing to grant a role to.
+    report.firestore.serviceAccount = process.env.FIREBASE_CLIENT_EMAIL || null;
   }
 
   report.ok = report.mail.configured && report.firestore.readable;
