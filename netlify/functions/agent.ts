@@ -45,12 +45,37 @@ function reply(toolCallId: string | null, statusCode: number, body: any) {
     return { statusCode, headers: HEADERS, body: JSON.stringify(body) };
   }
   const failed = statusCode >= 400 || body?.ok === false;
-  const text = typeof body === 'string' ? body : JSON.stringify(body);
+  const text = typeof body === 'string' ? body : speakable(body);
   return {
     statusCode: 200,
     headers: HEADERS,
     body: JSON.stringify({ results: [failed ? { toolCallId, error: text } : { toolCallId, result: text }] }),
   };
+}
+
+/**
+ * What the model receives as the tool result.
+ *
+ * Vapi wants a flat string, and the obvious choice — JSON.stringify — hands a
+ * voice model a wall of escaped quotes to parse before it can say anything.
+ * A sentence it can almost read aloud gets it talking immediately, which is
+ * the difference between a pause and a silence the caller sits through.
+ */
+function speakable(body: any): string {
+  if (!body || typeof body !== 'object') return String(body ?? '');
+
+  if (Array.isArray(body.slots)) {
+    if (!body.slots.length) return body.message || 'No times available.';
+    const times = body.slots
+      .map((s: any) => `${s.when} [id: ${s.id}]`)
+      .join('; ');
+    return `Available: ${times}. ${body.message || ''}`.trim();
+  }
+
+  // Everything else is already a short result plus an instruction.
+  const parts = [body.when ? `Time: ${body.when}.` : '', body.message || body.error || ''];
+  const sentence = parts.filter(Boolean).join(' ').trim();
+  return sentence || JSON.stringify(body);
 }
 
 /** The id Vapi expects echoed back, wherever this platform puts it. */
