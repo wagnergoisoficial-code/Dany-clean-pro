@@ -2,6 +2,7 @@ import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
 import { mailProviderName } from './shared/leadEmail';
 import { firestore, databaseLabel } from './shared/firestore';
+import { pausedResources } from './shared/withTimeout';
 
 /**
  * One read-only URL that answers "is production actually wired up?".
@@ -17,6 +18,7 @@ export const handler: Handler = async () => {
       configured: !!mailProviderName(),
       notifies: (process.env.LEAD_NOTIFY_TO || 'danycleanenpro@gmail.com').split(',').map(s => s.trim()),
     },
+    paused: pausedResources(),
     automation: {
       enabled: process.env.AUTOMATION_ENABLED === 'true',
       dryRun: process.env.AUTOMATION_DRY_RUN === 'true',

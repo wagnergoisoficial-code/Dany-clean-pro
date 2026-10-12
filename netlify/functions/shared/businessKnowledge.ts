@@ -102,11 +102,11 @@ ${extra ? `\nADDITIONAL NOTES FROM THE OWNER\n${extra}` : ''}
 export async function knowledgePrompt(): Promise<string> {
   // Defaults are enough; this read is a bonus, never a dependency.
   const extra = await softly(
-    (async () => {
+    async () => {
       const snap = await firestore().collection('settings').doc('ai_knowledge').get();
       const value = snap.exists ? (snap.data() as any)?.value : '';
       return value && String(value).trim() ? String(value).trim().slice(0, 4000) : '';
-    })(),
+    },
     1500, 'owner notes', '',
   );
   return render(extra);

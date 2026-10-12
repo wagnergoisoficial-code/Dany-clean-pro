@@ -131,7 +131,7 @@ export const handler = schedule('@hourly', async () => {
   // retries outlast the function and the whole sweep dies instead of simply
   // doing nothing this hour.
   const snapshot = await softly(
-    db.collection('leads').where('createdAt', '>=', cutoff).get(),
+    () => db.collection('leads').where('createdAt', '>=', cutoff).get(),
     8000, 'leads sweep', null as any,
   );
   if (!snapshot) {

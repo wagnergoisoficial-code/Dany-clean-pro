@@ -133,7 +133,7 @@ export const handler: Handler = async (event) => {
 
   if (initAdmin()) {
     const found = await softly(
-      firestore().collection('leads').where('phone', '==', clientPhone).limit(1).get(),
+      () => firestore().collection('leads').where('phone', '==', clientPhone).limit(1).get(),
       2000, 'lead lookup', null as any,
     );
     if (found && !found.empty) {
@@ -147,7 +147,7 @@ export const handler: Handler = async (event) => {
   // Real openings, so the assistant offers times that actually exist.
   let slots: Slot[] = [];
   if (calendarConfigured()) {
-    slots = await softly(findSlots(lead?.service_type), 2000, 'calendar', []);
+    slots = await softly(() => findSlots(lead?.service_type), 2000, 'calendar', []);
   }
   const slotBlock = slots.length
     ? `\nAVAILABLE TIMES — offer these, exactly as written, and never invent others:\n`

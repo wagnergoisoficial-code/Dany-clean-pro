@@ -54,7 +54,7 @@ async function busyPeriods(): Promise<Busy[] | null> {
 export async function findSlots(serviceType?: string | null, limit?: number): Promise<Slot[]> {
   // On a live call a second of silence is expensive. A store that is slow or
   // refusing reads gets one second to answer; past that the rules decide alone.
-  const busy = await softly(busyPeriods(), 1000, 'appointments read', null);
+  const busy = await softly(() => busyPeriods(), 1000, 'appointments read', null);
   return slotsFrom(busy ?? [], serviceType, limit);
 }
 

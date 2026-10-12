@@ -175,7 +175,7 @@ export const handler: Handler = async (event) => {
   // Real openings, so the assistant offers times that actually exist.
   let slots: Slot[] = [];
   if (calendarConfigured()) {
-    slots = await softly(findSlots(serviceGuess(transcript)), 2000, 'calendar', []);
+    slots = await softly(() => findSlots(serviceGuess(transcript)), 2000, 'calendar', []);
   }
   const slotBlock = slots.length
     ? `\nAVAILABLE TIMES — offer these, exactly as written, and never invent others:\n`
