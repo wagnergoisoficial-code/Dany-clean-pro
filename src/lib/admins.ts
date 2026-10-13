@@ -38,21 +38,36 @@ export function isAdminEmail(email?: string | null): boolean {
 /**
  * Does this account hold admins/{uid}?
  *
- * The same document the Firestore rules read, asked from the browser so the
- * gate and the database agree on one answer. The rules let a signed-in account
- * read its own entry, and nothing else in here, so a stranger learns only
- * whether they themselves are an administrator.
+ * Asked of our own server rather than of Firestore. Reading the document from
+ * the browser needs the security rules to allow it, and when they do not, a
+ * real administrator is told they have no permission — with the proof sitting
+ * in a record they are not allowed to look at. The Admin SDK on the server is
+ * not subject to those rules, so it can answer where the browser cannot.
+ *
+ * It is also the better place for the question: what comes back is a verdict
+ * that cannot be forged, rather than evidence the client has to weigh.
  */
-export async function hasAdminRecord(uid?: string | null): Promise<boolean> {
-  if (!uid) return false;
+export async function hasAdminRecord(_uid?: string | null): Promise<boolean> {
   try {
-    const { doc, getDoc } = await import('firebase/firestore');
-    const { db, isFirebaseReady } = await import('./firebase');
-    if (!isFirebaseReady()) return false;
-    const snap = await getDoc(doc(db, 'admins', uid));
-    return snap.exists();
-  } catch {
-    // A denied or offline read is not an admission of access.
+    const { auth } = await import('./firebase');
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) return false;
+
+    const res = await fetch('/api/admin-session', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      // 503 means the server could not reach the database. That is not a
+      // refusal, and saying so saves the next person the hunt we just had.
+      console.warn('[admins] could not check admin status:', res.status);
+      return false;
+    }
+    const body = await res.json();
+    if (!body.admin && body.reason) console.warn('[admins] not an administrator:', body.reason);
+    return body.admin === true;
+  } catch (err) {
+    console.warn('[admins] admin check failed:', err);
     return false;
   }
 }

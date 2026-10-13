@@ -46,6 +46,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/admin-session"
+  to = "/.netlify/functions/admin-session"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/voice"
   to = "/.netlify/functions/voice"
   status = 200
