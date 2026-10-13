@@ -4,11 +4,12 @@ import Container from './ui/Container';
 import { useAdminAuth } from '../lib/auth';
 import { useConfig } from '../hooks/useConfig';
 import { useSetting } from '../lib/settings';
+import { DEFAULT_LOGO } from '../lib/brand';
 
 export default function Footer() {
   const { user, logout } = useAdminAuth();
   const { businessPhone } = useConfig();
-  const { value: appLogo } = useSetting('app_logo');
+  const { value: appLogo } = useSetting('app_logo', DEFAULT_LOGO);
 
   const triggerAICall = (e: React.MouseEvent) => {
     // allow native action while triggering internal event
