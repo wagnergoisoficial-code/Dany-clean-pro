@@ -121,6 +121,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
           auth={auth} 
           fbUser={fbUser} 
           onMenuClick={() => setIsMobileMenuOpen(true)}
+          onLogout={onLogout}
           hasError={!!leadsError}
         />
 

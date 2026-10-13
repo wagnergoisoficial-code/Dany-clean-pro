@@ -4,7 +4,6 @@ import { Plus, Trash2, Upload, Edit3, X, Save, Download } from 'lucide-react';
 import { GalleryItem, AuthState } from '../../types';
 import { collection, query, orderBy, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { db, storage, isFirebaseReady, auth as firebaseAuth } from '../../lib/firebase';
 import { compressImage } from '../../lib/utils';
 import { defaultImages } from '../../lib/galleryDefaults';
@@ -18,7 +17,6 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
   const [newImage, setNewImage] = useState({ url: '', title: '', category: 'Residential' });
   const [firebaseUser, setFirebaseUser] = useState<any>(null);
   const [firebaseAuthLoading, setFirebaseAuthLoading] = useState(true);
-  const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!firebaseAuth) {
@@ -32,25 +30,6 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
     return unsubscribe;
   }, []);
 
-  const allowedEmails = ['wagnergoisoficial@gmail.com', 'danycleanenpro@gmail.com'];
-  const isGoogleAdmin = firebaseUser?.email && allowedEmails.includes(firebaseUser.email.toLowerCase());
-
-  const handleGoogleSignIn = async () => {
-    setGoogleAuthError(null);
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      const result = await signInWithPopup(firebaseAuth, provider);
-      const user = result.user;
-      const emailLower = user?.email?.toLowerCase();
-      if (!emailLower || !allowedEmails.includes(emailLower)) {
-        setGoogleAuthError('This Google account is not authorized for admin uploads.');
-      }
-    } catch (err: any) {
-      console.error('Google Auth Popup failed:', err);
-      setGoogleAuthError(err?.message || 'Failed to authenticate with Google. Please try again.');
-    }
-  };
   const [sourceType, setSourceType] = useState<'upload' | 'url'>('upload');
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -157,11 +136,12 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
     const compressedBase64 = await compressImage(base64, 1200, 0.75);
 
     if (isFirebaseReady() && storage) {
+      // No second opinion about who this is. Reaching this page already
+      // required being an administrator, and Storage's own rules have the
+      // final say on the write — a list kept here could only drift from both.
       const currentFbUser = firebaseUser || firebaseAuth?.currentUser;
       if (currentFbUser) {
-        const emailLower = currentFbUser.email?.toLowerCase();
-        if (emailLower && allowedEmails.includes(emailLower)) {
-          try {
+        try {
             // Safe synchronous base64-to-blob conversion (iframe-friendly fallback)
             const compressedBlob = base64ToBlobSync(compressedBase64);
             const safeFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
@@ -186,15 +166,12 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
             } else {
               throw new Error('Não foi possível obter a URL pública para a foto enviada.');
             }
-          } catch (storageErr: any) {
-            console.error('Firebase storage upload failed:', storageErr);
-            throw new Error(`Falha no upload para o Storage: ${storageErr.message || 'Sem permissões completas'}`);
-          }
-        } else {
-          throw new Error(`O e-mail conectado (${emailLower}) não possui permissão administrativa no Firebase Storage.`);
+        } catch (storageErr: any) {
+          console.error('Firebase storage upload failed:', storageErr);
+          throw new Error(`Falha no upload para o Storage: ${storageErr.message || 'sem permissao'}`);
         }
       } else {
-        throw new Error('Para salvar fotos no portfólio, você precisa conectar seu Google Admin primeiro. Por favor, clique no botão azul "Conectar Google Admin" acima para autenticar.');
+        throw new Error('A sua sessao expirou. Entre de novo para enviar fotos.');
       }
     } else {
       throw new Error('O sistema de arquivos em nuvem (Firebase Storage) não está inicializado ou configurado na sua plataforma.');
@@ -585,23 +562,11 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
               <p className="text-[11px] text-ink-muted">Selecione fotos da galeria do seu celular ou do seu notebook</p>
             </div>
           </div>
-          {firebaseUser ? (
+          {firebaseUser && (
             <div className="flex items-center gap-2 text-xs text-emerald-600 font-bold bg-emerald-50/50 px-3 py-1.5 border border-emerald-100">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Google Auth: {firebaseUser.email}
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              {firebaseUser.email}
             </div>
-          ) : (
-            <button
-              onClick={handleGoogleSignIn}
-              type="button"
-              className="flex items-center gap-2 text-xs text-accent font-bold bg-accent-soft hover:bg-accent-soft px-3 py-1.5 border border-accent/20 cursor-pointer transition-all active:scale-95"
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-3.5 h-3.5" />
-              Conectar Google Admin
-            </button>
-          )}
-          {googleAuthError && (
-            <p className="text-xs text-red-500 font-semibold w-full text-right mt-1">{googleAuthError}</p>
           )}
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start mb-6">
           <div className="space-y-2">

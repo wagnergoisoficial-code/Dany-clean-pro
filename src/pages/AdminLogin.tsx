@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, ArrowRight, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { isAdminEmail, hasAdminRecord } from '../lib/admins';
 import { auth } from '../lib/firebase';
 
@@ -43,27 +43,6 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
     };
     checkHealth();
   }, []);
-
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setError('');
-    const provider = new GoogleAuthProvider();
-    try {
-      const credential = await signInWithPopup(auth, provider);
-      // Signing in and being allowed in are different things. Without this the
-      // dashboard route bounces the account straight back here with nothing on
-      // screen to explain why.
-      if (!await mayEnter(credential.user)) {
-        await signOut(auth);
-        setError(`${credential.user.email} nao tem permissao de admin neste site.`);
-        return;
-      }
-    } catch (err: any) {
-      setError('Google Sign-In failed: ' + (err.message || 'Unknown error'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +91,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
         }
       }
     } catch (err: any) {
-      setError('Falha na autenticação. Tente novamente ou use Google Login.');
+      setError('Falha na autenticação. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -156,26 +135,6 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
           </div>
 
           <div className="bg-surface border border-rule p-8 lg:p-10">
-            <button
-              onClick={handleGoogleLogin}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 border border-rule py-4 text-label-md uppercase text-ink hover:bg-surface-low hover:border-ink transition-colors disabled:opacity-50"
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" className="w-4 h-4" />
-              Sign in with Google
-            </button>
-
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-rule" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-surface px-4 text-label-sm uppercase text-ink-faint">
-                  Or use a system account
-                </span>
-              </div>
-            </div>
-
             <form onSubmit={handleLogin} className="flex flex-col gap-6">
               {error && (
                 <div className="bg-red-50 border border-red-100 text-red-700 p-4 flex items-start gap-3">
