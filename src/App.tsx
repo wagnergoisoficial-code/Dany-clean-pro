@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Home from './pages/Home';
 import AdminLogin from './pages/AdminLogin';
+import AdminSetup from './pages/AdminSetup';
 import AdminDashboard from './pages/AdminDashboard';
 import Layout from './components/Layout';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -55,7 +56,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-import { isAdminEmail } from './lib/admins';
+import { isAdminEmail, hasAdminRecord } from './lib/admins';
 
 const queryClient = new QueryClient();
 
@@ -114,13 +115,23 @@ export default function App() {
     });
   }, []);
 
-  // Only a signed-in account Firebase vouched for, on the same list the
-  // Firestore rules enforce. `|| !!auth.token` used to be here, and that token
-  // came out of localStorage unverified: writing the key by hand in a browser
-  // console was a complete way past the login.
-  const hasAccess = isAdminEmail(fbUser?.email);
+  // Access is a question only Firebase Auth and the admins collection can
+  // answer. `|| !!auth.token` used to be here, and that token came out of
+  // localStorage unverified: writing the key by hand in a browser console was
+  // a complete way past the login.
+  const [adminState, setAdminState] = useState<'checking' | 'yes' | 'no'>('checking');
 
-  if (fbLoading) {
+  useEffect(() => {
+    if (!fbUser) { setAdminState('no'); return; }
+    if (isAdminEmail(fbUser.email)) { setAdminState('yes'); return; }
+    let live = true;
+    hasAdminRecord(fbUser.uid).then(ok => { if (live) setAdminState(ok ? 'yes' : 'no'); });
+    return () => { live = false; };
+  }, [fbUser]);
+
+  const hasAccess = adminState === 'yes';
+
+  if (fbLoading || (fbUser && adminState === 'checking')) {
     return (
       <div className="min-h-screen bg-surface-low flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -150,6 +161,9 @@ export default function App() {
             </Route>
             
             {/* Private Admin Routes */}
+            {/* Creating the first administrator. The server closes this off
+                once one exists, so the page needs no gate of its own. */}
+            <Route path="/admin/setup" element={<AdminSetup />} />
             <Route 
               path="/admin/login" 
               element={!hasAccess ? <AdminLogin onLogin={login} /> : <Navigate to="/admin/dashboard" />} 

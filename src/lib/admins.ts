@@ -17,14 +17,42 @@ export const ADMIN_EMAILS = [
   'wagnergoisoficial@gmail.com',
 ];
 
-/** Any address at the business's own domain. Mirrors the rules' endsWith check. */
-export const ADMIN_DOMAINS = [
-  'danycleanpro.com',
-];
+/**
+ * Deliberately empty.
+ *
+ * Granting admin to a whole domain cannot be done safely: Firebase Auth never
+ * verifies that an account owns the domain in its address, so trusting
+ * @danycleanpro.com would mean anyone able to register there arrives as an
+ * administrator. Authority comes from admins/{uid} instead, which only
+ * /api/admin-users can write.
+ */
+export const ADMIN_DOMAINS: string[] = [];
 
 export function isAdminEmail(email?: string | null): boolean {
   const addr = String(email ?? '').trim().toLowerCase();
   if (!addr) return false;
   if (ADMIN_EMAILS.includes(addr)) return true;
   return ADMIN_DOMAINS.some(domain => addr.endsWith(`@${domain}`));
+}
+
+/**
+ * Does this account hold admins/{uid}?
+ *
+ * The same document the Firestore rules read, asked from the browser so the
+ * gate and the database agree on one answer. The rules let a signed-in account
+ * read its own entry, and nothing else in here, so a stranger learns only
+ * whether they themselves are an administrator.
+ */
+export async function hasAdminRecord(uid?: string | null): Promise<boolean> {
+  if (!uid) return false;
+  try {
+    const { doc, getDoc } = await import('firebase/firestore');
+    const { db, isFirebaseReady } = await import('./firebase');
+    if (!isFirebaseReady()) return false;
+    const snap = await getDoc(doc(db, 'admins', uid));
+    return snap.exists();
+  } catch {
+    // A denied or offline read is not an admission of access.
+    return false;
+  }
 }

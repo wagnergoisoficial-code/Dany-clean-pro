@@ -12,12 +12,22 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Administrators are the accounts holding a document in `admins`, plus one
+    // named founder address as a way back in if that collection is ever empty.
+    //
+    // The domain tests that used to be here — endsWith('@danycleanpro.com')
+    // and endsWith('@admin.com') — were a way to promote yourself. Firebase
+    // Auth never checks that you own a domain, so anyone who could reach a
+    // sign-up could register at either one and arrive as a full administrator.
+    // @admin.com is not even a domain this project owns.
+    //
+    // Granting is done by /api/admin-users, which requires either a caller who
+    // already holds admins/{uid} or a setup key that stops working the moment
+    // the first administrator exists.
     function isAdmin() {
       return isSignedIn() && (
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
-        request.auth.token.email == 'wagnergoisoficial@gmail.com' ||
-        request.auth.token.email.endsWith('@danycleanpro.com') ||
-        request.auth.token.email.endsWith('@admin.com')
+        request.auth.token.email == 'wagnergoisoficial@gmail.com'
       );
     }
 

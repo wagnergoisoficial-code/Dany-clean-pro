@@ -8,7 +8,8 @@ import {
   Settings, 
   LogOut, 
   X,
-  Target
+  Target,
+  ShieldCheck
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../../lib/utils';
@@ -28,6 +29,7 @@ const sidebarLinks = [
   { icon: ImageIcon, label: 'Gallery', path: '/admin/dashboard/gallery', index: '06' },
   { icon: MessageSquare, label: 'Reviews', path: '/admin/dashboard/reviews', index: '07' },
   { icon: Settings, label: 'Settings', path: '/admin/dashboard/settings', index: '08' },
+  { icon: ShieldCheck, label: 'Team Access', path: '/admin/dashboard/team', index: '09' },
 ];
 
 export default function AdminSidebar({ isMobile, onClose, onLogout }: AdminSidebarProps) {

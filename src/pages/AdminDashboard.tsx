@@ -20,6 +20,7 @@ import LeadsManager from './admin/LeadsManager';
 import GalleryManager from './admin/GalleryManager';
 import ReviewManager from './admin/ReviewManager';
 import SettingsManager from './admin/SettingsManager';
+import TeamManager from './admin/TeamManager';
 import CustomersManager from './admin/CustomersManager';
 import CommercialCenter from './admin/CommercialCenter';
 import ScheduleManager from './admin/ScheduleManager';
@@ -162,6 +163,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
             <Route path="gallery" element={<GalleryManager auth={auth} />} />
             <Route path="reviews" element={<ReviewManager auth={auth} />} />
             <Route path="settings" element={<SettingsManager />} />
+            <Route path="team" element={<TeamManager />} />
           </Routes>
         </div>
       </main>

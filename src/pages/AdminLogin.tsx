@@ -3,8 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { Lock, User, ArrowRight, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { isAdminEmail } from '../lib/admins';
+import { isAdminEmail, hasAdminRecord } from '../lib/admins';
 import { auth } from '../lib/firebase';
+
+/**
+ * Allowed in, by either route authority can come from: the named founder
+ * address, or a document in `admins` written by /api/admin-users.
+ *
+ * Checking only the e-mail would turn away every account the setup page and
+ * the Team Access panel create, since those are granted by the document and
+ * not by the shape of their address.
+ */
+async function mayEnter(user: { email: string | null; uid: string }): Promise<boolean> {
+  return isAdminEmail(user.email) || await hasAdminRecord(user.uid);
+}
 
 export default function AdminLogin({ onLogin }: { onLogin: (token: string, user: any) => void }) {
   const [username, setUsername] = useState('');
@@ -41,7 +53,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
       // Signing in and being allowed in are different things. Without this the
       // dashboard route bounces the account straight back here with nothing on
       // screen to explain why.
-      if (!isAdminEmail(credential.user.email)) {
+      if (!await mayEnter(credential.user)) {
         await signOut(auth);
         setError(`${credential.user.email} nao tem permissao de admin neste site.`);
         return;
@@ -85,7 +97,7 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
       }
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!isAdminEmail(userCredential.user.email)) {
+        if (!await mayEnter(userCredential.user)) {
           await signOut(auth);
           setError(`${userCredential.user.email} nao tem permissao de admin neste site.`);
           return;
