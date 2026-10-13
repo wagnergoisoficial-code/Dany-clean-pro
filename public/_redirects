@@ -13,4 +13,5 @@
 /api/confirm-booking /.netlify/functions/confirm-booking 200!
 /api/admin-users   /.netlify/functions/admin-users 200!
 /api/admin-session /.netlify/functions/admin-session 200!
+/api/data/*        /.netlify/functions/data 200!
 /*                 /index.html                   200

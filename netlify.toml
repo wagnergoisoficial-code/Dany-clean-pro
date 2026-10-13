@@ -52,6 +52,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/data/*"
+  to = "/.netlify/functions/data"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/voice"
   to = "/.netlify/functions/voice"
   status = 200
