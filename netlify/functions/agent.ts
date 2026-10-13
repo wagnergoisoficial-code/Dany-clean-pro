@@ -1,7 +1,8 @@
 import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
 import { firestore } from './shared/firestore';
-import { findSlots, bookTentative, calendarConfigured } from './shared/schedule';
+import { findSlots, bookTentative, calendarConfigured, backendName } from './shared/schedule';
+import type { BookingResult } from './shared/slotEngine';
 import { knowledgePrompt } from './shared/businessKnowledge';
 import { sendLeadEmail, sendBookingEmail } from './shared/leadEmail';
 import { sendClientEmail } from './shared/clientEmail';
@@ -117,10 +118,12 @@ function safeParse(text: string): any {
 const canonical = (key: string) =>
   key.toLowerCase().replace(/[\s_-]+/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
+const KNOWN_ARGS = ['service_type', 'slot_id', 'phone', 'name', 'email', 'city', 'address',
+                   'bedrooms', 'bathrooms', 'preferred_date', 'summary', 'notes', 'transcript', 'action'];
+
 /** Expose each value under both the key given and its snake_case form. */
 function normaliseKeys(input: Record<string, any>): Record<string, any> {
-  const known = ['service_type', 'slot_id', 'phone', 'name', 'email', 'city', 'address',
-                 'bedrooms', 'bathrooms', 'preferred_date', 'summary', 'notes', 'transcript', 'action'];
+  const known = KNOWN_ARGS;
   const out: Record<string, any> = { ...input };
   for (const [key, value] of Object.entries(input)) {
     const c = canonical(key);
@@ -128,6 +131,55 @@ function normaliseKeys(input: Record<string, any>): Record<string, any> {
     if (match && out[match] === undefined) out[match] = value;
   }
   return out;
+}
+
+/**
+ * Tool arguments, whatever shape the platform wrapped them in.
+ *
+ * Vapi alone has three: `toolCallList[0].function.arguments`,
+ * `toolCalls[0].function.arguments`, and a flattened
+ * `toolCallList[0].arguments` — as a JSON string or an object, depending on the
+ * message version. A chain of `||` commits to one guess and, when it guesses
+ * wrong, quietly hands back the whole request body: every field reads as
+ * missing, so `hold` answers "slot_id is required" on a call where the customer
+ * has just named a time out loud, and no appointment reaches the inbox.
+ *
+ * So try all of them and keep the first that actually carries a field a tool
+ * asked for.
+ */
+function argumentsFrom(body: any): Record<string, any> {
+  const lists = [
+    body?.message?.toolCallList,
+    body?.message?.toolCalls,
+    body?.toolCallList,
+    body?.toolCalls,
+    body?.message?.toolWithToolCallList?.map((entry: any) => entry?.toolCall),
+  ].filter(Array.isArray);
+
+  const candidates: any[] = [body?.arguments, body?.parameters, body?.args];
+  for (const list of lists) {
+    for (const call of list) {
+      candidates.push(
+        call?.function?.arguments, call?.arguments,
+        call?.function?.parameters, call?.parameters,
+      );
+    }
+  }
+  candidates.push(
+    body?.message?.functionCall?.parameters,
+    body?.message?.functionCall?.arguments,
+    body,
+  );
+
+  let fallback: Record<string, any> = {};
+  for (const candidate of candidates) {
+    const parsed = typeof candidate === 'string' ? safeParse(candidate) : candidate;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) continue;
+    const named = normaliseKeys(parsed);
+    if (KNOWN_ARGS.some(key => named[key] !== undefined)) return named;
+    if (!Object.keys(fallback).length) fallback = named;
+  }
+  return fallback;
 }
 
 /**
@@ -211,14 +263,7 @@ export const handler: Handler = async (event) => {
   // property names on the way out ("Service Type" for service_type). Flatten
   // the nesting and index every key by a normalised form so a console's
   // formatting cannot silently drop a field.
-  const raw = body.arguments || body.parameters || body.args
-    || body?.message?.toolCallList?.[0]?.arguments
-    || body?.message?.toolCalls?.[0]?.function?.arguments
-    || body?.message?.toolWithToolCallList?.[0]?.toolCall?.function?.arguments
-    || body?.message?.functionCall?.parameters
-    || body;
-  const parsed = typeof raw === 'string' ? safeParse(raw) : raw;
-  const args = normaliseKeys(parsed && typeof parsed === 'object' ? parsed : {});
+  const args = argumentsFrom(body);
   const action = String(
     (event.path || '').split('/').filter(Boolean).pop() || args.action || ''
   ).toLowerCase();
@@ -232,7 +277,7 @@ export const handler: Handler = async (event) => {
 
     /* ---------------------------------------------------------- */
     case 'slots': {
-      if (!calendarConfigured() || !initAdmin()) {
+      if (!calendarConfigured() || (backendName() === 'internal' && !initAdmin())) {
         return reply(toolCallId, 200, { slots: [], message: 'The calendar is unavailable. Ask which day and roughly what time suits them, say the team will confirm, and carry on with the call.' });
       }
 
@@ -267,49 +312,61 @@ export const handler: Handler = async (event) => {
     case 'hold': {
       const slotId = String(args.slot_id || args.id || '').trim();
       const phone = digitsOnly(args.phone);
-      if (!slotId) return reply(toolCallId, 400, { ok: false, error: 'slot_id is required' });
-      if (!initAdmin()) return reply(toolCallId, 200, { ok: false, message: 'Could not reach the calendar. Ask which day suits them, say the team will confirm, and carry on with the call.' });
+      // A caller can name a time the assistant never quoted a slot id for.
+      // That is still an appointment, and the inbox still has to hear about it.
+      const said = String(args.preferred_date || args.when || args.time || '').trim();
+      if (!slotId && !said) {
+        return reply(toolCallId, 200, { ok: false, message: 'Ask which day and roughly what time they would like, then try again.' });
+      }
 
-      const result = await bookTentative(slotId, {
-        name: args.name, phone, email: args.email,
-        city: args.city, address: args.address, service_type: args.service_type,
-      });
+      // Only the Firestore-backed calendar needs the admin credential. With
+      // SCHEDULING_BACKEND=none there is nothing to write to, and refusing to
+      // go on would throw away the one record of the appointment.
+      const canBook = !!slotId && calendarConfigured() && (backendName() !== 'internal' || initAdmin());
+      const result: BookingResult = canBook
+        ? await bookTentative(slotId, {
+            name: args.name, phone, email: args.email,
+            city: args.city, address: args.address, service_type: args.service_type,
+          })
+        : { booked: false, error: 'no calendar configured' };
 
-      const announce = (when: string, held: boolean) =>
-        sendBookingEmail({
-          when, held,
-          name: args.name, phone, email: args.email, city: args.city,
-          address: args.address, service_type: args.service_type,
-          bedrooms: args.bedrooms, bathrooms: args.bathrooms,
-        }).catch(err => console.error('[agent] booking e-mail failed:', err?.message || err));
+      if (!result.booked && result.error === 'that time was just taken') {
+        return reply(toolCallId, 200, { ok: false, message: 'Someone just took that time. Ask for the slots again and offer another.' });
+      }
+
+      const at = new Date(result.booked ? result.start! : slotId);
+      const when = Number.isNaN(at.getTime())
+        ? (said || 'a time still to be confirmed')
+        : at.toLocaleString('en-US', {
+            weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
+            timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
+          });
+
+      // This message is the appointment. Without a database it is the only
+      // record there is, so its outcome is reported rather than swallowed —
+      // a booking that never reached the inbox has to be visible from outside.
+      const mail = await sendBookingEmail({
+        when, held: result.booked,
+        name: args.name, phone, email: args.email, city: args.city,
+        address: args.address, service_type: args.service_type,
+        bedrooms: args.bedrooms, bathrooms: args.bathrooms,
+      }).catch((err: any) => ({ sent: false, error: String(err?.message || err) }));
+
+      if (mail.sent) console.log('[agent] booking e-mailed:', when, '| held:', result.booked);
+      else console.error('[agent] BOOKING NOT E-MAILED:', when, '|', mail.error);
 
       if (!result.booked) {
-        if (result.error === 'that time was just taken') {
-          return reply(toolCallId, 200, { ok: false, message: 'Someone just took that time. Ask for the slots again and offer another.' });
-        }
-        // The write failed, but the customer already said a time out loud.
-        // Carry it to save_lead rather than dropping it — and never leave the
-        // assistant without a next line, which is what ends calls abruptly.
-        const spoken = new Date(slotId).toLocaleString('en-US', {
-          weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
-          timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
-        });
-        await announce(spoken, false);
+        // Nothing was written, but the customer said a time out loud. Carry it
+        // to save_lead rather than dropping it — and never leave the assistant
+        // without a next line, which is what ends calls abruptly.
         return reply(toolCallId, 200, {
-          ok: true,
-          pending: true,
-          when: spoken,
-          message: `Tell the customer you've put them down for ${spoken} and the team will call to confirm it. Then continue, and include that time in save_lead as preferred_date.`,
+          ok: true, pending: true, when, emailed: mail.sent,
+          message: `Tell the customer you've put them down for ${when} and the team will call to confirm it. Then continue, and include that time in save_lead as preferred_date.`,
         });
       }
 
-      const when = new Date(result.start!).toLocaleString('en-US', {
-        weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
-        timeZone: process.env.BUSINESS_TIMEZONE || 'America/New_York',
-      });
-      await announce(when, true);
       return reply(toolCallId, 200, {
-        ok: true, when, eventId: result.eventId,
+        ok: true, when, eventId: result.eventId, emailed: mail.sent,
         message: `Held for ${when}. Tell the customer it is reserved and the team will confirm shortly.`,
       });
     }
@@ -334,7 +391,9 @@ export const handler: Handler = async (event) => {
       };
 
       // The inbox must hear about the call even if the database is refusing writes.
-      await sendLeadEmail({ ...lead, leadId: null });
+      const mail = await sendLeadEmail({ ...lead, leadId: null })
+        .catch((err: any) => ({ sent: false, error: String(err?.message || err) }));
+      if (!mail.sent) console.error('[agent] LEAD NOT E-MAILED:', phone, '|', mail.error);
       if (lead.email) await sendClientEmail('confirmation', lead).catch(() => {});
 
       let stored = false;
@@ -357,7 +416,7 @@ export const handler: Handler = async (event) => {
         }, 2000, 'lead write', false);
       }
 
-      console.log('[agent] call recorded', phone, '| stored:', stored);
+      console.log('[agent] call recorded', phone, '| stored:', stored, '| e-mailed:', mail.sent);
       // Never tell the model to hang up. A tool reports a fact; when the call
       // ends is the conversation's business. "End the call" here was being
       // obeyed the moment the model reached for save_lead mid-booking, which
@@ -365,6 +424,7 @@ export const handler: Handler = async (event) => {
       return reply(toolCallId, 200, {
         ok: true,
         stored,
+        emailed: mail.sent,
         message: 'Saved. Keep going — ask if there is anything else they need, and only say goodbye once they are done.',
       });
     }
