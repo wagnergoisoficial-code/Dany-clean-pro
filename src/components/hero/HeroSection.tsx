@@ -49,13 +49,6 @@ export default function HeroSection() {
           transition={{ duration: 0.7 }}
           className="max-w-3xl"
         >
-          <div className="flex items-center gap-3 mb-5">
-            <span className="w-1.5 h-1.5 bg-white/80" />
-            <p className="text-label-sm uppercase text-white/80">
-              Stamford · Greenwich · Norwalk · Fairfield County
-            </p>
-          </div>
-
           <h1 className="font-display text-headline-lg sm:text-display lg:text-[64px] lg:leading-[70px] text-white tracking-tight mb-6">
             A cleaner home.<br />A calmer life.
           </h1>
