@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User, ArrowRight, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { isAdminEmail } from '../lib/admins';
 import { auth } from '../lib/firebase';
 
 export default function AdminLogin({ onLogin }: { onLogin: (token: string, user: any) => void }) {
@@ -36,7 +37,15 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
     setError('');
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const credential = await signInWithPopup(auth, provider);
+      // Signing in and being allowed in are different things. Without this the
+      // dashboard route bounces the account straight back here with nothing on
+      // screen to explain why.
+      if (!isAdminEmail(credential.user.email)) {
+        await signOut(auth);
+        setError(`${credential.user.email} nao tem permissao de admin neste site.`);
+        return;
+      }
     } catch (err: any) {
       setError('Google Sign-In failed: ' + (err.message || 'Unknown error'));
     } finally {
@@ -65,11 +74,22 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
         }
       }
 
-      // Fallback: Firebase Auth (Directly for Netlify)
-      // If user provided just "admin", we try to treat it as admin@danycleanpro.com or whatever email is registered
-      const email = username.includes('@') ? username : `${username}@admin.com`;
+      // Firebase Auth. A bare word used to be turned into `<word>@admin.com`,
+      // which quietly made a domain nobody here owns into the way in. Ask for
+      // the whole address instead, so what is typed is what is authenticated.
+      const email = username.trim();
+      if (!email.includes('@')) {
+        setError('Escreva o e-mail completo, por exemplo dany@danycleanpro.com');
+        setLoading(false);
+        return;
+      }
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!isAdminEmail(userCredential.user.email)) {
+          await signOut(auth);
+          setError(`${userCredential.user.email} nao tem permissao de admin neste site.`);
+          return;
+        }
         onLogin('fb-token', { id: userCredential.user.uid, username: userCredential.user.email });
         navigate('/admin/dashboard');
       } catch (fbErr: any) {

@@ -55,6 +55,8 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
+import { isAdminEmail } from './lib/admins';
+
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -112,9 +114,11 @@ export default function App() {
     });
   }, []);
 
-  const allowedEmails = ['wagnergoisoficial@gmail.com', 'danycleanenpro@gmail.com'];
-  const isAdminByEmail = fbUser?.email && allowedEmails.includes(fbUser.email.toLowerCase());
-  const hasAccess = isAdminByEmail || !!auth.token;
+  // Only a signed-in account Firebase vouched for, on the same list the
+  // Firestore rules enforce. `|| !!auth.token` used to be here, and that token
+  // came out of localStorage unverified: writing the key by hand in a browser
+  // console was a complete way past the login.
+  const hasAccess = isAdminEmail(fbUser?.email);
 
   if (fbLoading) {
     return (

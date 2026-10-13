@@ -1,5 +1,6 @@
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { auth } from './firebase';
+import { isAdminEmail } from './admins';
 import { useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
 
@@ -27,8 +28,7 @@ export function useAdminAuth() {
     await signOut(auth);
   };
 
-  const allowedEmails = ['wagnergoisoficial@gmail.com', 'danycleanenpro@gmail.com'];
-  const isAdmin = user?.email && allowedEmails.includes(user.email.toLowerCase());
+  const isAdmin = isAdminEmail(user?.email);
 
   return { user, login, logout, loading, isAdmin };
 }
