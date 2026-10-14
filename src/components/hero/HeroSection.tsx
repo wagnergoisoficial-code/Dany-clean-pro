@@ -28,7 +28,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative w-full h-[80vh] min-h-[560px] bg-ink overflow-hidden">
+    <section className="relative w-full bg-ink overflow-hidden">
       {/* Full-bleed cover */}
       <img
         src={(heroCover && !isImageError) ? heroCover : FALLBACK_COVER}
@@ -41,8 +41,14 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-r from-ink/95 via-ink/70 to-ink/10" />
       <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-transparent to-ink/50" />
 
-      {/* Copy sits on the lower left, clear of the fixed header */}
-      <Container className="relative h-full flex items-end pb-14 lg:pb-20">
+      {/* Copy sits on the lower left, and `pt-28` is the clearance that keeps
+          it there: the header floats over this section, so without a reserved
+          strip the bottom-aligned text climbs behind the logo the moment the
+          window is short — a laptop screen was enough to clip the headline.
+          The height is a minimum rather than a fixed 80vh for the same reason;
+          on a short screen the section grows instead of the words overflowing
+          it. */}
+      <Container className="relative flex items-end min-h-[80vh] md:min-h-[600px] pt-28 pb-14 lg:pb-20">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

@@ -131,16 +131,22 @@ export default function App() {
 
   const hasAccess = adminState === 'yes';
 
-  if (fbLoading || (fbUser && adminState === 'checking')) {
-    return (
-      <div className="min-h-screen bg-surface-low flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-          <p className="text-ink-muted font-medium animate-pulse">Initializing Dany Clean Pro Platform...</p>
-        </div>
+  // Still waiting to hear who, if anyone, is signed in. This used to hold the
+  // whole site — the marketing pages too — behind a spinner, so a visitor
+  // whose browser blocks Firebase (an ad blocker, private browsing, storage
+  // turned off, a slow line) got "Initializing Dany Clean Pro Platform…"
+  // instead of the business, and there was nothing to wait for: the home page
+  // does not care who is signed in. Only the admin routes do.
+  const decidingAccess = fbLoading || (fbUser && adminState === 'checking');
+
+  const booting = (
+    <div className="min-h-screen bg-surface-low flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+        <p className="text-ink-muted font-medium animate-pulse">Checking your access…</p>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <ErrorBoundary>
@@ -166,11 +172,11 @@ export default function App() {
             <Route path="/admin/setup" element={<AdminSetup />} />
             <Route 
               path="/admin/login" 
-              element={!hasAccess ? <AdminLogin onLogin={login} /> : <Navigate to="/admin/dashboard" />} 
+              element={decidingAccess ? booting : (!hasAccess ? <AdminLogin onLogin={login} /> : <Navigate to="/admin/dashboard" />)} 
             />
             <Route 
               path="/admin/dashboard/*" 
-              element={hasAccess ? (
+              element={decidingAccess ? booting : hasAccess ? (
                 <AdminDashboard 
                   auth={auth} 
                   fbUser={fbUser}
