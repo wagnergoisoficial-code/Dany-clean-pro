@@ -58,6 +58,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/voice"
   to = "/.netlify/functions/voice"
   status = 200

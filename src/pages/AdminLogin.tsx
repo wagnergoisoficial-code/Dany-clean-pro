@@ -50,21 +50,6 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
     setError('');
 
     try {
-      if (serverStatus === 'up') {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          onLogin(data.token, data.user);
-          navigate('/admin/dashboard');
-          return;
-        }
-      }
-
       // Firebase Auth. A bare word used to be turned into `<word>@admin.com`,
       // which quietly made a domain nobody here owns into the way in. Ask for
       // the whole address instead, so what is typed is what is authenticated.
@@ -83,12 +68,10 @@ export default function AdminLogin({ onLogin }: { onLogin: (token: string, user:
         }
         onLogin('fb-token', { id: userCredential.user.uid, username: userCredential.user.email });
         navigate('/admin/dashboard');
-      } catch (fbErr: any) {
-        if (serverStatus === 'down') {
-          setError('Credenciais inválidas ou conta não encontrada no Firebase.');
-        } else {
-          setError('Usuário ou senha incorretos.');
-        }
+      } catch {
+        // Firebase answers the same way for an unknown address and a wrong
+        // password, so the message must not claim to know which it was.
+        setError('E-mail ou senha incorretos.');
       }
     } catch (err: any) {
       setError('Falha na autenticação. Tente novamente.');
