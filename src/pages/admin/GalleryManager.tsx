@@ -3,8 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Upload, Edit3, X, Save, Download } from 'lucide-react';
 import { GalleryItem, AuthState } from '../../types';
 import { collection, query, orderBy, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage, isFirebaseReady, auth as firebaseAuth } from '../../lib/firebase';
+import { db, isFirebaseReady, auth as firebaseAuth } from '../../lib/firebase';
 import { compressImage } from '../../lib/utils';
 import { defaultImages } from '../../lib/galleryDefaults';
 
@@ -74,35 +73,6 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
                  window.location.hostname.includes('run.app');
 
   // Synchronous conversion of base64 to Blob without network fetch, bypassing any sandboxed iframe blocks
-  const base64ToBlobSync = (base64DataUrl: string): Blob => {
-    try {
-      const parts = base64DataUrl.split(',');
-      const contentType = parts[0].split(':')[1].split(';')[0];
-      const byteCharacters = atob(parts[1]);
-      const byteArrays = [];
-      const sliceSize = 1024;
-      
-      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        const slice = byteCharacters.slice(offset, offset + sliceSize);
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
-      }
-      
-      return new Blob(byteArrays, { type: contentType });
-    } catch (err) {
-      console.warn("base64ToBlobSync failed, trying alternative converter", err);
-      const binary = atob(base64DataUrl?.split(',')[1] || '');
-      const array = [];
-      for (let i = 0; i < binary.length; i++) {
-        array.push(binary.charCodeAt(i));
-      }
-      return new Blob([new Uint8Array(array)], { type: 'image/jpeg' });
-    }
-  };
 
   // Helper to race promises against a timeout to prevent silent loops or infinite loading states
   const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> => {
@@ -135,46 +105,34 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
     // Compress using top-notch helper
     const compressedBase64 = await compressImage(base64, 1200, 0.75);
 
-    if (isFirebaseReady() && storage) {
-      // No second opinion about who this is. Reaching this page already
-      // required being an administrator, and Storage's own rules have the
-      // final say on the write — a list kept here could only drift from both.
-      const currentFbUser = firebaseUser || firebaseAuth?.currentUser;
-      if (currentFbUser) {
-        try {
-            // Safe synchronous base64-to-blob conversion (iframe-friendly fallback)
-            const compressedBlob = base64ToBlobSync(compressedBase64);
-            const safeFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-            const imgRef = storageRef(storage, `gallery/${category}/${Date.now()}-${safeFileName}`);
-            
-            // Added real-time timeout defense against network hangs or CORS blocks in iframe/mobile contexts
-            const snapshot = await withTimeout(
-              uploadBytes(imgRef, compressedBlob),
-              25000,
-              'O envio do arquivo para o Firebase Storage excedeu o tempo limite de 25 segundos. Verifique sua conexão.'
-            );
-            
-            const downloadUrl = await withTimeout(
-              getDownloadURL(snapshot.ref),
-              15000,
-              'O resgate do link público do arquivo excedeu o tempo limite de 15 segundos.'
-            );
-
-            if (downloadUrl) {
-              console.log('Firebase storage upload successful:', downloadUrl);
-              return downloadUrl;
-            } else {
-              throw new Error('Não foi possível obter a URL pública para a foto enviada.');
-            }
-        } catch (storageErr: any) {
-          console.error('Firebase storage upload failed:', storageErr);
-          throw new Error(`Falha no upload para o Storage: ${storageErr.message || 'sem permissao'}`);
-        }
-      } else {
-        throw new Error('A sua sessao expirou. Entre de novo para enviar fotos.');
+    // Through the server, not straight into Storage. Writing from the browser
+    // put the Storage rules in charge, and those live in a console this code
+    // cannot see — which is how a real administrator spent a day being told
+    // `storage/unauthorized`. The Admin SDK ignores those rules, and the
+    // server checks admins/{uid} instead, the same record everything else uses.
+    const currentFbUser = firebaseUser || firebaseAuth?.currentUser;
+    if (currentFbUser) {
+      try {
+        const token = await currentFbUser.getIdToken();
+        const res = await withTimeout(
+          fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ dataUrl: compressedBase64, name: file.name, folder: `gallery/${category}` }),
+          }),
+          30000,
+          'O envio excedeu 30 segundos. Verifique a sua ligacao.'
+        );
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body?.error || `falhou (${res.status})`);
+        console.log('upload successful:', body.url);
+        return body.url as string;
+      } catch (uploadErr: any) {
+        console.error('upload failed:', uploadErr);
+        throw new Error(`Falha no envio: ${uploadErr.message || 'erro desconhecido'}`);
       }
     } else {
-      throw new Error('O sistema de arquivos em nuvem (Firebase Storage) não está inicializado ou configurado na sua plataforma.');
+      throw new Error('A sua sessao expirou. Entre de novo para enviar fotos.');
     }
   };
 
