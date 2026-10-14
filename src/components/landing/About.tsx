@@ -6,7 +6,7 @@ import { useSetting } from '../../lib/settings';
 
 const credentials = [
   { icon: Award, title: "Quality First", desc: "A detailed checklist verified on every single visit." },
-  { icon: Users, title: "Trusted Team", desc: "Background-checked professionals, never rotating strangers." },
+  { icon: Users, title: "Trusted Team", desc: "The same vetted, trained professionals — never rotating strangers." },
   { icon: Leaf, title: "Family Safe", desc: "Non-toxic products chosen for children and pets." },
   { icon: CheckCircle2, title: "100% Guarantee", desc: "Didn't love it? We return and re-clean for free." }
 ];
@@ -53,7 +53,7 @@ export default function About() {
                   <span className="block font-display text-headline-sm text-ink">Dany Clean Pro</span>
                 </div>
                 <span className="text-label-sm uppercase bg-accent-soft text-accent-ink px-3 py-1.5 whitespace-nowrap">
-                  14+ Years
+                  5+ Years
                 </span>
               </div>
             </div>
@@ -70,7 +70,7 @@ export default function About() {
               <p>
                 Dany Clean Pro started with a simple family goal: to provide high-quality cleaning
                 with a personal, reliable touch. Today we've helped thousands of families across
-                Fairfield County reclaim their time.
+                Connecticut reclaim their time.
               </p>
               <p>
                 We're not a massive corporate franchise — we're your neighbors. Every clean we

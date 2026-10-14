@@ -92,7 +92,7 @@ export default function HeroSection() {
             </div>
             <span className="hidden sm:block w-px h-4 bg-white/20" />
             <span className="text-label-sm uppercase text-white/60">
-              Family owned · Licensed &amp; insured · Background-checked team
+              Family owned · 3,000+ homes cleaned · Vetted &amp; trained team
             </span>
           </div>
         </motion.div>

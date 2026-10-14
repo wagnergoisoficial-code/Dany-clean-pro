@@ -76,7 +76,7 @@ export default function Reviews() {
               </div>
               <p className="font-display text-headline-sm text-ink">4.9 out of 5</p>
               <p className="text-body-sm text-ink-muted mt-1">
-                Based on verified client feedback across Fairfield &amp; New Haven counties.
+                Based on verified client feedback from across Connecticut.
               </p>
             </div>
           </div>

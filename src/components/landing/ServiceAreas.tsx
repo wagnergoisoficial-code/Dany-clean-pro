@@ -1,17 +1,30 @@
 import { MapPin } from 'lucide-react';
 import Container from '../ui/Container';
 
-const towns = [
-  { city: "Stamford", zips: "06901 · 06902 · 06903", note: "Primary hub — fastest response" },
-  { city: "Greenwich", zips: "06830 · 06831 · 06870", note: "Backcountry, Old Greenwich & Cos Cob" },
-  { city: "Norwalk", zips: "06850 · 06851 · 06853", note: "Rowayton, East Norwalk & SoNo" },
-  { city: "Bridgeport", zips: "06604 · 06605 · 06606", note: "Black Rock, Brooklawn & North End" },
-  { city: "Danbury", zips: "06810 · 06811", note: "Mill Plain & Candlewood" },
-  { city: "Fairfield", zips: "06824 · 06825", note: "Southport, Greenfield Hill & Stratfield" },
-  { city: "Westport", zips: "06880 · 06881", note: "Compo, Saugatuck & Greens Farms" },
-  { city: "New Canaan", zips: "06840", note: "Town center & surrounding estates" }
+/**
+ * Coverage as the owner states it, not as a list of towns.
+ *
+ * This used to name eight Fairfield County towns with their ZIP codes, none of
+ * which matched the business: it works out of Waterbury, covers the state, and
+ * reaches a few Massachusetts towns near the border only when it can. Naming
+ * streets and ZIPs reads precise and promises things nobody checked, so the
+ * ZIP question is put to the visitor instead — the same thing the phone
+ * assistant asks before it agrees to travel anywhere.
+ */
+const coverage = [
+  {
+    city: "Waterbury & the surrounding area",
+    note: "Our base. Shortest travel, widest choice of times.",
+  },
+  {
+    city: "Throughout Connecticut",
+    note: "Homes and businesses across the state, scheduled around travel time.",
+  },
+  {
+    city: "Select Massachusetts towns",
+    note: "Near the Connecticut border, subject to availability.",
+  },
 ];
-
 export default function ServiceAreas() {
   return (
     <section id="areas" className="w-full bg-surface py-16 lg:py-24">
@@ -24,34 +37,34 @@ export default function ServiceAreas() {
               Service Area &amp; Availability
             </h2>
             <p className="text-body-md text-ink-muted mb-8">
-              To keep schedules punctual and our attention undivided, we serve homes and businesses
-              across Fairfield and New Haven counties, with Stamford as our base.
+              We work out of Waterbury and serve homes and businesses across Connecticut, plus
+              a few Massachusetts towns close to the border. Tell us your city and ZIP code and
+              we will confirm what we can reach and when.
             </p>
 
             <div className="bg-surface-low p-6 mb-8">
               <span className="block text-label-sm uppercase text-accent mb-2">Current Schedule Notice</span>
               <p className="text-body-sm text-ink-soft">
-                Now booking new recurring weekly and bi-weekly clients, with deep cleans and
-                move-out turns scheduled one to two weeks in advance.
+                Now booking new weekly and bi-weekly clients, along with deep cleans, move-outs
+                and post-event work. Send your details and the team confirms a time with you.
               </p>
             </div>
 
             <p className="text-body-sm text-ink-muted">
-              Just outside these towns? Ask anyway — we regularly take on move-in and seasonal
-              projects throughout the rest of Connecticut.
+              Not sure whether we reach you? Ask anyway. Share your ZIP code and the team will
+              tell you honestly whether we can get there.
             </p>
           </div>
 
           {/* Coverage list */}
           <div className="lg:col-span-7">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-rule border border-rule">
-              {towns.map((town, i) => (
-                <div key={i} className="bg-surface p-6 flex items-start gap-4">
-                  <MapPin size={18} className="text-accent shrink-0 mt-1" />
+            <div className="grid grid-cols-1 gap-px bg-rule border border-rule">
+              {coverage.map((area, i) => (
+                <div key={i} className="bg-surface p-6 sm:p-8 flex items-start gap-4">
+                  <MapPin size={18} className="text-accent shrink-0 mt-1.5" />
                   <div>
-                    <h3 className="font-display text-headline-sm text-ink leading-tight">{town.city}</h3>
-                    <p className="text-body-sm text-ink-muted mt-1">{town.note}</p>
-                    <p className="text-label-sm uppercase text-ink-faint mt-2">{town.zips}</p>
+                    <h3 className="font-display text-headline-sm text-ink leading-tight">{area.city}</h3>
+                    <p className="text-body-md text-ink-muted mt-1.5">{area.note}</p>
                   </div>
                 </div>
               ))}

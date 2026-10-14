@@ -10,10 +10,10 @@ import TrustElements from '../components/landing/TrustElements';
 import Container from '../components/ui/Container';
 
 const guarantees = [
-  { title: "Fully Insured", desc: "Coverage on every visit, documented on request." },
+  { title: "3,000+ Clients", desc: "Served across Connecticut in over five years." },
   { title: "Family Owned", desc: "A local Connecticut business, not a franchise." },
   { title: "Satisfaction Guarantee", desc: "We return and re-clean if anything is missed." },
-  { title: "Background Checked", desc: "Every professional is vetted before entering a home." }
+  { title: "Vetted Team", desc: "Four professionals, selected, vetted and trained." }
 ];
 
 export default function Home() {

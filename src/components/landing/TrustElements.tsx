@@ -2,10 +2,10 @@ import { Star, Clock, UserCheck, Shield } from 'lucide-react';
 import Container from '../ui/Container';
 
 const features = [
-  { icon: Shield, title: "Fully Secure", desc: "Licensed & insured team" },
+  { icon: Shield, title: "Five Years Strong", desc: "Serving Connecticut since 2021" },
   { icon: Clock, title: "Reliable Arrival", desc: "Always on time, every time" },
-  { icon: UserCheck, title: "Background Checked", desc: "Rigorously vetted pros" },
-  { icon: Star, title: "5-Star Service", desc: "Satisfaction guaranteed" }
+  { icon: UserCheck, title: "Vetted Team", desc: "Selected, vetted and trained" },
+  { icon: Star, title: "3,000+ Clients", desc: "Served across Connecticut" }
 ];
 
 export default function TrustElements() {

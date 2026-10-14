@@ -30,7 +30,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-body-md text-ink-muted">
-              Residential and commercial cleaning for Connecticut homes and businesses since 2014.
+              Residential and commercial cleaning for Connecticut homes and businesses for over five years.
               Meticulous, discreet, family-owned care — quality you can trust at prices you can afford.
             </p>
             <div className="flex gap-3 mt-6">
@@ -72,7 +72,7 @@ export default function Footer() {
                 <Mail size={14} className="text-ink-faint shrink-0" /> danycleanenpro@gmail.com
               </a>
               <span className="text-body-md text-ink flex items-center gap-2">
-                <MapPin size={14} className="text-ink-faint" /> Stamford, CT &amp; surrounding areas
+                <MapPin size={14} className="text-ink-faint" /> Waterbury, CT &amp; across Connecticut
               </span>
             </div>
 

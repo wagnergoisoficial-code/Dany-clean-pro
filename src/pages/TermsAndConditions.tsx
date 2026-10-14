@@ -365,7 +365,11 @@ export default function TermsAndConditions() {
                   <span>9. Damages and Liability</span>
                 </h2>
                 <p className="font-sans text-sm sm:text-base">
-                  Dany Clean Pro is insured and takes extreme care while performing residential and commercial cleaning services.
+                  Dany Clean Pro takes extreme care while performing residential and commercial
+                  cleaning services. Our licensing and insurance are being finalised, and we will
+                  not claim cover we do not yet hold. If your property or building management
+                  requires proof of insurance before work begins, tell us before scheduling and
+                  we will confirm where we stand.
                 </p>
                 <p className="font-sans text-sm sm:text-base">
                   Any damage claim must be formally reported within <strong>48 hours</strong> following service completion.
