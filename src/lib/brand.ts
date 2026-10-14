@@ -11,3 +11,24 @@
  * white header and the dark footer without a panel behind it.
  */
 export const DEFAULT_LOGO = '/logo.png';
+
+/**
+ * Should a stored logo be used at all?
+ *
+ * A logo needs transparency: it sits on a dark header and a light footer. JPEG
+ * cannot store any, and until today the dashboard's uploader converted every
+ * upload to JPEG — so a round mark with a transparent background came back as
+ * a round mark welded into a black square, which is what the site has been
+ * showing at the top of every page.
+ *
+ * Those stored values cannot be repaired, only replaced, so the site declines
+ * them and falls back to the mark it ships with. Uploading again fixes it for
+ * good: the uploader keeps the alpha channel now and stores a PNG, which this
+ * accepts.
+ */
+export function usableLogo(stored?: string | null): string {
+  const value = String(stored ?? '').trim();
+  if (!value) return DEFAULT_LOGO;
+  if (/^data:image\/jpe?g/i.test(value)) return DEFAULT_LOGO;
+  return value;
+}

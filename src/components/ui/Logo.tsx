@@ -1,6 +1,6 @@
 import { cn } from '../../lib/utils';
 import { useSetting } from '../../lib/settings';
-import { DEFAULT_LOGO } from '../../lib/brand';
+import { DEFAULT_LOGO, usableLogo } from '../../lib/brand';
 
 interface LogoProps {
   className?: string;
@@ -9,7 +9,8 @@ interface LogoProps {
 }
 
 export default function Logo({ className, variant = 'default' }: LogoProps) {
-  const { value: preview } = useSetting('app_logo', DEFAULT_LOGO);
+  const { value: storedLogo } = useSetting('app_logo', DEFAULT_LOGO);
+  const preview = usableLogo(storedLogo);
   const inverse = variant === 'inverse';
 
   return (

@@ -6,7 +6,7 @@ import { cn } from '../lib/utils';
 import Container from './ui/Container';
 import { useAdminAuth } from '../lib/auth';
 import { useSetting } from '../lib/settings';
-import { DEFAULT_LOGO } from '../lib/brand';
+import { DEFAULT_LOGO, usableLogo } from '../lib/brand';
 import { useConfig } from '../hooks/useConfig';
 
 export default function Navbar() {
@@ -15,7 +15,8 @@ export default function Navbar() {
   const { user, isAdmin } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { value: appLogo } = useSetting('app_logo', DEFAULT_LOGO);
+  const { value: storedLogo } = useSetting('app_logo', DEFAULT_LOGO);
+  const appLogo = usableLogo(storedLogo);
   const { businessPhone } = useConfig();
 
   const triggerAICall = (e: React.MouseEvent) => {
