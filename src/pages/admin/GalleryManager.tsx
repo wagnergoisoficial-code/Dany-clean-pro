@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Upload, Edit3, X, Save, Download } from 'lucide-react';
 import { GalleryItem, AuthState } from '../../types';
-import { collection, query, orderBy, getDocs, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { create as createDoc, update as updateDoc, remove as removeDoc } from '../../lib/data';
 import { db, isFirebaseReady, auth as firebaseAuth } from '../../lib/firebase';
 import { compressImage } from '../../lib/utils';
 import { defaultImages } from '../../lib/galleryDefaults';
@@ -166,14 +167,9 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
           try {
             // Protected Firestore writes with safety timeout to prevent spinner hanging on connection loss
             await withTimeout(
-              addDoc(collection(db, 'gallery'), {
-                url: trimmedUrl,
-                title: trimmedTitle,
-                category: trimmedCategory,
-                createdAt: serverTimestamp()
-              }),
+              createDoc('gallery', { url: trimmedUrl, title: trimmedTitle, category: trimmedCategory }),
               15000,
-              'O registro da imagem no banco de dados Firestore excedeu o tempo limite de 15 segundos.'
+              'O registo da imagem excedeu o tempo limite de 15 segundos.'
             );
             firestoreSuccess = true;
           } catch (fireErr: any) {
@@ -181,22 +177,8 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
           }
         }
 
-        // SQLite db sync
-        const response = await fetch('/api/admin/gallery', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${auth?.token || ''}`
-          },
-          body: JSON.stringify({
-            url: trimmedUrl,
-            title: trimmedTitle,
-            category: trimmedCategory
-          })
-        });
-
-        if (!response.ok && !firestoreSuccess) {
-          throw new Error('Falha ao registrar imagem na base de dados.');
+        if (!firestoreSuccess) {
+          throw new Error('Falha ao registar a imagem na base de dados.');
         }
 
         successCount++;
@@ -307,39 +289,15 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
       let firestoreSuccess = false;
       if (isFirebaseReady()) {
         try {
-          await addDoc(collection(db, 'gallery'), {
-            url: trimmedUrl,
-            title: trimmedTitle,
-            category: trimmedCategory,
-            createdAt: serverTimestamp()
-          });
+          await createDoc('gallery', { url: trimmedUrl, title: trimmedTitle, category: trimmedCategory });
           firestoreSuccess = true;
         } catch (firebaseErr: any) {
           console.warn('Firebase document insert issue; using SQL fallback:', firebaseErr);
         }
       }
 
-      // Sync SQLite
-      try {
-        const response = await fetch('/api/admin/gallery', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${auth?.token || ''}`
-          },
-          body: JSON.stringify({
-            url: trimmedUrl,
-            title: trimmedTitle,
-            category: trimmedCategory
-          })
-        });
-        if (!response.ok && !firestoreSuccess) {
-          throw new Error('SQLite registration rejected.');
-        }
-      } catch (err) {
-        if (!firestoreSuccess) {
-          throw new Error('Falha ao adicionar imagem ao banco local SQLite.');
-        }
+      if (!firestoreSuccess) {
+        throw new Error('Falha ao adicionar a imagem.');
       }
     },
     onSuccess: () => {
@@ -360,29 +318,9 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
         throw new Error('Cannot delete: No image ID provided.');
       }
 
-      let deletedFromFirestore = false;
-      if (isFirebaseReady() && !String(id).startsWith('default')) {
-        try {
-          await deleteDoc(doc(db, 'gallery', id));
-          deletedFromFirestore = true;
-        } catch (err) {
-          console.warn('Firestore deletion failed, trying SQLite: ', err);
-        }
-      }
-
-      // SQLite try
-      try {
-        const response = await fetch(`/api/admin/gallery/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${auth?.token || ''}`
-          }
-        });
-        if (response.ok) return;
-      } catch (err) {
-        if (deletedFromFirestore) return; // Silent success if firestore worked
-        throw new Error('Failed to delete image from either SQL database or Firestore.');
-      }
+      // A placeholder from the bundled set has nothing stored to remove.
+      if (String(id).startsWith('default')) return;
+      await removeDoc('gallery', id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-gallery'] });
@@ -412,70 +350,24 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
         let firestoreSuccess = false;
         if (isFirebaseReady()) {
           try {
-            await addDoc(collection(db, 'gallery'), {
-              url: trimmedUrl,
-              title: trimmedTitle,
-              category: trimmedCategory,
-              createdAt: serverTimestamp()
-            });
+            await createDoc('gallery', { url: trimmedUrl, title: trimmedTitle, category: trimmedCategory });
             firestoreSuccess = true;
           } catch (firebaseErr: any) {
             console.warn('Firebase default replacement save failed, trying SQL: ', firebaseErr);
           }
         }
 
-        const response = await fetch('/api/admin/gallery', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${auth?.token || ''}`
-          },
-          body: JSON.stringify({
-            url: trimmedUrl,
-            title: trimmedTitle,
-            category: trimmedCategory
-          })
-        });
-        if (!response.ok && !firestoreSuccess) {
-          throw new Error('SQLite insert rejected.');
+        if (!firestoreSuccess) {
+          throw new Error('Falha ao guardar a imagem.');
         }
         return;
       }
 
-      // Regular update for non-default elements
-      let firestoreUpdated = false;
-      if (isFirebaseReady()) {
-        try {
-          const docRef = doc(db, 'gallery', String(item.id));
-          await updateDoc(docRef, {
-            url: trimmedUrl,
-            title: trimmedTitle,
-            category: trimmedCategory
-          });
-          firestoreUpdated = true;
-        } catch (err) {
-          console.warn('Firestore update failed, trying SQL: ', err);
-        }
-      }
-
-      try {
-        const response = await fetch(`/api/admin/gallery/${item.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${auth?.token || ''}`
-          },
-          body: JSON.stringify({
-            url: trimmedUrl,
-            title: trimmedTitle,
-            category: trimmedCategory
-          })
-        });
-        if (response.ok) return;
-      } catch (err) {
-        if (firestoreUpdated) return; // Silent success if firestore worked
-        throw new Error('Falha ao atualizar imagem.');
-      }
+      await updateDoc('gallery', String(item.id), {
+        url: trimmedUrl,
+        title: trimmedTitle,
+        category: trimmedCategory,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-gallery'] });
