@@ -60,3 +60,33 @@ export async function softly<T>(
 /** For a health endpoint that wants to report what is currently being skipped. */
 export const pausedResources = (): string[] =>
   [...trippedAt.keys()].filter(tripped);
+
+/**
+ * A deadline for work that is not optional.
+ *
+ * `softly` is for a read we can do without: it swallows the failure, returns a
+ * fallback and stops asking for a while. Some work has no fallback — writing
+ * the appointment someone just agreed to — and for that the caller needs to
+ * know it did not happen, so this throws instead.
+ *
+ * It also deliberately does not trip the breaker. A write that is slow once is
+ * not a reason to stop writing for five minutes; that would quietly turn a bad
+ * minute into an afternoon of lost bookings.
+ *
+ * The budget exists because the whole reply has about ten seconds before the
+ * platform gives up, and a caller is listening to silence for every one of
+ * them.
+ */
+export async function within<T>(work: () => Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      work(),
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} took longer than ${ms}ms`)), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}

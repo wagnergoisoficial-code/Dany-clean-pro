@@ -6,7 +6,7 @@ import type { BookingResult } from './shared/slotEngine';
 import { knowledgePrompt } from './shared/businessKnowledge';
 import { sendLeadEmail, sendBookingEmail } from './shared/leadEmail';
 import { sendClientEmail } from './shared/clientEmail';
-import { softly } from './shared/withTimeout';
+import { softly, within } from './shared/withTimeout';
 
 /**
  * Tools for a hosted voice agent (Phonely, Vapi, Retell, Bland…).
@@ -345,12 +345,19 @@ export const handler: Handler = async (event) => {
       // This message is the appointment. Without a database it is the only
       // record there is, so its outcome is reported rather than swallowed —
       // a booking that never reached the inbox has to be visible from outside.
-      const mail = await sendBookingEmail({
-        when, held: result.booked,
-        name: args.name, phone, email: args.email, city: args.city,
-        address: args.address, service_type: args.service_type,
-        bedrooms: args.bedrooms, bathrooms: args.bathrooms,
-      }).catch((err: any) => ({ sent: false, error: String(err?.message || err) }));
+      // Bounded for the same reason the write is. This runs after it, on the
+      // same ten-second budget, and an SMTP connection to Gmail is seconds of
+      // it. Losing the e-mail is bad; losing the call while the customer waits
+      // is worse, and the appointment is in the database by this point.
+      const mail = await within(
+        () => sendBookingEmail({
+          when, held: result.booked,
+          name: args.name, phone, email: args.email, city: args.city,
+          address: args.address, service_type: args.service_type,
+          bedrooms: args.bedrooms, bathrooms: args.bathrooms,
+        }),
+        3500, 'booking e-mail',
+      ).catch((err: any) => ({ sent: false, error: String(err?.message || err) }));
 
       if (mail.sent) console.log('[agent] booking e-mailed:', when, '| held:', result.booked);
       else console.error('[agent] BOOKING NOT E-MAILED:', when, '|', mail.error);

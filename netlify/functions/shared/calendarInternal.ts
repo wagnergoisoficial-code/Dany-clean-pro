@@ -2,7 +2,7 @@ import admin from 'firebase-admin';
 import { firestore } from './firestore';
 import { slotsFrom, searchWindow, Busy, Slot, BookingResult } from './slotEngine';
 import { durationFor } from './scheduling';
-import { softly } from './withTimeout';
+import { softly, within } from './withTimeout';
 
 /**
  * The schedule, kept in the project's own database.
@@ -81,7 +81,12 @@ export async function bookTentative(slotId: string, lead: {
       return { booked: false, error: 'that time was just taken' };
     }
 
-    const doc = await firestore().collection(COLLECTION).add({
+    // Every read in this file has a deadline because a second of silence is
+    // expensive on a live call. This write had none — and it is the one that
+    // runs at the exact moment the caller says yes to a time. Measured against
+    // production it takes seconds, which was enough, with the e-mail after it,
+    // to push the whole reply past the platform's limit and drop the call.
+    const doc = await within(() => firestore().collection(COLLECTION).add({
       start: start.toISOString(),
       end: end.toISOString(),
       status: 'pending',
@@ -93,7 +98,7 @@ export async function bookTentative(slotId: string, lead: {
       service_type: lead.service_type || null,
       leadId: lead.leadId || null,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    }), 4000, 'appointment write');
 
     console.log('[schedule] held', doc.id, start.toISOString());
     return { booked: true, eventId: doc.id, start: start.toISOString(), end: end.toISOString() };
