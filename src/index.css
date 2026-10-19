@@ -40,6 +40,19 @@
   --color-accent-ink: #1e40af;
   --color-accent-soft: #eff6ff;
 
+  /* Motion. Browser defaults (`linear`, `ease-in-out`) read mechanical because
+     nothing in the physical world accelerates symmetrically. These leave fast
+     and settle slowly, which is what gives a panel the feeling of weight. */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-settle: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Elevation. A hard black shadow looks like a sticker; depth in daylight is
+     diffuse and tinted by what surrounds it, so these are slate-tinted and
+     layered — a tight contact shadow plus a wide ambient one. */
+  --shadow-panel: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.03);
+  --shadow-lift: 0 1px 2px rgb(15 23 42 / 0.05), 0 8px 24px -8px rgb(15 23 42 / 0.10);
+  --shadow-pop: 0 2px 4px rgb(15 23 42 / 0.05), 0 16px 40px -12px rgb(15 23 42 / 0.16);
+
   /* Type scale */
   --text-label-sm: 10px;
   --text-label-sm--line-height: 14px;

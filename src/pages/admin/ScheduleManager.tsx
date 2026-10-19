@@ -136,11 +136,11 @@ export default function ScheduleManager() {
               aria-label="Next month"
             ><ChevronRight size={17} /></button>
           </div>
-          <Button tone="quiet" size="md" onClick={() => {
+          <Button intent="neutral" variant="ghost" size="md" onClick={() => {
             setMonth(new Date(today.getFullYear(), today.getMonth(), 1));
             setSelected(today);
           }}>Today</Button>
-          <Button tone="primary" size="md" icon={<Plus size={16} />} onClick={() => { setAdding(true); setError(null); }}>
+          <Button intent="blue" size="md" icon={<Plus size={16} />} onClick={() => { setAdding(true); setError(null); }}>
             New job
           </Button>
         </div>
@@ -232,7 +232,7 @@ export default function ScheduleManager() {
             <div className="text-center py-10">
               <CalendarDays size={28} className="mx-auto text-slate-300 mb-3" />
               <p className="text-sm text-slate-500 mb-4">Nothing booked for this day.</p>
-              <Button tone="quiet" size="sm" icon={<Plus size={15} />} onClick={() => setAdding(true)}>
+              <Button intent="neutral" variant="ghost" size="sm" icon={<Plus size={15} />} onClick={() => setAdding(true)}>
                 Add a job
               </Button>
             </div>
@@ -273,12 +273,12 @@ export default function ScheduleManager() {
 
                   {a.status === 'pending' && (
                     <div className="flex gap-2">
-                      <Button tone="go" size="sm" icon={<Check size={15} />}
+                      <Button intent="green" size="sm" icon={<Check size={15} />}
                         busy={decide.isPending && decide.variables?.id === a.id && decide.variables.status === 'confirmed'}
                         onClick={() => decide.mutate({ id: a.id, status: 'confirmed' })}>
                         Confirm
                       </Button>
-                      <Button tone="quiet" size="sm" icon={<X size={15} />}
+                      <Button intent="neutral" variant="ghost" size="sm" icon={<X size={15} />}
                         busy={decide.isPending && decide.variables?.id === a.id && decide.variables.status === 'released'}
                         onClick={() => decide.mutate({ id: a.id, status: 'released' })}>
                         Release
@@ -369,8 +369,8 @@ function NewJobForm({ date, busy, onCancel, onSave }: {
       </div>
 
       <div className="flex gap-2 pt-1">
-        <Button type="submit" tone="primary" size="md" busy={busy} className="flex-1">Save job</Button>
-        <Button type="button" tone="ghost" size="md" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" intent="blue" size="md" busy={busy} className="flex-1">Save job</Button>
+        <Button type="button" intent="neutral" variant="bare" size="md" onClick={onCancel}>Cancel</Button>
       </div>
     </form>
   );
