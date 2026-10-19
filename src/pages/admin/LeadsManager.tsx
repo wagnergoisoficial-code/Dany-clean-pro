@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, UserCheck, CheckCircle2, Search, ArrowUpDown, Filter, Users, CalendarClock, X } from 'lucide-react';
+import { ExternalLink, UserCheck, CheckCircle2, Search, ArrowUpDown, Filter, Users, CalendarClock, X, Trash2, AlertCircle } from 'lucide-react';
+import { remove as removeDoc } from '../../lib/data';
 import { Lead, AuthState, Customer } from '../../types';
 import { cn } from '../../lib/utils';
 import { collection, query, orderBy, getDocs, doc, updateDoc, where, limit, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -16,6 +17,8 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
   const [expandedLeadId, setExpandedLeadId] = useState<string | number | null>(null);
+  // A delete that fails must say so on the page, not only in the console.
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Detect production environment
   const isProd = window.location.hostname === 'danycleanpro.com' || 
@@ -129,6 +132,20 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-leads'] });
     }
+  });
+
+  const deleteLead = useMutation({
+    mutationFn: async (id: string) => {
+      // Through the server, like every other write: deleting from the browser
+      // depends on the Firestore rules agreeing, and those live in a console
+      // this code cannot see.
+      await removeDoc('leads', String(id));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-leads'] });
+      setDeleteError(null);
+    },
+    onError: (err: any) => setDeleteError(err?.message || 'Nao foi possivel apagar o lead.'),
   });
 
   const convertToCustomer = useMutation({
@@ -300,6 +317,13 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
       </div>
       
       <div className="overflow-x-auto -mx-4 sm:mx-0">
+          {deleteError && (
+            <div className="flex items-start gap-3 bg-red-50 border border-red-100 text-red-700 px-4 py-3 mb-4">
+              <AlertCircle size={15} className="shrink-0 mt-0.5" />
+              <p className="text-sm">{deleteError}</p>
+            </div>
+          )}
+
           <table className="w-full text-left min-w-[800px] sm:min-w-full">
             <thead className="bg-surface-low text-label-sm text-ink-faint uppercase">
               <tr>
@@ -458,6 +482,22 @@ export default function LeadsManager({ auth }: LeadsManagerProps) {
                              disabled={convertToCustomer.isPending}
                            >
                              {convertToCustomer.isPending ? <div className="w-3.5 h-3.5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" /> : <UserCheck size={14} />}
+                           </button>
+                           <button
+                             onClick={() => {
+                               // Naming the lead in the question, because the
+                               // rows look alike and this cannot be undone.
+                               if (confirm(`Apagar o lead de ${lead.name || 'sem nome'} (${lead.phone || 'sem telefone'})? Nao da para desfazer.`)) {
+                                 deleteLead.mutate(String(lead.id));
+                               }
+                             }}
+                             className="p-2 bg-surface-low text-ink-muted hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center disabled:opacity-50"
+                             title="Apagar lead"
+                             disabled={deleteLead.isPending}
+                           >
+                             {deleteLead.isPending && deleteLead.variables === String(lead.id)
+                               ? <div className="w-3.5 h-3.5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                               : <Trash2 size={14} />}
                            </button>
                          </div>
                       </td>
