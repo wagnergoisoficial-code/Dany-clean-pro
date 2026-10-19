@@ -3,6 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserPlus, ShieldCheck, Trash2, AlertCircle, Check } from 'lucide-react';
 import { auth } from '../../lib/firebase';
 import { cn } from '../../lib/utils';
+import { PageHeader, Panel, PanelHeader, Empty, Skeleton } from '../../components/admin/ui/Panel';
+import { Badge } from '../../components/admin/ui/Table';
+import Button from '../../components/admin/ui/Button';
+import { Input } from '../../components/admin/ui/Field';
 
 interface AdminRecord {
   uid: string;
@@ -58,117 +62,94 @@ export default function TeamManager() {
   });
 
   return (
-    <div className="bg-surface border border-rule p-4 sm:p-8 animate-in fade-in duration-500">
-      <div className="mb-8">
-        <h3 className="font-bold text-xl sm:text-2xl text-ink">Team Access</h3>
-        <p className="text-sm text-ink-muted">
-          Quem pode abrir este painel. Nao existe cadastro aberto — uma conta so entra se for criada aqui.
-        </p>
-      </div>
+    <div className="animate-in fade-in duration-300 max-w-4xl">
+      <PageHeader
+        title="Team access"
+        hint="Who can open this panel. There is no public sign-up — an account only exists if it is created here."
+      />
 
       {/* Create */}
-      <form
-        onSubmit={e => { e.preventDefault(); setError(''); setDone(''); create.mutate(); }}
-        className="border border-rule bg-surface-low p-4 sm:p-6 mb-8"
-      >
-        <div className="flex items-center gap-2 mb-5">
-          <UserPlus size={15} className="text-accent" />
-          <span className="text-label-md uppercase text-ink">Dar acesso a alguem</span>
-        </div>
+      <Panel className="mb-5">
+      <form onSubmit={e => { e.preventDefault(); setError(''); setDone(''); create.mutate(); }}>
+        <PanelHeader title="Give someone access" hint="They sign in with the e-mail and password you set here." />
 
         <div className="grid sm:grid-cols-3 gap-4">
-          <label className="block">
-            <span className="block text-label-sm uppercase text-ink-muted mb-2">Nome</span>
-            <input
-              value={name} onChange={e => setName(e.target.value)}
-              placeholder="Dany"
-              className="w-full bg-surface border border-rule px-3 py-2.5 text-ink text-sm focus:border-accent focus:outline-none"
-            />
-          </label>
-          <label className="block">
-            <span className="block text-label-sm uppercase text-ink-muted mb-2">E-mail</span>
-            <input
-              type="email" required value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="dany@danycleanpro.com"
-              className="w-full bg-surface border border-rule px-3 py-2.5 text-ink text-sm focus:border-accent focus:outline-none"
-            />
-          </label>
-          <label className="block">
-            <span className="block text-label-sm uppercase text-ink-muted mb-2">Senha (min. 10)</span>
-            <input
-              type="password" required minLength={10} value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••••"
-              className="w-full bg-surface border border-rule px-3 py-2.5 text-ink text-sm focus:border-accent focus:outline-none"
-            />
-          </label>
+          <Input label="Name" value={name} onChange={e => setName(e.target.value)} placeholder="Dany" />
+          <Input label="E-mail" type="email" required value={email}
+                 onChange={e => setEmail(e.target.value)} placeholder="dany@danycleanpro.com" />
+          <Input label="Password" type="password" required minLength={10} value={password}
+                 onChange={e => setPassword(e.target.value)} placeholder="At least 10 characters"
+                 hint="They can change it later." />
         </div>
 
-        <button
-          type="submit" disabled={create.isPending}
-          className="mt-5 inline-flex items-center gap-2 bg-ink text-surface hover:bg-accent transition-colors text-label-md uppercase px-6 py-3 disabled:opacity-50"
-        >
-          {create.isPending ? 'Criando…' : 'Criar acesso'}
-        </button>
-
-        {error && (
-          <p className="mt-4 flex items-start gap-2 text-sm text-red-600">
-            <AlertCircle size={15} className="shrink-0 mt-0.5" /> {error}
-          </p>
-        )}
-        {done && (
-          <p className="mt-4 flex items-start gap-2 text-sm text-accent">
-            <Check size={15} className="shrink-0 mt-0.5" /> {done}
-          </p>
-        )}
+        <div className="flex items-center gap-3 mt-5">
+          <Button type="submit" intent="blue" busy={create.isPending} icon={<UserPlus size={16} />}>
+            Create access
+          </Button>
+          {error && (
+            <p className="flex items-start gap-1.5 text-[13px] text-red-600">
+              <AlertCircle size={14} className="shrink-0 mt-0.5" /> {error}
+            </p>
+          )}
+          {done && (
+            <p className="flex items-start gap-1.5 text-[13px] text-emerald-700">
+              <Check size={14} className="shrink-0 mt-0.5" /> {done}
+            </p>
+          )}
+        </div>
       </form>
+      </Panel>
 
       {/* List */}
+      <Panel>
+      <PanelHeader title="Who has access" />
       {isLoading ? (
-        <div className="text-ink-faint italic py-8">Carregando…</div>
+        <div className="space-y-2">{[0, 1].map(i => <Skeleton key={i} className="h-14" />)}</div>
       ) : (
-        <div className="divide-y divide-rule border-t border-rule">
+        <div className="divide-y divide-slate-900/[0.05]">
           {data?.admins?.map(person => {
             const isYou = person.uid === data.you;
             return (
               <div key={person.uid} className="flex items-center justify-between gap-4 py-4">
                 <div className="flex items-start gap-3 min-w-0">
-                  <ShieldCheck size={15} className="text-accent shrink-0 mt-1" />
+                  <ShieldCheck size={16} className="text-slate-400 shrink-0 mt-0.5" />
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-bold text-ink truncate">{person.name || person.email}</span>
-                      {isYou && <span className="text-label-sm uppercase text-accent">voce</span>}
+                      <span className="text-sm font-bold text-slate-900 truncate">{person.name || person.email}</span>
+                      {isYou && <Badge tone="blue">you</Badge>}
                     </div>
-                    <span className="block text-sm text-ink-muted truncate">{person.email}</span>
+                    <span className="block text-[13px] text-slate-500 truncate">{person.email}</span>
                     {person.createdBy && (
-                      <span className="block text-label-sm uppercase text-ink-faint mt-1">
-                        criado por {person.createdBy}
+                      <span className="block text-[12px] text-slate-400 mt-0.5">
+                        added by {person.createdBy}
                       </span>
                     )}
                   </div>
                 </div>
                 <button
                   onClick={() => {
-                    if (confirm(`Remover o acesso de ${person.email}? A conta continua a existir, mas deixa de abrir o painel.`)) {
+                    if (confirm(`Remove access for ${person.email}? The account stays, but it will no longer open this panel.`)) {
                       revoke.mutate(person.uid);
                     }
                   }}
                   disabled={isYou || revoke.isPending}
-                  title={isYou ? 'Nao pode remover o seu proprio acesso' : 'Remover acesso'}
+                  title={isYou ? 'You cannot remove your own access' : 'Remove access'}
                   className={cn(
-                    'p-2 transition-colors shrink-0',
-                    isYou ? 'text-ink-faint cursor-not-allowed' : 'text-ink-muted hover:text-red-600',
+                    'w-9 h-9 grid place-items-center rounded-lg transition-colors duration-150 shrink-0',
+                    isYou ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:bg-red-50 hover:text-red-600',
                   )}
                 >
-                  <Trash2 size={15} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             );
           })}
           {!data?.admins?.length && (
-            <p className="text-ink-faint italic py-8 text-center bg-surface-low">Nenhum administrador listado.</p>
+            <Empty icon={<ShieldCheck size={19} />} title="Nobody listed yet" />
           )}
         </div>
       )}
+      </Panel>
     </div>
   );
 }

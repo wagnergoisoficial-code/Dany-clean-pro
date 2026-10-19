@@ -142,14 +142,14 @@ export default function LogoUpload({ onLogoChange, className }: LogoUploadProps)
     >
       <div className={cn(
         "w-24 h-24 flex items-center justify-center overflow-hidden transition-all duration-300 relative border-2 border-dashed",
-        preview ? "bg-surface border-transparent": "bg-accent-soft border-rule hover:border-blue-400"
+        preview ? "bg-white border-transparent": "bg-blue-50 border-slate-200 hover:border-blue-400"
       )}>
         {preview ? (
           <img src={preview} alt="Logo Preview" className="w-full h-full object-contain p-2" />
         ) : (
-          <div className="flex flex-col items-center gap-2 text-ink-faint">
+          <div className="flex flex-col items-center gap-2 text-slate-400">
             <Camera size={24} />
-            <span className="text-label-sm uppercase text-center">Add Logo</span>
+            <span className="text-[11px] font-semibold text-center">Add Logo</span>
           </div>
         )}
         
@@ -164,14 +164,14 @@ export default function LogoUpload({ onLogoChange, className }: LogoUploadProps)
           <div className="absolute inset-0 bg-ink/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
             <button 
               onClick={handleDownload}
-              className="p-2 bg-surface text-ink hover:bg-accent hover:text-white transition-all transform hover:scale-110"
+              className="w-9 h-9 grid place-items-center rounded-lg bg-white text-slate-700 hover:bg-blue-600 hover:text-white transition-colors duration-150"
               title="Download Logo"
             >
               <Download size={16} />
             </button>
             <button 
               onClick={handleClear}
-              className="p-2 bg-surface text-ink hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
+              className="w-9 h-9 grid place-items-center rounded-lg bg-white text-slate-700 hover:bg-red-600 hover:text-white transition-colors duration-150"
               title="Remove Logo"
             >
               <Trash2 size={16} />

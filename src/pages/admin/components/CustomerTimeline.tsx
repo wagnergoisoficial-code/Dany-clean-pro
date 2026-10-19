@@ -35,11 +35,11 @@ export default function CustomerTimeline({ customerId }: CustomerTimelineProps) 
   const getEventStyles = (type: TimelineEvent['type']) => {
     switch (type) {
       case 'customer_created': return { icon: UserPlus, color: 'text-green-600', bg: 'bg-green-50' };
-      case 'converted_from_lead': return { icon: CheckCircle2, color: 'text-accent', bg: 'bg-accent-soft' };
+      case 'converted_from_lead': return { icon: CheckCircle2, color: 'text-blue-600', bg: 'bg-blue-50' };
       case 'status_changed': return { icon: RotateCcw, color: 'text-amber-600', bg: 'bg-amber-50' };
-      case 'notes_updated': return { icon: Info, color: 'text-ink-muted', bg: 'bg-surface-low' };
+      case 'notes_updated': return { icon: Info, color: 'text-slate-500', bg: 'bg-slate-50' };
       case 'customer_updated': return { icon: HistoryIcon, color: 'text-indigo-600', bg: 'bg-indigo-50' };
-      default: return { icon: Info, color: 'text-ink-faint', bg: 'bg-surface-low' };
+      default: return { icon: Info, color: 'text-slate-400', bg: 'bg-slate-50' };
     }
   };
 
@@ -50,7 +50,7 @@ export default function CustomerTimeline({ customerId }: CustomerTimelineProps) 
   };
 
   if (isLoading) {
-    return <div className="py-10 text-center text-ink-faint text-sm animate-pulse">Loading timeline...</div>;
+    return <div className="py-10 text-center text-slate-400 text-sm animate-pulse">Loading timeline...</div>;
   }
 
   if (error) {
@@ -64,18 +64,18 @@ export default function CustomerTimeline({ customerId }: CustomerTimelineProps) 
 
   if (!events || events.length === 0) {
     return (
-      <div className="py-20 text-center bg-surface-low border border-dashed border-rule">
-        <div className="w-12 h-12 bg-surface flex items-center justify-center mx-auto mb-4 text-ink-faint">
+      <div className="py-20 text-center bg-slate-50 border border-dashed border-slate-900/[0.07]">
+        <div className="w-12 h-12 bg-white flex items-center justify-center mx-auto mb-4 text-slate-400">
           <HistoryIcon size={24} />
         </div>
-        <p className="text-ink-muted font-medium">No history available</p>
-        <p className="text-ink-faint text-xs mt-1">Operational logs will appear here as they are registered.</p>
+        <p className="text-slate-500 font-medium">No history available</p>
+        <p className="text-slate-400 text-xs mt-1">Operational logs will appear here as they are registered.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-px before:bg-surface-mid">
+    <div className="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-px before:bg-slate-100">
       {events.map((event) => {
         const styles = getEventStyles(event.type);
         return (
@@ -88,17 +88,17 @@ export default function CustomerTimeline({ customerId }: CustomerTimelineProps) 
               <styles.icon size={16} />
             </div>
             
-            <div className="bg-surface p-5 border border-rule transition-all group-hover:translate-x-1">
+            <div className="bg-white p-5 border border-slate-900/[0.07] transition-all group-hover:translate-x-1">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <h5 className="font-bold text-ink text-sm">{event.title}</h5>
-                <span className="text-label-sm text-ink-faint uppercase flex items-center gap-1">
+                <h5 className="font-bold text-slate-900 text-sm">{event.title}</h5>
+                <span className="text-label-sm text-slate-400 uppercase flex items-center gap-1">
                   <Clock size={10} /> {formatDate(event.createdAt)}
                 </span>
               </div>
-              <p className="text-ink-muted text-sm leading-relaxed">{event.description}</p>
+              <p className="text-slate-500 text-sm leading-relaxed">{event.description}</p>
               {event.createdBy && (
-                <div className="mt-3 pt-3 border-t border-rule flex items-center gap-2 text-label-sm text-ink-faint uppercase">
-                  <UserPlus size={10} /> Executed by: <span className="text-ink">{event.createdBy}</span>
+                <div className="mt-3 pt-3 border-t border-slate-900/[0.07] flex items-center gap-2 text-label-sm text-slate-400 uppercase">
+                  <UserPlus size={10} /> Executed by: <span className="text-slate-900">{event.createdBy}</span>
                 </div>
               )}
             </div>

@@ -130,14 +130,11 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
     <div className={cn("w-full mb-12", className)}>
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-accent-ink flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
-            MAIN HERO IMAGE
+          <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
+            Current photo
           </h4>
-          <p className="text-xs text-ink-muted mt-0.5">Controls the main homepage hero banner only</p>
-        </div>
-        <div className="text-label-sm uppercase text-accent bg-accent-soft px-3 py-1 border border-accent/20">
-          Blue Theme • Hero Core
+          <p className="text-xs text-slate-500 mt-0.5">Appears behind the headline on the home page</p>
         </div>
       </div>
 
@@ -160,14 +157,14 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
             <div className="absolute inset-0 bg-ink/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                <button 
                  onClick={handleDownload}
-                 className="p-3 bg-surface text-ink hover:bg-accent hover:text-white transition-all transform hover:scale-110"
+                 className="w-10 h-10 grid place-items-center rounded-lg bg-white text-slate-700 hover:bg-blue-600 hover:text-white transition-colors duration-150"
                  title="Download Cover"
                >
                  <Download size={20} />
                </button>
                <button 
                  onClick={handleClear}
-                 className="p-3 bg-surface text-ink hover:bg-red-600 hover:text-white transition-all transform hover:scale-110"
+                 className="w-10 h-10 grid place-items-center rounded-lg bg-white text-slate-700 hover:bg-red-600 hover:text-white transition-colors duration-150"
                  title="Remove Cover"
                >
                  <Trash2 size={20} />
@@ -177,14 +174,14 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
             {/* Action Badge */}
             <div className="absolute top-6 right-6 flex items-center gap-2">
                {isSaving && (
-                 <div className="px-4 py-2 bg-accent text-white flex items-center gap-2 text-label-sm uppercase animate-pulse">
-                   <div className="w-2 h-2 rounded-full bg-surface border-2 border-white/30 border-t-transparent animate-spin" />
+                 <div className="px-4 py-2 bg-blue-600 text-white flex items-center gap-2 text-[11px] font-semibold animate-pulse rounded-lg">
+                   <div className="w-2 h-2 rounded-full bg-white border-2 border-white/30 border-t-transparent animate-spin" />
                    Saving...
                  </div>
                )}
-               <div className="px-4 py-2 bg-white/95 backdrop-blur-md border border-white/20 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                  <span className="text-label-sm uppercase text-ink">MAIN HERO ACTIVE [LIVE]</span>
+               <div className="px-4 py-2 bg-white/95 backdrop-blur-md border border-white/20 flex items-center gap-2 rounded-lg">
+                  <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                  <span className="text-[11px] font-semibold text-slate-700">Live on the site</span>
                </div>
             </div>
           </>
@@ -198,19 +195,19 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
             />
             <div className="flex flex-col items-center gap-4 text-center px-6 relative z-10">
               {isSaving && (
-                <div className="absolute top-6 right-6 px-4 py-2 bg-accent text-white flex items-center gap-2 text-label-sm uppercase animate-pulse z-20">
-                  <div className="w-2 h-2 rounded-full bg-surface border-2 border-white/30 border-t-transparent animate-spin" />
+                <div className="absolute top-6 right-6 px-4 py-2 bg-blue-600 text-white flex items-center gap-2 text-[11px] font-semibold animate-pulse z-20 rounded-lg">
+                  <div className="w-2 h-2 rounded-full bg-white border-2 border-white/30 border-t-transparent animate-spin" />
                   Saving...
                 </div>
               )}
-              <div className="w-16 h-16 bg-ink flex items-center justify-center text-accent group-hover:text-accent group-hover:scale-110 transition-all duration-500">
+              <div className="w-16 h-16 bg-ink flex items-center justify-center text-blue-600 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-500">
                  <Upload size={28} />
               </div>
               <div>
                 <p className="text-lg font-display font-bold text-white">Upload Hero Cover</p>
-                <p className="text-label-md uppercase text-ink-faint mt-1">Recommended: 1920x1080 (CT Mansion Yard)</p>
+                <p className="text-[12px] font-semibold text-slate-400 mt-1">Landscape, at least 1600px wide</p>
               </div>
-              <button className="mt-2 bg-accent text-white px-6 py-3 text-label-sm uppercase">
+              <button className="mt-2 bg-blue-600 text-white px-6 py-3 text-[11px] font-semibold rounded-lg">
                  Select Cover Image
               </button>
             </div>
@@ -229,13 +226,13 @@ export default function HeroCoverUploader({ className }: HeroCoverUploaderProps)
       {/* Floating Meta Info if cover exists / fallback info */}
       <div className="flex justify-between items-center mt-4 px-4">
          <div className="flex items-center gap-2">
-            <ImageIcon size={14} className="text-accent" />
-            <span className="text-[11px] font-semibold text-ink-faint">Fallback: Premium CT Exterior House</span>
+            <ImageIcon size={14} className="text-blue-600" />
+            <span className="text-[11px] font-semibold text-slate-400">Showing the built-in photo</span>
          </div>
          {coverImage && (
            <button 
              onClick={handleDownload}
-             className="text-label-sm uppercase text-accent hover:text-accent-ink flex items-center gap-2"
+             className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-2"
            >
              Download Current Cover <Download size={14} />
            </button>

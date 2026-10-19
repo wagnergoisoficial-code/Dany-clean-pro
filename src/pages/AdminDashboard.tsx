@@ -94,11 +94,11 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
   ];
 
   return (
-    <div className="min-h-screen bg-surface-low flex">
+    <div className="min-h-screen bg-slate-50 flex">
       {/* Mobile Drawer Backdrop */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-ink/50 z-40 lg:hidden backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden backdrop-blur-[2px]"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -125,36 +125,8 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
           hasError={!!leadsError}
         />
 
-        <div className="p-4 sm:p-8 overflow-y-auto">
-          {/* Diagnostic Banner */}
-          {(process.env.NODE_ENV !== 'production' || fbUser) && (
-            <div className="mb-4 p-4 bg-surface-mid text-[10px] font-mono whitespace-pre-wrap break-all border border-rule">
-              CRM OPERATIONAL NODE v1.0 | 
-              FB User: {fbUser ? `${fbUser.email}` : 'NULL'} | 
-              API Status: {leadsError ? 'ERROR' : 'OK'}
-            </div>
-          )}
-
-          {!fbUser && (
-            <div className="mb-8 bg-accent-soft border border-accent/20 p-6 flex flex-col md:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="flex items-center gap-4 text-accent-ink">
-                <div className="w-12 h-12 bg-surface flex items-center justify-center text-accent shrink-0">
-                  <Globe size={24} />
-                </div>
-                <div>
-                  <h4 className="font-bold whitespace-nowrap">Connect Your Google Account</h4>
-                  <p className="text-sm text-accent-ink">To save settings and manage real-time data, you need to be authenticated via Firebase.</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => navigate('/admin/login')}
-                className="bg-accent text-white px-6 py-3 font-bold text-sm hover:bg-accent-strong transition-all shrink-0 w-full md:w-auto"
-              >
-                Connect Now
-              </button>
-            </div>
-          )}
-
+        <div className="flex-grow overflow-y-auto">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
           <Routes>
             <Route index element={<Overview leads={leads || []} isLoading={isLoading} />} />
             <Route path="leads" element={<LeadsManager auth={auth} />} />
@@ -166,6 +138,7 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
             <Route path="settings" element={<SettingsManager />} />
             <Route path="team" element={<TeamManager />} />
           </Routes>
+          </div>
         </div>
       </main>
     </div>

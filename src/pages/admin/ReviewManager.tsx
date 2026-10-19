@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Star, Eye, EyeOff, Trash2, MessageSquare } from 'lucide-react';
+import { PageHeader, Panel, Empty, Skeleton } from '../../components/admin/ui/Panel';
 import { Review, AuthState } from '../../types';
 import { cn } from '../../lib/utils';
 import { collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -110,54 +111,61 @@ export default function ReviewManager({ auth }: ReviewManagerProps) {
   });
 
   return (
-    <div className="bg-surface border border-rule p-4 sm:p-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h3 className="font-bold text-xl sm:text-2xl text-ink">Review Moderation</h3>
-          <p className="text-sm text-ink-muted">Manage customer feedback visibility on your site.</p>
-        </div>
-      </div>
+    <div className="animate-in fade-in duration-300 max-w-4xl">
+      <PageHeader
+        title="Reviews"
+        hint="What customers wrote. Published ones appear on your site; the rest stay here."
+      />
+      <Panel>
 
       {isLoading ? (
-        <div className="text-ink-faint italic py-8">Loading reviews...</div>
+        <div className="space-y-2">{[0, 1, 2].map(i => <Skeleton key={i} className="h-24" />)}</div>
       ) : (
-        <div className="space-y-4">
-          {reviews?.length === 0 && <p className="text-ink-faint italic py-8 text-center bg-surface-low">No reviews yet.</p>}
+        <div className="space-y-3">
+          {reviews?.length === 0 && (
+            <Empty
+              icon={<MessageSquare size={19} />}
+              title="No reviews yet"
+              hint="Ask a customer you have just finished with — that is when they are most willing."
+            />
+          )}
           {reviews?.map((review: any) => {
             const isPublished = review.isPublished !== undefined ? review.isPublished : review.is_published;
             return (
               <div key={review.id} className={cn(
-                "p-4 sm:p-6 border transition-all",
-                isPublished ? "bg-surface border-rule": "bg-surface-low border-rule opacity-60"
+                "p-4 rounded-xl ring-1 transition-colors duration-150",
+                isPublished ? "bg-white ring-slate-900/[0.07]" : "bg-slate-50/70 ring-slate-900/[0.05]"
               )}>
                 <div className="flex justify-between items-start gap-4">
                   <div className="min-w-0 flex-grow">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                       <span className="font-bold text-ink truncate">{review.author}</span>
-                       <div className="flex text-amber-500">
+                       <span className="text-sm font-bold text-slate-900 truncate">{review.author}</span>
+                       <div className="flex gap-0.5 text-amber-400">
                          {[...Array(review.rating)].map((_, i) => <Star key={i} size={10} fill="currentColor" />)}
                        </div>
                     </div>
-                    <p className="text-xs sm:text-sm text-ink-muted mb-2">{review.comment}</p>
-                    <span className="text-label-sm text-ink-faint uppercase">{review.date}</span>
+                    <p className="text-[13px] text-slate-600 leading-relaxed mb-2">{review.comment}</p>
+                    <span className="text-[12px] text-slate-400 tabular-nums">{review.date}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => toggleReview.mutate(review)}
                       className={cn(
-                        "p-2 transition-all",
-                        isPublished ? "bg-accent-soft text-accent hover:bg-accent-soft": "bg-surface-high text-ink-muted hover:bg-surface-high"
+                        "w-9 h-9 grid place-items-center rounded-lg transition-colors duration-150",
+                        isPublished
+                          ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       )}
                       title={isPublished ? "Unpublish Review" : "Publish Review"}
                     >
-                      {isPublished ? <Eye size={18} /> : <EyeOff size={18} />}
+                      {isPublished ? <Eye size={16} /> : <EyeOff size={16} />}
                     </button>
                     <button 
                       onClick={() => { if(confirm('Are you sure you want to delete this review?')) deleteReview.mutate(String(review.id)) }}
-                      className="p-2 bg-red-50 text-red-600 hover:bg-red-100 transition-all"
-                      title="Delete Review"
+                      className="w-9 h-9 grid place-items-center rounded-lg bg-white text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150"
+                      title="Delete review"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
@@ -166,6 +174,7 @@ export default function ReviewManager({ auth }: ReviewManagerProps) {
           })}
         </div>
       )}
+      </Panel>
     </div>
   );
 }

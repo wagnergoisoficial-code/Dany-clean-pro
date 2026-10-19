@@ -425,7 +425,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
     return {
       label: "Aguardar resposta",
       icon: Clock,
-      color: "text-ink-muted bg-surface-low border-rule",
+      color: "text-slate-500 bg-slate-50 border-slate-900/[0.07]",
       pillColor: "bg-ink-faint",
       description: "Interações em andamento ou lead aguardando retorno natural (ex: envio de fotos adicionais do imóvel)."
     };
@@ -1433,7 +1433,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-ink-muted font-medium">Carregando painel financeiro e insights...</p>
+        <p className="text-slate-500 font-medium">Carregando painel financeiro e insights...</p>
       </div>
     );
   }
@@ -1445,15 +1445,15 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold text-ink tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
               <Target className="text-indigo-600" size={28} />
               Command Center Comercial
             </h1>
-            <span className="bg-indigo-50 text-indigo-700 text-label-sm uppercase px-2 py-0.5 border border-indigo-100">
+            <span className="bg-indigo-50 text-indigo-700 text-[11px] font-semibold px-2 py-0.5 border border-indigo-100 rounded-lg">
               Passivo • Manual
             </span>
           </div>
-          <p className="text-ink-muted text-label-md uppercase">
+          <p className="text-slate-500 text-[12px] font-semibold">
             Priorização Baseada em IA • Sem Envio Automático & Rastreamento Manual de Vendas
           </p>
         </div>
@@ -1466,16 +1466,16 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               "flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer",
               showDossier 
                 ? "bg-ink border-white/10 text-white hover:bg-ink" 
-                : "bg-surface border-rule text-ink-soft hover:bg-surface-low hover:border-rule"
+                : "bg-white border-slate-900/[0.07] text-slate-600 hover:bg-slate-50 hover:border-slate-900/[0.07]"
             )}
           >
             <Sparkles size={14} className={cn("text-indigo-500", showDossier && "animate-spin-slow")} />
             {showDossier ? "Fechar Dossiê" : "📑 Dossiê de Prontidão"}
           </button>
 
-          <div className="flex items-center gap-2 bg-surface-mid border border-rule px-4 py-2 text-ink-muted max-w-sm">
+          <div className="flex items-center gap-2 bg-slate-100 border border-slate-900/[0.07] px-4 py-2 text-slate-500 max-w-sm rounded-lg">
             <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0" />
-            <p className="text-[11px] font-medium leading-tight text-ink-muted">
+            <p className="text-[11px] font-medium leading-tight text-slate-500">
               <strong>Modo 100% Consultivo:</strong> Nenhuma alteração é enviada a clientes. Digite e marque manualmente o progresso de cada negócio.
             </p>
           </div>
@@ -1494,7 +1494,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-5">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="bg-indigo-500/10 text-indigo-400 text-label-sm uppercase px-2.5 py-1 border border-indigo-500/20">
+                  <span className="bg-indigo-500/10 text-indigo-400 text-[11px] font-semibold px-2.5 py-1 border border-indigo-500/20 rounded-lg">
                     Dossiê Estratégico do CRM v2.0
                   </span>
                   <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
@@ -1502,7 +1502,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
                   Dossiê Operacional & Diagnóstico de Prontidão Comercial
                 </h2>
-                <p className="text-xs text-ink-faint">
+                <p className="text-xs text-slate-400">
                   Explicação integral dos recursos ativos, classificação de impacto de receita e testes de estresse em escala.
                 </p>
               </div>
@@ -1524,7 +1524,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         "px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer",
                         dossierTab === tab 
                           ? "bg-indigo-600 text-white " 
-                          : "text-ink-faint hover:text-white hover:bg-ink"
+                          : "text-slate-400 hover:text-white hover:bg-ink"
                       )}
                     >
                       {labels[tab]}
@@ -1557,13 +1557,13 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         "text-[9px] px-1.5 py-0.5 font-bold uppercase",
                         item.category === 'A' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20":
                         item.category === 'B' ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20":
-                        "bg-ink text-ink-faint"
+                        "bg-ink text-slate-400"
                       )}>
                         Cat. {item.category}
                       </span>
                     </div>
                     <p className="text-xs font-bold text-white">{item.title}</p>
-                    <p className="text-[11px] text-ink-faint leading-relaxed">{item.desc}</p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">{item.desc}</p>
                     <div className="flex items-center gap-1.5 pt-1 text-[10px] font-semibold text-emerald-400">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       {item.status}
@@ -1583,7 +1583,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       Por que o CRM está pronto para receber Leads hoje?
                     </h3>
                     
-                    <div className="space-y-3.5 text-xs text-ink-faint leading-relaxed">
+                    <div className="space-y-3.5 text-xs text-slate-400 leading-relaxed">
                       <p>
                         <strong>1. Escalabilidade de Rede & Render:</strong> Todos os cálculos estatísticos de conversão de score, LTV, ARR e distribuição de objeções são executados em <code>Memoized Hooks</code> assíncronos. Isso garante carregamento instantâneo mesmo com milhares de registros sem estourar o limite de render do React.
                       </p>
@@ -1599,14 +1599,14 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   {/* Real interactive stress tester button */}
                   <div className="bg-gradient-to-r from-indigo-950 to-ink p-5 border border-indigo-900/60 space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-label-md uppercase text-indigo-300">
+                      <h4 className="text-[12px] font-semibold text-indigo-300">
                         Simulador Real de Alta Escala
                       </h4>
-                      <span className="bg-indigo-900/55 text-indigo-300 text-label-sm uppercase px-2 py-0.5">
+                      <span className="bg-indigo-900/55 text-indigo-300 text-[11px] font-semibold px-2 py-0.5 rounded-lg">
                         Stress Test • Client Runtime
                       </span>
                     </div>
-                    <p className="text-[11px] text-ink-faint">
+                    <p className="text-[11px] text-slate-400">
                       Dispare uma validação de performance em lote para testar o comportamento do CRM renderizando <strong>5.000 novos leads</strong> cadastrados simultaneamente no banco.
                     </p>
 
@@ -1614,7 +1614,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       {simulationStage === 'idle' && (
                         <button
                           onClick={handleRunSimulation}
-                          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-label-md uppercase py-2.5 px-4 transition-all cursor-pointer"
+                          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-[12px] font-semibold py-2.5 px-4 transition-all cursor-pointer"
                         >
                           Iniciar Teste de Estresse das Rotas
                         </button>
@@ -1634,7 +1634,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                       {simulationStage === 'success' && (
                         <div className="bg-emerald-950/40 border border-emerald-900/60 p-3.5 space-y-2 animate-in zoom-in-95">
-                          <div className="flex items-center gap-2 text-emerald-400 text-label-md uppercase">
+                          <div className="flex items-center gap-2 text-emerald-400 text-[12px] font-semibold">
                             <Check className="shrink-0 text-emerald-400 w-4 h-4" />
                             CRM VALIDADO PARA ESCALA (100% OK)
                           </div>
@@ -1660,7 +1660,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                   <div className="space-y-4">
                     <div>
-                      <div className="flex justify-between items-center text-label-sm text-ink-faint uppercase mb-1">
+                      <div className="flex justify-between items-center text-label-sm text-slate-400 uppercase mb-1">
                         <span>Tempo médio de onboarding</span>
                         <span className="text-white font-mono">15 segundos</span>
                       </div>
@@ -1670,7 +1670,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                     </div>
 
                     <div>
-                      <div className="flex justify-between items-center text-label-sm text-ink-faint uppercase mb-1">
+                      <div className="flex justify-between items-center text-label-sm text-slate-400 uppercase mb-1">
                         <span>Capacidade de leitura / min</span>
                         <span className="text-white font-mono">&gt; 12.000 ops</span>
                       </div>
@@ -1680,7 +1680,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                     </div>
 
                     <div>
-                      <div className="flex justify-between items-center text-label-sm text-ink-faint uppercase mb-1">
+                      <div className="flex justify-between items-center text-label-sm text-slate-400 uppercase mb-1">
                         <span>Risco de duplicidade de chamadas</span>
                         <span className="text-white font-mono">0% (Isolado)</span>
                       </div>
@@ -1690,7 +1690,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                     </div>
                   </div>
 
-                  <p className="text-[11px] text-ink-faint leading-relaxed bg-indigo-500/5 p-3 border border-indigo-500/10">
+                  <p className="text-[11px] text-slate-400 leading-relaxed bg-indigo-500/5 p-3 border border-indigo-500/10">
                     O CRM foi auditado e está pronto para o lançamento com tráfego pago ativo. O banco de dados responderá de imediato sem conflito de concorrências.
                   </p>
                 </div>
@@ -1705,26 +1705,26 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   Oportunidades Recomendadas de Robustez Adicional
                 </h3>
                 
-                <p className="text-xs text-ink-faint">
+                <p className="text-xs text-slate-400">
                   Embora esteja 100% operacional, para operar na casa dos <strong>milhares de leads diários de maneira ultra automatizada</strong>, sugerimos habilitar gradativamente nas próximas fases:
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                   <div className="bg-ink p-4 border border-indigo-950 space-y-2">
                     <p className="text-label-md text-rose-400 uppercase">⚡ 1. Desencadeadores de Webhooks</p>
-                    <p className="text-[11px] text-ink-faint leading-relaxed">
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
                       Sincronização passiva avisando ferramentas operacionais quando leads são assinalados como &quot;Ganhos&quot; para delegar ordens de serviço instantâneas à equipe física de limpeza.
                     </p>
                   </div>
                   <div className="bg-ink p-4 border border-indigo-950 space-y-2">
                     <p className="text-label-md text-indigo-400 uppercase">📂 2. Agrupador de Datas Avançado</p>
-                    <p className="text-[11px] text-ink-faint leading-relaxed">
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
                       Criação de filtros trimestrais de Leads no Command Center para arquivar e ocultar negociações finalizadas de temporadas passadas, mantendo a visualização principal sempre ágil.
                     </p>
                   </div>
                   <div className="bg-ink p-4 border border-indigo-950 space-y-2">
                     <p className="text-label-md text-amber-400 uppercase">📈 3. Relatórios PDF Automatizados</p>
-                    <p className="text-[11px] text-ink-faint leading-relaxed">
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
                       Envio de um relatório semanal formatado por email resumindo a eficácia do Lead Score e as objeções mais registradas para que você revise a eficácia das campanhas sem precisar abrir o painel.
                     </p>
                   </div>
@@ -1739,7 +1739,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   <h3 className="text-label-md text-indigo-400 uppercase mb-2">
                     Auditoria de Impacto Comercial Direto
                   </h3>
-                  <p className="text-xs text-ink-faint leading-relaxed">
+                  <p className="text-xs text-slate-400 leading-relaxed">
                     Classificação analítica dos nossos recursos. Os de Cerveja da Categoria <strong>A</strong> criam receita de forma imediata porque guiam o encerramento do negócio. A Categoria <strong>B</strong> serve como impulsionadora de velocidade e entendimento de leads. A Categoria <strong>C</strong> fornece sustentação de longo prazo e análise estatística.
                   </p>
                 </div>
@@ -1747,7 +1747,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border border-white/10 overflow-hidden">
                     <thead>
-                      <tr className="bg-ink text-ink-faint uppercase text-label-sm border-b border-white/10">
+                      <tr className="bg-ink text-slate-400 uppercase text-label-sm border-b border-white/10">
                         <th className="p-3">Módulo de CRM</th>
                         <th className="p-3">Categoria</th>
                         <th className="p-3">Foco Estratégico</th>
@@ -1758,44 +1758,44 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       <tr>
                         <td className="p-3 text-white font-bold">Hot Leads & Prioridade</td>
                         <td className="p-3 text-emerald-400">A) Gera receita diretamente</td>
-                        <td className="p-3 text-ink-faint">Tempo de Resposta Primeiras Horas</td>
+                        <td className="p-3 text-slate-400">Tempo de Resposta Primeiras Horas</td>
                         <td className="p-3 text-emerald-400 font-mono font-bold">+25% Acerto de Conversão</td>
                       </tr>
                       <tr>
                         <td className="p-3 text-white font-bold">Sales Execution Tracker</td>
                         <td className="p-3 text-emerald-400">A) Gera receita diretamente</td>
-                        <td className="p-3 text-ink-faint">Acompanhamento e Contato Manual</td>
+                        <td className="p-3 text-slate-400">Acompanhamento e Contato Manual</td>
                         <td className="p-3 text-emerald-400 font-mono font-bold">+18% Redução de Perda</td>
                       </tr>
                       <tr>
                         <td className="p-3 text-white font-bold">LTV & Recorrência Anual</td>
                         <td className="p-3 text-emerald-400">A) Gera receita diretamente</td>
-                        <td className="p-3 text-ink-faint">Multiplicação de Contratos Recorrentes</td>
+                        <td className="p-3 text-slate-400">Multiplicação de Contratos Recorrentes</td>
                         <td className="p-3 text-emerald-400 font-mono font-bold">+35% ARR recorrente</td>
                       </tr>
                       <tr>
                         <td className="p-3 text-white font-bold">Lead Score Preditivo</td>
                         <td className="p-3 text-indigo-400">B) Ajuda a gerar receita</td>
-                        <td className="p-3 text-ink-faint">Inteligência de Abordagem do Cliente</td>
+                        <td className="p-3 text-slate-400">Inteligência de Abordagem do Cliente</td>
                         <td className="p-3 text-indigo-300 font-mono">+15% Eficiência produtiva</td>
                       </tr>
                       <tr>
                         <td className="p-3 text-white font-bold">AI Executive Summary</td>
                         <td className="p-3 text-indigo-400">B) Ajuda a gerar receita</td>
-                        <td className="p-3 text-ink-faint">Leitura Ultra veloz (Onboarding)</td>
+                        <td className="p-3 text-slate-400">Leitura Ultra veloz (Onboarding)</td>
                         <td className="p-3 text-indigo-300 font-mono">-40% Tempo gasto lendo descrições</td>
                       </tr>
                       <tr>
                         <td className="p-3 text-white font-bold">Motivos de Objeções</td>
-                        <td className="p-3 text-ink-faint">C) Apenas análise executiva</td>
-                        <td className="p-3 text-ink-faint">Aprimoramento de Argumentos & Pitch</td>
-                        <td className="p-3 text-ink-faint font-mono">Prevenção do atrito principal</td>
+                        <td className="p-3 text-slate-400">C) Apenas análise executiva</td>
+                        <td className="p-3 text-slate-400">Aprimoramento de Argumentos & Pitch</td>
+                        <td className="p-3 text-slate-400 font-mono">Prevenção do atrito principal</td>
                       </tr>
                       <tr>
                         <td className="p-3 text-white font-bold">Distribuição de Score</td>
-                        <td className="p-3 text-ink-faint">C) Apenas análise executiva</td>
-                        <td className="p-3 text-ink-faint">Metrificar Coeficiente de Retorno por Faixa</td>
-                        <td className="p-3 text-ink-faint font-mono">Calibração de Tráfego Pago</td>
+                        <td className="p-3 text-slate-400">C) Apenas análise executiva</td>
+                        <td className="p-3 text-slate-400">Metrificar Coeficiente de Retorno por Faixa</td>
+                        <td className="p-3 text-slate-400 font-mono">Calibração de Tráfego Pago</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1811,7 +1811,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="bg-indigo-500/20 text-indigo-400 text-label-sm uppercase px-2.5 py-1 border border-indigo-500/30">
+              <span className="bg-indigo-500/20 text-indigo-400 text-[11px] font-semibold px-2.5 py-1 border border-indigo-500/30 rounded-lg">
                 🚀 FASE 6 • Operação Real & Monitoramento de 30 Dias
               </span>
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" />
@@ -1820,14 +1820,14 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <TrendingUp className="text-indigo-400" size={22} />
               Cabine de Controle de Operação Real & Auditoria de Atração
             </h2>
-            <p className="text-xs text-ink-faint">
+            <p className="text-xs text-slate-400">
               Módulos congelados para calibração. Acompanhamento em tempo real da performance das campanhas de tráfego, do funil de vendas e integridade da base de dados.
             </p>
           </div>
 
           <button
             onClick={() => setShowFase6Dashboard(!showFase6Dashboard)}
-            className="bg-ink hover:bg-ink-soft text-white/80 px-4 py-2 text-label-md uppercase transition-all border border-white/10 font-sans"
+            className="bg-ink hover:bg-ink-soft text-white/80 px-4 py-2 text-[12px] font-semibold transition-all border border-white/10 font-sans rounded-lg"
           >
             {showFase6Dashboard ? "Recolher Painel" : "Expandir Painel"}
           </button>
@@ -1839,15 +1839,15 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-indigo-400 border-l-2 border-indigo-500 pl-2.5">
                 <Calendar size={16} />
-                <h3 className="text-label-md uppercase text-rule">1. Painel Executivo Diário • Real Time</h3>
-                <span className="text-[10px] bg-indigo-950 border border-indigo-900 px-2 py-0.5 text-indigo-300 font-mono font-bold ml-auto sm:block hidden">
+                <h3 className="text-[12px] font-semibold text-rule">1. Painel Executivo Diário • Real Time</h3>
+                <span className="text-[10px] bg-indigo-950 border border-indigo-900 px-2 py-0.5 text-indigo-300 font-mono font-bold ml-auto sm:block hidden rounded-lg">
                   Operação Hoje: 2026-05-30
                 </span>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
                 {[
-                  { label: "Leads Recebidos Hoje", val: fase6Stats.daily.received, color: "text-accent", bg: "bg-ink border-accent/20" },
+                  { label: "Leads Recebidos Hoje", val: fase6Stats.daily.received, color: "text-blue-600", bg: "bg-ink border-accent/20" },
                   { label: "Leads Contatados Hoje", val: fase6Stats.daily.contacted, color: "text-violet-400", bg: "bg-ink border-violet-500/20" },
                   { label: "Orçamentos Enviados", val: fase6Stats.daily.quotesSent, color: "text-amber-400", bg: "bg-ink border-amber-500/20" },
                   { label: "Vendas Fechadas Hoje", val: fase6Stats.daily.salesClosed, color: "text-emerald-400", bg: "bg-ink border-emerald-500/20" },
@@ -1855,10 +1855,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   { label: "Clientes Reativados", val: fase6Stats.daily.reactivated, color: "text-pink-400", bg: "bg-ink border-pink-500/20" },
                 ].map((c, i) => (
                   <div key={i} className={cn("p-4 border flex flex-col justify-between space-y-2", c.bg)}>
-                    <span className="text-label-sm text-ink-faint uppercase leading-tight">{c.label}</span>
+                    <span className="text-label-sm text-slate-400 uppercase leading-tight">{c.label}</span>
                     <div className="flex items-baseline justify-between gap-1">
                       <span className={cn("text-xl font-bold font-mono tracking-tight", c.color)}>{c.val}</span>
-                      <span className="text-[9px] bg-ink border border-white/10 text-ink-muted px-1 py-0.2 font-mono">Real</span>
+                      <span className="text-[9px] bg-ink border border-white/10 text-slate-500 px-1 py-0.2 font-mono rounded-lg">Real</span>
                     </div>
                   </div>
                 ))}
@@ -1869,7 +1869,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-violet-400 border-l-2 border-violet-500 pl-2.5">
                 <FileSpreadsheet size={16} />
-                <h3 className="text-label-md uppercase text-rule">2. Painel Executivo Semanal • Visão Geral</h3>
+                <h3 className="text-[12px] font-semibold text-rule">2. Painel Executivo Semanal • Visão Geral</h3>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
@@ -1882,9 +1882,9 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   { label: "Contratos Recorrentes", val: fase6Stats.weekly.recurringConquered, color: "text-sky-400", sub: "Fidelização Base Ativa" },
                 ].map((c, i) => (
                   <div key={i} className="p-4 bg-ink border border-white/10 flex flex-col justify-between space-y-2">
-                    <span className="text-label-sm text-ink-faint uppercase leading-tight">{c.label}</span>
+                    <span className="text-label-sm text-slate-400 uppercase leading-tight">{c.label}</span>
                     <span className={cn("text-xl font-bold font-mono tracking-tight leading-none", c.color)}>{c.val}</span>
-                    <span className="text-[8px] text-ink-muted font-bold uppercase tracking-wider">{c.sub}</span>
+                    <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">{c.sub}</span>
                   </div>
                 ))}
               </div>
@@ -1895,11 +1895,11 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-rose-400 border-l-2 border-rose-500 pl-2.5">
                   <AlertCircle size={16} />
-                  <h3 className="text-label-md uppercase text-rule">3. Auditoria Automática de Dados • Saneamento da Base</h3>
+                  <h3 className="text-[12px] font-semibold text-rule">3. Auditoria Automática de Dados • Saneamento da Base</h3>
                 </div>
                 
                 {/* Audit Tabs */}
-                <div className="flex flex-wrap gap-1 bg-ink p-1 border border-white/10 text-label-sm uppercase">
+                <div className="flex flex-wrap gap-1 bg-ink p-1 border border-white/10 text-[11px] font-semibold">
                   {[
                     { id: 'all', label: `Todos (${fase6Stats.audit.semContatoCount + fase6Stats.audit.semOrcamentoCount + fase6Stats.audit.vendasSemClosedValueCount + fase6Stats.audit.recorrentesSemFrequenciaCount + fase6Stats.audit.registrosIncompletosCount})` },
                     { id: 'sem_contato', label: `Sem Contato (${fase6Stats.audit.semContatoCount})` },
@@ -1915,7 +1915,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         "px-2.5 py-1 transition-all cursor-pointer font-sans",
                         auditDetailTab === tab.id 
                           ? "bg-rose-600 text-white" 
-                          : "text-ink-faint hover:text-rule"
+                          : "text-slate-400 hover:text-rule"
                       )}
                     >
                       {tab.label}
@@ -1937,12 +1937,12 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-label-sm uppercase text-ink-faint">Leads Sem Contato</span>
+                    <span className="text-[11px] font-semibold text-slate-400">Leads Sem Contato</span>
                     <span className={cn("w-2 h-2 rounded-full", fase6Stats.audit.semContatoCount > 0 ? "bg-rose-500 animate-pulse": "bg-emerald-500")} />
                   </div>
                   <div>
                     <span className="text-2xl font-bold font-mono text-rose-500">{fase6Stats.audit.semContatoCount}</span>
-                    <p className="text-[10px] text-ink-faint mt-1 leading-tight">Leads novos sem contato comercial iniciado.</p>
+                    <p className="text-[10px] text-slate-400 mt-1 leading-tight">Leads novos sem contato comercial iniciado.</p>
                   </div>
                 </div>
 
@@ -1957,12 +1957,12 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-label-sm uppercase text-ink-faint">Leads Sem Orçamento</span>
+                    <span className="text-[11px] font-semibold text-slate-400">Leads Sem Orçamento</span>
                     <span className={cn("w-2 h-2 rounded-full", fase6Stats.audit.semOrcamentoCount > 0 ? "bg-amber-500 animate-pulse": "bg-emerald-500")} />
                   </div>
                   <div>
                     <span className="text-2xl font-bold font-mono text-amber-500">{fase6Stats.audit.semOrcamentoCount}</span>
-                    <p className="text-[10px] text-ink-faint mt-1 leading-tight">Leads ativos que não receberam cotação financeira.</p>
+                    <p className="text-[10px] text-slate-400 mt-1 leading-tight">Leads ativos que não receberam cotação financeira.</p>
                   </div>
                 </div>
 
@@ -1977,12 +1977,12 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-label-sm uppercase text-ink-faint">Vendas s/ Valor Real</span>
+                    <span className="text-[11px] font-semibold text-slate-400">Vendas s/ Valor Real</span>
                     <span className={cn("w-2 h-2 rounded-full", fase6Stats.audit.vendasSemClosedValueCount > 0 ? "bg-rose-500 animate-pulse": "bg-emerald-500")} />
                   </div>
                   <div>
                     <span className="text-2xl font-bold font-mono text-rose-500">{fase6Stats.audit.vendasSemClosedValueCount}</span>
-                    <p className="text-[10px] text-ink-faint mt-1 leading-tight">Vendas ganhas com valor fechamento nulo/zerado.</p>
+                    <p className="text-[10px] text-slate-400 mt-1 leading-tight">Vendas ganhas com valor fechamento nulo/zerado.</p>
                   </div>
                 </div>
 
@@ -1997,12 +1997,12 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-label-sm uppercase text-ink-faint">Contratos s/ Frequência</span>
+                    <span className="text-[11px] font-semibold text-slate-400">Contratos s/ Frequência</span>
                     <span className={cn("w-2 h-2 rounded-full", fase6Stats.audit.recorrentesSemFrequenciaCount > 0 ? "bg-amber-500 animate-pulse": "bg-emerald-500")} />
                   </div>
                   <div>
                     <span className="text-2xl font-bold font-mono text-amber-500">{fase6Stats.audit.recorrentesSemFrequenciaCount}</span>
-                    <p className="text-[10px] text-ink-faint mt-1 leading-tight">Fidelização ativa mas frequência registrada pontual.</p>
+                    <p className="text-[10px] text-slate-400 mt-1 leading-tight">Fidelização ativa mas frequência registrada pontual.</p>
                   </div>
                 </div>
 
@@ -2017,21 +2017,21 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   )}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-label-sm uppercase text-ink-faint">Registros Incompletos</span>
+                    <span className="text-[11px] font-semibold text-slate-400">Registros Incompletos</span>
                     <span className={cn("w-2 h-2 rounded-full", fase6Stats.audit.registrosIncompletosCount > 0 ? "bg-orange-500 animate-pulse": "bg-emerald-500")} />
                   </div>
                   <div>
                     <span className="text-2xl font-bold font-mono text-orange-500">{fase6Stats.audit.registrosIncompletosCount}</span>
-                    <p className="text-[10px] text-ink-faint mt-1 leading-tight">Negócios sem nome, email ou telefone cadastrados.</p>
+                    <p className="text-[10px] text-slate-400 mt-1 leading-tight">Negócios sem nome, email ou telefone cadastrados.</p>
                   </div>
                 </div>
               </div>
 
               {/* Dynamic Drill Down List */}
               <div className="bg-ink border border-white/10 p-4 space-y-3">
-                <p className="text-label-sm uppercase text-ink-faint flex items-center gap-1.5 font-mono">
+                <p className="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5 font-mono">
                   <span>📋 Detalhes de Erros de Saneamento Identificados</span>
-                  <span className="text-[9px] text-ink-muted">(Clique no lead para corrigir no CRM)</span>
+                  <span className="text-[9px] text-slate-500">(Clique no lead para corrigir no CRM)</span>
                 </p>
 
                 {(() => {
@@ -2074,10 +2074,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                   if (filteredList.length === 0) {
                     return (
-                      <div className="py-8 text-center text-ink-muted text-xs font-bold space-y-1">
+                      <div className="py-8 text-center text-slate-500 text-xs font-bold space-y-1">
                         <CheckCircle className="mx-auto text-emerald-500 w-6 h-6 mb-1" />
-                        <p className="text-ink-faint">Nenhum desvio detectado nesta categoria!</p>
-                        <p className="text-[10px] text-ink-muted">A integridade do banco de dados está impecável.</p>
+                        <p className="text-slate-400">Nenhum desvio detectado nesta categoria!</p>
+                        <p className="text-[10px] text-slate-500">A integridade do banco de dados está impecável.</p>
                       </div>
                     );
                   }
@@ -2089,7 +2089,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                           {violationTitle} ({filteredList.length} registros)
                         </p>
-                        <p className="text-[10px] text-ink-faint mt-1 leading-normal">{violationExplain}</p>
+                        <p className="text-[10px] text-slate-400 mt-1 leading-normal">{violationExplain}</p>
                       </div>
 
                       <div className="max-h-[200px] overflow-y-auto divide-y divide-slate-900 pr-1 space-y-1">
@@ -2101,17 +2101,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                               "flex items-center justify-between p-2.5 transition-all cursor-pointer border border-transparent",
                               selectedLeadId === l.id 
                                 ? "bg-indigo-650 border-indigo-500 text-white" 
-                                : "hover:bg-ink text-ink-faint hover:text-white"
+                                : "hover:bg-ink text-slate-400 hover:text-white"
                             )}
                           >
                             <div className="flex flex-col text-left gap-1">
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-xs">{l.name || "Sem Nome"}</span>
-                                <span className="text-label-sm bg-ink px-1 py-0.2 font-mono border border-white/10 text-ink-faint uppercase">
+                                <span className="text-label-sm bg-ink px-1 py-0.2 font-mono border border-white/10 text-slate-400 uppercase rounded-lg">
                                   {l.status || 'new'}
                                 </span>
                               </div>
-                              <p className="text-[10px] text-ink-muted font-mono font-semibold flex items-center gap-1.5">
+                              <p className="text-[10px] text-slate-500 font-mono font-semibold flex items-center gap-1.5">
                                 <span>📱 {l.phone || "Indisponível"}</span>
                                 <span>|</span>
                                 <span>✉️ {l.email || "Sem e-mail"}</span>
@@ -2122,18 +2122,18 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                             <div className="flex items-center gap-2 font-bold leading-none">
                               {l.lead_score !== undefined && (
-                                <span className="bg-ink/80 text-rose-400 text-[10px] font-bold px-1.5 py-0.5 border border-white/10 font-mono">
+                                <span className="bg-ink/80 text-rose-400 text-[10px] font-bold px-1.5 py-0.5 border border-white/10 font-mono rounded-lg">
                                   {l.lead_score || 0}
                                 </span>
                               )}
-                              <span className="text-label-sm uppercase text-indigo-400 bg-indigo-950/40 border border-indigo-900/60 px-2 py-1 leading-none" >
+                              <span className="text-[11px] font-semibold text-indigo-400 bg-indigo-950/40 border border-indigo-900/60 px-2 py-1 leading-none rounded-lg" >
                                 Configurar ↑
                               </span>
                             </div>
                           </div>
                         ))}
                         {filteredList.length > 30 && (
-                          <div className="text-center py-2 text-label-sm text-ink-muted uppercase font-mono">
+                          <div className="text-center py-2 text-label-sm text-slate-500 uppercase font-mono">
                             + {filteredList.length - 30} mais registros omitidos para fluidez
                           </div>
                         )}
@@ -2163,59 +2163,59 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             ${dashboardStats.realRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
           <div className="mt-3 flex items-center gap-1.5">
-            <span className="text-[10px] px-2 py-0.5 bg-emerald-900/50 text-emerald-300 font-bold border border-emerald-800 flex items-center gap-1">
+            <span className="text-[10px] px-2 py-0.5 bg-emerald-900/50 text-emerald-300 font-bold border border-emerald-800 flex items-center gap-1 rounded-lg">
               🎉 Vendas Fechadas: {dashboardStats.closedCount}
             </span>
           </div>
         </div>
 
         {/* Prioritized Leads Counts */}
-        <div className="bg-surface p-6 border border-rule relative overflow-hidden group">
+        <div className="bg-white p-6 border border-slate-900/[0.07] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
             <Flame size={80} className="text-rose-500" />
           </div>
-          <p className="text-label-sm text-ink-faint uppercase mb-2">Leads Priorizados (Score ≥ 75)</p>
+          <p className="text-label-sm text-slate-400 uppercase mb-2">Leads Priorizados (Score ≥ 75)</p>
           <p className="text-3xl font-bold text-rose-600 font-mono tracking-tight">
             {dashboardStats.prioritizedCount}
           </p>
           <div className="mt-3 flex items-center gap-1.5">
-            <span className="text-[10px] px-2 py-0.5 bg-rose-50 text-rose-700 font-bold border border-rose-100">
+            <span className="text-[10px] px-2 py-0.5 bg-rose-50 text-rose-700 font-bold border border-rose-100 rounded-lg">
               Alta prioridade comercial
             </span>
           </div>
         </div>
 
         {/* Call execution progress */}
-        <div className="bg-surface p-6 border border-rule relative overflow-hidden group">
+        <div className="bg-white p-6 border border-slate-900/[0.07] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
             <PhoneCall size={80} className="text-indigo-500" />
           </div>
-          <p className="text-label-sm text-ink-faint uppercase mb-2">Ligações & Atendimentos</p>
-          <p className="text-3xl font-bold text-ink font-mono tracking-tight">
-            {dashboardStats.calledCount}<span className="text-sm font-bold text-ink-faint"> feitas</span>
-            <span className="text-xl font-normal text-ink-faint"> / </span>
+          <p className="text-label-sm text-slate-400 uppercase mb-2">Ligações & Atendimentos</p>
+          <p className="text-3xl font-bold text-slate-900 font-mono tracking-tight">
+            {dashboardStats.calledCount}<span className="text-sm font-bold text-slate-400"> feitas</span>
+            <span className="text-xl font-normal text-slate-400"> / </span>
             <span className="text-indigo-600 font-mono">{dashboardStats.answeredCount}</span><span className="text-xs font-bold text-indigo-400"> atendidas</span>
           </p>
           <div className="mt-3 flex items-center gap-1.5">
-            <span className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-700 font-bold border border-indigo-100">
+            <span className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-700 font-bold border border-indigo-100 rounded-lg">
               Taxa de Resposta: {dashboardStats.calledCount > 0 ? Math.round((dashboardStats.answeredCount / dashboardStats.calledCount) * 100) : 0}%
             </span>
           </div>
         </div>
 
         {/* Funnel pipeline conversion rates */}
-        <div className="bg-surface p-6 border border-rule relative overflow-hidden group">
+        <div className="bg-white p-6 border border-slate-900/[0.07] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
             <FileSpreadsheet size={80} className="text-amber-500" />
           </div>
-          <p className="text-label-sm text-ink-faint uppercase mb-2">Orçamentos & Agendamentos</p>
-          <p className="text-3xl font-bold text-ink font-mono tracking-tight">
-            {dashboardStats.quoteSentCount}<span className="text-sm font-bold text-ink-faint"> enviados</span>
-            <span className="text-xl font-normal text-ink-faint"> / </span>
+          <p className="text-label-sm text-slate-400 uppercase mb-2">Orçamentos & Agendamentos</p>
+          <p className="text-3xl font-bold text-slate-900 font-mono tracking-tight">
+            {dashboardStats.quoteSentCount}<span className="text-sm font-bold text-slate-400"> enviados</span>
+            <span className="text-xl font-normal text-slate-400"> / </span>
             <span className="text-amber-600 font-mono">{dashboardStats.scheduledCount}</span><span className="text-xs font-bold text-amber-400"> agendados</span>
           </p>
           <div className="mt-3 flex items-center gap-1.5">
-            <span className="text-[10px] px-2 py-0.5 bg-amber-50 text-amber-700 font-bold border border-amber-100">
+            <span className="text-[10px] px-2 py-0.5 bg-amber-50 text-amber-700 font-bold border border-amber-100 rounded-lg">
               Dívida de Fechamento: {dashboardStats.quoteSentCount - dashboardStats.closedCount} pendentes
             </span>
           </div>
@@ -2224,13 +2224,13 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
       </div>
 
       {/* SCIENTIFIC PROOF: Lead Score vs Real Conversion Performance */}
-      <div className="bg-surface p-6 border border-rule space-y-4">
+      <div className="bg-white p-6 border border-slate-900/[0.07] space-y-4">
         <div>
-          <h2 className="text-base font-bold text-ink flex items-center gap-2">
+          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
             <Award className="text-indigo-600" size={18} />
             Eficácia do Lead Score (Relação Pontuação vs. Dinheiro No Bolso)
           </h2>
-          <p className="text-xs text-ink-muted">
+          <p className="text-xs text-slate-500">
             Entenda cientificamente quais faixas de pontuação da inteligência geram maior retorno financeiro real.
           </p>
         </div>
@@ -2241,19 +2241,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
           <div className="bg-rose-50/20 border border-rose-100/60 p-4 flex flex-col justify-between space-y-3">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 border border-rose-100">
+                <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 border border-rose-100 rounded-lg">
                   Alta Temperatura (Score ≥ 75)
                 </span>
                 <span className="font-mono text-[11px] font-bold text-rose-500">{dashboardStats.highTierTotal} leads</span>
               </div>
               <p className="text-3xl font-bold text-rose-600 font-mono mt-3">
                 {dashboardStats.highTierConversionRate}% 
-                <span className="text-label-md text-ink-faint uppercase ml-1">conversão</span>
+                <span className="text-label-md text-slate-400 uppercase ml-1">conversão</span>
               </p>
             </div>
             
-            <div className="pt-2 border-t border-rule flex items-center justify-between text-xs font-medium">
-              <span className="text-ink-faint">Faturamento Real:</span>
+            <div className="pt-2 border-t border-slate-900/[0.07] flex items-center justify-between text-xs font-medium">
+              <span className="text-slate-400">Faturamento Real:</span>
               <span className="font-bold text-emerald-600 font-mono">${dashboardStats.highTierRevenue}</span>
             </div>
           </div>
@@ -2262,40 +2262,40 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
           <div className="bg-amber-50/20 border border-amber-100/60 p-4 flex flex-col justify-between space-y-3">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 border border-amber-100">
+                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 border border-amber-100 rounded-lg">
                   Média Temperatura (Score 40-74)
                 </span>
                 <span className="font-mono text-[11px] font-bold text-amber-500">{dashboardStats.midTierTotal} leads</span>
               </div>
               <p className="text-3xl font-bold text-amber-600 font-mono mt-3">
                 {dashboardStats.midTierConversionRate}% 
-                <span className="text-label-md text-ink-faint uppercase ml-1">conversão</span>
+                <span className="text-label-md text-slate-400 uppercase ml-1">conversão</span>
               </p>
             </div>
             
-            <div className="pt-2 border-t border-rule flex items-center justify-between text-xs font-medium">
-              <span className="text-ink-faint">Faturamento Real:</span>
+            <div className="pt-2 border-t border-slate-900/[0.07] flex items-center justify-between text-xs font-medium">
+              <span className="text-slate-400">Faturamento Real:</span>
               <span className="font-bold text-emerald-600 font-mono">${dashboardStats.midTierRevenue}</span>
             </div>
           </div>
 
           {/* Low Score Tiers */}
-          <div className="bg-surface-low border border-rule p-4 flex flex-col justify-between space-y-3">
+          <div className="bg-slate-50 rounded-lg ring-1 ring-slate-900/[0.05] p-4 flex flex-col justify-between space-y-3">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-ink-soft bg-surface-mid px-2 py-0.5 border border-rule">
+                <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 border border-slate-900/[0.07] rounded-lg">
                   Fria / Sem Score (Score &lt; 40)
                 </span>
-                <span className="font-mono text-[11px] font-bold text-ink-muted">{dashboardStats.lowTierTotal} leads</span>
+                <span className="font-mono text-[11px] font-bold text-slate-500">{dashboardStats.lowTierTotal} leads</span>
               </div>
-              <p className="text-3xl font-bold text-ink-muted font-mono mt-3">
+              <p className="text-3xl font-bold text-slate-500 font-mono mt-3">
                 {dashboardStats.lowTierConversionRate}% 
-                <span className="text-label-md text-ink-faint uppercase ml-1">conversão</span>
+                <span className="text-label-md text-slate-400 uppercase ml-1">conversão</span>
               </p>
             </div>
             
-            <div className="pt-2 border-t border-rule flex items-center justify-between text-xs font-medium">
-              <span className="text-ink-faint">Faturamento Real:</span>
+            <div className="pt-2 border-t border-slate-900/[0.07] flex items-center justify-between text-xs font-medium">
+              <span className="text-slate-400">Faturamento Real:</span>
               <span className="font-bold text-emerald-600 font-mono">${dashboardStats.lowTierRevenue}</span>
             </div>
           </div>
@@ -2313,7 +2313,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
           </div>
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="text-indigo-400" size={18} />
-            <span className="text-label-md uppercase text-indigo-300">
+            <span className="text-[12px] font-semibold text-indigo-300">
               Projeção de LTV Recorrente Anual
             </span>
           </div>
@@ -2348,35 +2348,35 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         </div>
 
         {/* Objection Analytics Widget */}
-        <div className="bg-surface p-6 border border-rule space-y-4">
+        <div className="bg-white p-6 border border-slate-900/[0.07] space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertTriangle className="text-amber-500" size={18} />
-              <h3 className="text-base font-bold text-ink">
+              <h3 className="text-base font-bold text-slate-900">
                 Fatores de Impedimento (Diagnóstico de Objeções)
               </h3>
             </div>
-            <span className="bg-amber-50 text-amber-700 text-label-sm uppercase px-2 py-0.5 border border-amber-100">
+            <span className="bg-amber-50 text-amber-700 text-[11px] font-semibold px-2 py-0.5 border border-amber-100 rounded-lg">
               Etiqueta de Atrito ({dashboardStats.totalObjectionsLogged})
             </span>
           </div>
 
           <div className="space-y-3.5">
             {dashboardStats.totalObjectionsLogged === 0 ? (
-              <div className="py-8 text-center text-ink-faint flex flex-col items-center justify-center space-y-2">
-                <SlidersHorizontal size={24} className="text-ink-faint" />
-                <p className="text-xs font-semibold text-ink-muted">Nenhuma objeção mapeada no momento.</p>
-                <p className="text-[10px] text-ink-faint">Marque os motivos de atrito quando o cliente recusar um orçamento.</p>
+              <div className="py-8 text-center text-slate-400 flex flex-col items-center justify-center space-y-2">
+                <SlidersHorizontal size={24} className="text-slate-400" />
+                <p className="text-xs font-semibold text-slate-500">Nenhuma objeção mapeada no momento.</p>
+                <p className="text-[10px] text-slate-400">Marque os motivos de atrito quando o cliente recusar um orçamento.</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {Object.entries({
                   price: { label: 'Preço muito alto', color: 'bg-rose-500' },
                   scheduling: { label: 'Incompatibilidade de Data/Agenda', color: 'bg-amber-500' },
-                  trust: { label: 'Falta de Credenciais/Fiança', color: 'bg-accent' },
+                  trust: { label: 'Falta de Credenciais/Fiança', color: 'bg-blue-600' },
                   competitor: { label: 'Fechou com Concorrente', color: 'bg-purple-500' },
                   low_intent: { label: 'Apenas Curioso / Sem Intenção', color: 'bg-ink-faint' },
-                  other: { label: 'Fatores de Negócio Alternativos', color: 'bg-surface-high' }
+                  other: { label: 'Fatores de Negócio Alternativos', color: 'bg-slate-200' }
                 }).map(([key, config]) => {
                   const count = dashboardStats.objectionsDistribution[key] || 0;
                   const pct = dashboardStats.totalObjectionsLogged > 0 ? Math.round((count / dashboardStats.totalObjectionsLogged) * 100) : 0;
@@ -2384,14 +2384,14 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   
                   return (
                     <div key={key} className="space-y-1">
-                      <div className="flex justify-between items-center text-[11px] font-bold text-ink-soft">
+                      <div className="flex justify-between items-center text-[11px] font-bold text-slate-600">
                         <span className="flex items-center gap-1.5">
                           <span className={`w-2 h-2 rounded-full ${config.color}`} />
                           {config.label}
                         </span>
                         <span className="font-mono">{count} ocorrências ({pct}%)</span>
                       </div>
-                      <div className="w-full bg-surface-mid h-2 rounded-full overflow-hidden">
+                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                         <div className={`h-full ${config.color}`} style={{ width: `${pct}%` }} />
                       </div>
                     </div>
@@ -2400,7 +2400,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               </div>
             )}
             
-            <p className="text-[11px] text-ink-muted leading-relaxed bg-surface-low p-2.5 font-medium border border-rule">
+            <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-2.5 font-medium border border-slate-900/[0.07]">
               💡 <strong>Aprendizado Comercial:</strong> Focar em derrubar a objeção principal mapeada acima para otimizar os scripts comerciais e pitches na recepção manual.
             </p>
           </div>
@@ -2409,29 +2409,29 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
       </div>
 
       {/* MÓDULO 1: MARKETING ATTRIBUTION DASHBOARD & ROI TRACKER */}
-      <div className="bg-surface-low p-6 border border-rule/60 space-y-6">
+      <div className="bg-slate-50 p-6 border border-slate-900/[0.07]/60 space-y-6">
         
         {/* Module Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-rule/50 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900/[0.07]/50 pb-5">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="bg-indigo-100 text-indigo-700 text-label-sm uppercase px-2.5 py-1 border border-indigo-200/50">
+              <span className="bg-indigo-100 text-indigo-700 text-[11px] font-semibold px-2.5 py-1 border border-indigo-200/50 rounded-lg">
                 MÓDULO 1 • Atribuição & Atração
               </span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <h3 className="text-lg font-bold text-ink tracking-tight flex items-center gap-2 mt-1">
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 mt-1">
               <Award className="text-indigo-600" size={20} />
               Marketing Attribution & Quality ROI Tracker
             </h3>
-            <p className="text-xs text-ink-muted">
+            <p className="text-xs text-slate-500">
               Análise em tempo real de origem, conversão e retorno financeiro por canal de aquisição.
             </p>
           </div>
           
-          <div className="text-[11px] text-ink-muted font-bold bg-surface border border-rule/60 p-2.5 max-w-sm flex items-center gap-1.5">
+          <div className="text-[11px] text-slate-500 font-bold bg-white rounded-lg ring-1 ring-slate-900/[0.07]/60 p-2.5 max-w-sm flex items-center gap-1.5">
             <span>🚦 Atribuição:</span>
-            <span className="font-semibold text-ink-muted">UTM &gt; SMS &gt; Jennifer AI &gt; Website &gt; Unknown</span>
+            <span className="font-semibold text-slate-500">UTM &gt; SMS &gt; Jennifer AI &gt; Website &gt; Unknown</span>
           </div>
         </div>
 
@@ -2439,85 +2439,85 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Question 1: Qual canal gera mais receita? */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Maior Receita Real</p>
+              <p className="text-label-sm text-slate-400 uppercase">Maior Receita Real</p>
               <div className="p-2 bg-emerald-50 text-emerald-600">
                 <TrendingUp size={14} />
               </div>
             </div>
             <div>
-              <p className="text-base font-bold text-ink-soft leading-tight">
+              <p className="text-base font-bold text-slate-600 leading-tight">
                 {marketingStats.topRevenueChannel.name}
               </p>
               <p className="text-lg font-bold text-emerald-600 font-mono mt-1">
                 ${marketingStats.topRevenueChannel.value.toLocaleString('en-US')}
               </p>
             </div>
-            <p className="text-[10px] text-ink-faint font-semibold leading-none pt-1">
+            <p className="text-[10px] text-slate-400 font-semibold leading-none pt-1">
               *Apenas valores fechados
             </p>
           </div>
 
           {/* Question 2: Qual canal gera mais vendas? */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Mais Vendas Fechadas</p>
+              <p className="text-label-sm text-slate-400 uppercase">Mais Vendas Fechadas</p>
               <div className="p-2 bg-indigo-50 text-indigo-600">
                 <CheckCircle size={14} />
               </div>
             </div>
             <div>
-              <p className="text-base font-bold text-ink-soft leading-tight">
+              <p className="text-base font-bold text-slate-600 leading-tight">
                 {marketingStats.topSalesChannel.name}
               </p>
               <p className="text-lg font-bold text-indigo-600 font-mono mt-1">
                 {marketingStats.topSalesChannel.value} vendas
               </p>
             </div>
-            <p className="text-[10px] text-ink-faint font-semibold leading-none pt-1">
+            <p className="text-[10px] text-slate-400 font-semibold leading-none pt-1">
               *Contratos liquidados com sucesso
             </p>
           </div>
 
           {/* Question 3: Qual canal gera leads com maior score? */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase font-sans">Maior Score Médio</p>
+              <p className="text-label-sm text-slate-400 uppercase font-sans">Maior Score Médio</p>
               <div className="p-2 bg-rose-50 text-rose-600">
                 <Flame size={14} />
               </div>
             </div>
             <div>
-              <p className="text-base font-bold text-ink-soft leading-tight">
+              <p className="text-base font-bold text-slate-600 leading-tight">
                 {marketingStats.topScoreChannel.name}
               </p>
               <p className="text-lg font-bold text-rose-600 font-mono mt-1">
                 Score: {marketingStats.topScoreChannel.value}
               </p>
             </div>
-            <p className="text-[10px] text-ink-faint font-semibold leading-none pt-1">
+            <p className="text-[10px] text-slate-400 font-semibold leading-none pt-1">
               *Temperatura de engajamento do lead
             </p>
           </div>
 
           {/* Question 4: Qual canal possui melhor taxa de conversão? */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Melhor Taxa de Conversão</p>
+              <p className="text-label-sm text-slate-400 uppercase">Melhor Taxa de Conversão</p>
               <div className="p-2 bg-amber-50 text-amber-600">
                 <Target size={14} />
               </div>
             </div>
             <div>
-              <p className="text-base font-bold text-ink-soft leading-tight">
+              <p className="text-base font-bold text-slate-600 leading-tight">
                 {marketingStats.topConversionChannel.name}
               </p>
               <p className="text-lg font-bold text-amber-600 font-mono mt-1">
                 {marketingStats.topConversionChannel.value}%
               </p>
             </div>
-            <p className="text-[10px] text-ink-faint font-semibold leading-none pt-1">
+            <p className="text-[10px] text-slate-400 font-semibold leading-none pt-1">
               *Proporção fechada / recebida
             </p>
           </div>
@@ -2525,10 +2525,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         </div>
 
         {/* Detailed breakdown list table of channels */}
-        <div className="bg-surface border border-rule/50 overflow-x-auto">
+        <div className="bg-white rounded-lg ring-1 ring-slate-900/[0.07]/50 overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-surface-low border-b border-rule/60 text-ink-muted uppercase text-label-sm">
+              <tr className="bg-slate-50 border-b border-slate-900/[0.07]/60 text-slate-500 uppercase text-label-sm">
                 <th className="py-3 px-4">Canal de Aquisição</th>
                 <th className="py-3 px-4 text-center">Leads Totais</th>
                 <th className="py-3 px-4 text-center">Score Médio</th>
@@ -2537,10 +2537,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 <th className="py-3 px-4 text-right">Faturamento Real</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rule font-medium">
+            <tbody className="divide-y divide-slate-900/[0.05] font-medium">
               {marketingStats.channelsReport.map((channel: any) => {
                 return (
-                  <tr key={channel.name} className="hover:bg-surface-low/50 transition-colors">
+                  <tr key={channel.name} className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
                         <span className={cn(
@@ -2548,19 +2548,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           channel.name === 'Website' ? 'bg-indigo-500':
                           channel.name === 'Organic' ? 'bg-ink-faint':
                           channel.name === 'Google Ads' ? 'bg-sky-500':
-                          channel.name === 'Facebook Ads' ? 'bg-accent':
+                          channel.name === 'Facebook Ads' ? 'bg-blue-600':
                           channel.name === 'Instagram' ? 'bg-pink-500':
                           channel.name === 'WhatsApp' ? 'bg-emerald-500':
                           channel.name === 'Jennifer AI' ? 'bg-purple-600 animate-pulse':
                           channel.name === 'Twilio SMS' ? 'bg-lime-500':
                           channel.name === 'Direct Call' ? 'bg-amber-500':
                           channel.name === 'Referral' ? 'bg-indigo-300':
-                          'bg-surface-high'
+                          'bg-slate-200'
                         )} />
-                        <span className="font-bold text-ink-soft">{channel.name}</span>
+                        <span className="font-bold text-slate-600">{channel.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-center font-mono font-bold text-ink-muted">
+                    <td className="py-3 px-4 text-center font-mono font-bold text-slate-500">
                       {channel.leadsCount}
                     </td>
                     <td className="py-3 px-4 text-center">
@@ -2569,19 +2569,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           "px-1.5 py-0.5 text-[10px] font-mono leading-none",
                           channel.avgScore >= 75 ? "bg-rose-50 text-rose-700 font-bold":
                           channel.avgScore >= 40 ? "bg-amber-50 text-amber-700 font-bold":
-                          "bg-surface-low text-ink-muted"
+                          "bg-slate-50 text-slate-500"
                         )}>
                           {channel.avgScore}
                         </span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-center font-mono font-bold text-ink-muted">
+                    <td className="py-3 px-4 text-center font-mono font-bold text-slate-500">
                       {channel.salesCount}
                     </td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex flex-col items-center justify-center gap-1">
-                        <span className="font-mono font-bold text-ink-soft">{channel.conversionRate}%</span>
-                        <div className="w-16 bg-surface-mid h-1 rounded-full overflow-hidden">
+                        <span className="font-mono font-bold text-slate-600">{channel.conversionRate}%</span>
+                        <div className="w-16 bg-slate-100 h-1 rounded-full overflow-hidden">
                           <div className="bg-indigo-600 h-full" style={{ width: `${channel.conversionRate}%` }} />
                         </div>
                       </div>
@@ -2598,27 +2598,27 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
       </div>
 
       {/* MÓDULO 2: SALES VELOCITY & OPERATIONAL AGILITY DASHBOARD */}
-      <div className="bg-surface-low p-6 border border-rule/60 space-y-6">
+      <div className="bg-slate-50 p-6 border border-slate-900/[0.07]/60 space-y-6">
         
         {/* Module Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-rule/50 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900/[0.07]/50 pb-5">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="bg-amber-100 text-amber-700 text-label-sm uppercase px-2.5 py-1 border border-amber-200/50">
+              <span className="bg-amber-100 text-amber-700 text-[11px] font-semibold px-2.5 py-1 border border-amber-200/50 rounded-lg">
                 MÓDULO 2 • Tempo & Velocidade Comercial
               </span>
               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
             </div>
-            <h3 className="text-lg font-bold text-ink tracking-tight flex items-center gap-2 mt-1">
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 mt-1">
               <Clock className="text-amber-500" size={20} />
               Sales Velocity & Operational Agility
             </h3>
-            <p className="text-xs text-ink-muted">
+            <p className="text-xs text-slate-500">
               Análise de tempo médio de resposta, ociosidade de contatos e gargalos da força de vendas.
             </p>
           </div>
           
-          <div className="text-[11px] text-ink-muted font-bold bg-surface border border-rule/60 p-2.5 max-w-sm flex items-center gap-1.5">
+          <div className="text-[11px] text-slate-500 font-bold bg-white rounded-lg ring-1 ring-slate-900/[0.07]/60 p-2.5 max-w-sm flex items-center gap-1.5">
             <span>⏱️ SLA Alvo de Primeiro Contato:</span>
             <span className="font-semibold text-rose-500 font-mono">&lt; 15 min</span>
           </div>
@@ -2628,30 +2628,30 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Card 1: Tempo Médio de Resposta Geral */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Tempo Médio Resposta (Geral)</p>
+              <p className="text-label-sm text-slate-400 uppercase">Tempo Médio Resposta (Geral)</p>
               <div className="p-2 bg-indigo-50 text-indigo-600">
                 <Clock size={14} />
               </div>
             </div>
             <div>
-              <p className="text-2xl font-bold text-ink-soft tracking-tight font-mono">
+              <p className="text-2xl font-bold text-slate-600 tracking-tight font-mono">
                 {salesVelocityStats.avgResponseText}
               </p>
-              <p className="text-[10px] text-ink-faint font-semibold mt-1">
+              <p className="text-[10px] text-slate-400 font-semibold mt-1">
                 Base: {salesVelocityStats.responsiveLeadsCount} leads contatados
               </p>
             </div>
-            <div className="w-full bg-surface-mid h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div className="bg-indigo-500 h-full" style={{ width: salesVelocityStats.responsiveLeadsCount > 0 ? '70%': '0%' }} />
             </div>
           </div>
 
           {/* Card 2: Tempo Médio de Resposta (Score Alto >= 75) */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase font-sans">Resposta Hot Leads (&gt;= 75)</p>
+              <p className="text-label-sm text-slate-400 uppercase font-sans">Resposta Hot Leads (&gt;= 75)</p>
               <div className="p-2 bg-rose-50 text-rose-600">
                 <Flame size={14} />
               </div>
@@ -2660,19 +2660,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <p className="text-2xl font-bold text-rose-600 tracking-tight font-mono">
                 {salesVelocityStats.avgHotResponseText}
               </p>
-              <p className="text-[10px] text-ink-faint font-semibold mt-1">
+              <p className="text-[10px] text-slate-400 font-semibold mt-1">
                 Base: {salesVelocityStats.responsiveHotLeadsCount} hot leads contatados
               </p>
             </div>
-            <div className="w-full bg-surface-mid h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div className="bg-rose-500 h-full" style={{ width: salesVelocityStats.responsiveHotLeadsCount > 0 ? '85%': '0%' }} />
             </div>
           </div>
 
           {/* Card 3: Tempo de Ociosidade dos Hot Leads */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Atraso Médio Hot sem Ação</p>
+              <p className="text-label-sm text-slate-400 uppercase">Atraso Médio Hot sem Ação</p>
               <div className="p-2 bg-amber-50 text-amber-600">
                 <AlertCircle size={14} />
               </div>
@@ -2681,19 +2681,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <p className="text-2xl font-bold text-amber-600 tracking-tight font-mono">
                 {salesVelocityStats.avgHotWaitText}
               </p>
-              <p className="text-[10px] text-ink-faint font-semibold mt-1">
+              <p className="text-[10px] text-slate-400 font-semibold mt-1">
                 {salesVelocityStats.uncontactedHotCount} quentes aguardando primeiro contato
               </p>
             </div>
-            <div className="w-full bg-surface-mid h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div className="bg-amber-500 h-full" style={{ width: salesVelocityStats.uncontactedHotCount > 0 ? '100%': '0%' }} />
             </div>
           </div>
 
           {/* Card 4: Leads Aguardando Ação */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Leads Totais Sem Contato</p>
+              <p className="text-label-sm text-slate-400 uppercase">Leads Totais Sem Contato</p>
               <div className="p-2 bg-emerald-50 text-emerald-600">
                 <UserCheck size={14} />
               </div>
@@ -2702,11 +2702,11 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <p className="text-2xl font-bold text-emerald-600 tracking-tight font-mono">
                 {salesVelocityStats.pendingActionCount}
               </p>
-              <p className="text-[10px] text-ink-faint font-semibold mt-1">
+              <p className="text-[10px] text-slate-400 font-semibold mt-1">
                 Leads em status de triagem ou novos
               </p>
             </div>
-            <div className="w-full bg-surface-mid h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div className="bg-emerald-500 h-full" style={{ width: salesVelocityStats.pendingActionCount > 0 ? '50%': '0%' }} />
             </div>
           </div>
@@ -2717,13 +2717,13 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
           
           {/* Section A: Leads Aguardando Contato Mais Antigos */}
-          <div className="bg-surface p-5 border border-rule/50 space-y-4">
-            <div className="flex items-center justify-between border-b border-rule pb-3">
+          <div className="bg-white p-5 border border-slate-900/[0.07]/50 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-900/[0.07] pb-3">
               <div className="flex items-center gap-2">
                 <Clock size={16} className="text-amber-500" />
-                <h4 className="text-[13px] font-bold text-ink-soft uppercase tracking-tight">Análise de Gargalo: Fila de Espera GERAL</h4>
+                <h4 className="text-[13px] font-bold text-slate-600 uppercase tracking-tight">Análise de Gargalo: Fila de Espera GERAL</h4>
               </div>
-              <span className="bg-amber-50 text-amber-800 text-[10px] font-bold px-2 py-0.5 font-mono">
+              <span className="bg-amber-50 text-amber-800 text-[10px] font-bold px-2 py-0.5 font-mono rounded-lg">
                 {salesVelocityStats.pendingActionCount} aguardando
               </span>
             </div>
@@ -2731,26 +2731,26 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             {salesVelocityStats.pendingActionLeads.length === 0 ? (
               <div className="py-8 text-center space-y-2">
                 <Check className="text-emerald-500 mx-auto w-6 h-6 border border-emerald-100 p-1 bg-emerald-50" />
-                <p className="text-xs font-bold text-ink-soft">Tudo em dia!</p>
-                <p className="text-[10px] text-ink-faint">Nenhum lead aguardando contato inicial no momento.</p>
+                <p className="text-xs font-bold text-slate-600">Tudo em dia!</p>
+                <p className="text-[10px] text-slate-400">Nenhum lead aguardando contato inicial no momento.</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-50 max-h-[280px] overflow-y-auto pr-1 space-y-2.5">
+              <div className="divide-y divide-slate-900/[0.05] max-h-[280px] overflow-y-auto pr-1 space-y-2.5">
                 {salesVelocityStats.pendingActionLeads.slice(0, 5).map((lead: any) => (
-                  <div key={lead.id} className="flex items-center justify-between pt-2.5 first:pt-0 group hover:bg-surface-low/40 p-1.5 transition-all">
+                  <div key={lead.id} className="flex items-center justify-between pt-2.5 first:pt-0 group hover:bg-slate-50/40 p-1.5 transition-all">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-ink-soft text-xs">{lead.name}</span>
+                        <span className="font-bold text-slate-600 text-xs">{lead.name}</span>
                         <span className={cn(
                           "px-1.5 py-0.5 text-[9px] font-mono leading-none",
                           (lead.lead_score ?? 0) >= 75 ? "bg-rose-50 text-rose-700 font-bold":
                           (lead.lead_score ?? 0) >= 40 ? "bg-amber-50 text-amber-700 font-bold":
-                          "bg-surface-low text-ink-muted"
+                          "bg-slate-50 text-slate-500"
                         )}>
                           Score {lead.lead_score ?? 0}
                         </span>
                       </div>
-                      <p className="text-[10px] text-ink-faint font-mono font-semibold flex items-center gap-1.5">
+                      <p className="text-[10px] text-slate-400 font-mono font-semibold flex items-center gap-1.5">
                         <span>📱 {lead.phone}</span>
                         <span className="text-rule">|</span>
                         <span>🏷️ {lead.attribution_channel || 'Unknown'}</span>
@@ -2763,12 +2763,12 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
                           {lead.waitingText}
                         </p>
-                        <p className="text-[9px] font-bold text-ink-faint leading-none mt-1">sem contato</p>
+                        <p className="text-[9px] font-bold text-slate-400 leading-none mt-1">sem contato</p>
                       </div>
 
                       <button
                         onClick={() => setSelectedLeadId(lead.id)}
-                        className="bg-surface-mid hover:bg-indigo-600 group-hover:bg-indigo-600 text-ink-soft hover:text-white group-hover:text-white px-2.5 py-1.5 text-[10px] font-bold transition-all flex items-center gap-1 border border-rule/60"
+                        className="bg-slate-100 hover:bg-indigo-600 group-hover:bg-indigo-600 text-slate-600 hover:text-white group-hover:text-white px-2.5 py-1.5 text-[10px] font-bold transition-all flex items-center gap-1 border border-slate-900/[0.07]/60 rounded-lg"
                       >
                         <Phone size={10} />
                         ATENDER
@@ -2781,13 +2781,13 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
           </div>
 
           {/* Section B: Leads Quentes Críticos (Hot Leads Sem Atendimento) */}
-          <div className="bg-surface p-5 border border-rule/50 space-y-4">
-            <div className="flex items-center justify-between border-b border-rule pb-3">
+          <div className="bg-white p-5 border border-slate-900/[0.07]/50 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-900/[0.07] pb-3">
               <div className="flex items-center gap-2">
                 <Flame size={16} className="text-rose-500" />
-                <h4 className="text-[13px] font-bold text-ink-soft uppercase tracking-tight">Fila Crítica: Hot Leads Sem Contato</h4>
+                <h4 className="text-[13px] font-bold text-slate-600 uppercase tracking-tight">Fila Crítica: Hot Leads Sem Contato</h4>
               </div>
-              <span className="bg-rose-50 text-rose-800 text-[10px] font-bold px-2 py-0.5 font-mono">
+              <span className="bg-rose-50 text-rose-800 text-[10px] font-bold px-2 py-0.5 font-mono rounded-lg">
                 {salesVelocityStats.uncontactedHotCount} vermelhos
               </span>
             </div>
@@ -2795,21 +2795,21 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             {salesVelocityStats.uncontactedHotLeads.length === 0 ? (
               <div className="py-8 text-center space-y-2">
                 <Check className="text-emerald-500 mx-auto w-6 h-6 border border-emerald-100 p-1 bg-emerald-50" />
-                <p className="text-xs font-bold text-ink-soft">Sem gargalos quentes!</p>
-                <p className="text-[10px] text-ink-faint">Todos os leads com alta pontuação receberam contato imediato.</p>
+                <p className="text-xs font-bold text-slate-600">Sem gargalos quentes!</p>
+                <p className="text-[10px] text-slate-400">Todos os leads com alta pontuação receberam contato imediato.</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-50 max-h-[280px] overflow-y-auto pr-1 space-y-2.5">
+              <div className="divide-y divide-slate-900/[0.05] max-h-[280px] overflow-y-auto pr-1 space-y-2.5">
                 {salesVelocityStats.uncontactedHotLeads.slice(0, 5).map((lead: any) => (
-                  <div key={lead.id} className="flex items-center justify-between pt-2.5 first:pt-0 group hover:bg-surface-low/40 p-1.5 transition-all border border-transparent hover:border-rose-100">
+                  <div key={lead.id} className="flex items-center justify-between pt-2.5 first:pt-0 group hover:bg-slate-50/40 p-1.5 transition-all border border-transparent hover:border-rose-100">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-ink-soft text-xs">{lead.name}</span>
-                        <span className="bg-rose-50 border border-rose-100 text-rose-700 text-[9px] font-mono leading-none px-1.5 py-0.5 font-bold animate-pulse">
+                        <span className="font-bold text-slate-600 text-xs">{lead.name}</span>
+                        <span className="bg-rose-50 border border-rose-100 text-rose-700 text-[9px] font-mono leading-none px-1.5 py-0.5 font-bold animate-pulse rounded-lg">
                           SCORE {lead.lead_score ?? 0}
                         </span>
                       </div>
-                      <p className="text-[10px] text-ink-faint font-mono font-semibold flex items-center gap-1.5">
+                      <p className="text-[10px] text-slate-400 font-mono font-semibold flex items-center gap-1.5">
                         <span>📱 {lead.phone}</span>
                         <span className="text-rule">|</span>
                         <span>📍 {lead.city || 'Desconhecida'}</span>
@@ -2826,7 +2826,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                       <button
                         onClick={() => setSelectedLeadId(lead.id)}
-                        className="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 text-[10px] font-bold transition-all flex items-center gap-1 border border-rose-400/30"
+                        className="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 text-[10px] font-bold transition-all flex items-center gap-1 border border-rose-400/30 rounded-lg"
                       >
                         <PhoneCall size={10} />
                         LIGAR AGORA
@@ -2842,27 +2842,27 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
       </div>
 
       {/* MÓDULO 3: CUSTOMER LIFECYCLE MANAGEMENT DASHBOARD */}
-      <div className="bg-surface-low p-6 border border-rule/60 space-y-6">
+      <div className="bg-slate-50 p-6 border border-slate-900/[0.07]/60 space-y-6">
         
         {/* Module Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-rule/50 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900/[0.07]/50 pb-5">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="bg-emerald-100 text-emerald-700 text-label-sm uppercase px-2.5 py-1 border border-emerald-200/50">
+              <span className="bg-emerald-100 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 border border-emerald-200/50 rounded-lg">
                 MÓDULO 3 • Ciclo de Vida do Cliente
               </span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <h3 className="text-lg font-bold text-ink tracking-tight flex items-center gap-2 mt-1">
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 mt-1">
               <Users className="text-emerald-500" size={20} />
               Customer Lifecycle & Retention
             </h3>
-            <p className="text-xs text-ink-muted">
+            <p className="text-xs text-slate-500">
               Gestão preventiva pós-venda, retenção da base de contratos recorrentes e alertas de ociosidade de serviços.
             </p>
           </div>
           
-          <div className="text-[11px] text-ink-muted font-bold bg-surface border border-rule/60 p-2.5 max-w-sm flex items-center gap-1.5">
+          <div className="text-[11px] text-slate-500 font-bold bg-white rounded-lg ring-1 ring-slate-900/[0.07]/60 p-2.5 max-w-sm flex items-center gap-1.5">
             <span>🛡️ Taxa de Retenção Alvo:</span>
             <span className="font-semibold text-emerald-600 font-mono">&gt; 90%</span>
           </div>
@@ -2872,9 +2872,9 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Card 1: Cliente Ativo (Pontual) */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Clientes Ativos (Pontuais)</p>
+              <p className="text-label-sm text-slate-400 uppercase">Clientes Ativos (Pontuais)</p>
               <div className="p-2 bg-indigo-50 text-indigo-600">
                 <UserCheck size={14} />
               </div>
@@ -2883,19 +2883,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <p className="text-2xl font-bold text-indigo-600 tracking-tight font-mono">
                 {customerLifecycleStats.activeCount}
               </p>
-              <p className="text-[10px] text-ink-faint font-semibold mt-1">
+              <p className="text-[10px] text-slate-400 font-semibold mt-1">
                 Serviços pontuais fechados (one-time ou s/ frequência)
               </p>
             </div>
-            <div className="w-full bg-surface-mid h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div className="bg-indigo-500 h-full" style={{ width: customerLifecycleStats.activeCount > 0 ? '60%': '0%' }} />
             </div>
           </div>
 
           {/* Card 2: Cliente Recorrente */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Clientes Recorrentes (Contratos)</p>
+              <p className="text-label-sm text-slate-400 uppercase">Clientes Recorrentes (Contratos)</p>
               <div className="p-2 bg-emerald-50 text-emerald-600">
                 <RefreshCw size={14} />
               </div>
@@ -2904,19 +2904,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <p className="text-2xl font-bold text-emerald-600 tracking-tight font-mono">
                 {customerLifecycleStats.recurringCount}
               </p>
-              <p className="text-[10px] text-ink-faint font-semibold mt-1">
+              <p className="text-[10px] text-slate-400 font-semibold mt-1">
                 Contratos ativos (semanal, quinzenal, mensal)
               </p>
             </div>
-            <div className="w-full bg-surface-mid h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div className="bg-emerald-500 h-full" style={{ width: customerLifecycleStats.recurringCount > 0 ? '80%': '0%' }} />
             </div>
           </div>
 
           {/* Card 3: Pausado (Manual) */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Clientes Pausados (Manual)</p>
+              <p className="text-label-sm text-slate-400 uppercase">Clientes Pausados (Manual)</p>
               <div className="p-2 bg-amber-50 text-amber-600">
                 <UserMinus size={14} />
               </div>
@@ -2925,19 +2925,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <p className="text-2xl font-bold text-amber-600 tracking-tight font-mono">
                 {customerLifecycleStats.pausedCount}
               </p>
-              <p className="text-[10px] text-ink-faint font-semibold mt-1">
+              <p className="text-[10px] text-slate-400 font-semibold mt-1">
                 Pausa temporária de serviço ativada manualmente
               </p>
             </div>
-            <div className="w-full bg-surface-mid h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div className="bg-amber-500 h-full" style={{ width: customerLifecycleStats.pausedCount > 0 ? '40%': '0%' }} />
             </div>
           </div>
 
           {/* Card 4: Perdido (Decisão Humana) */}
-          <div className="bg-surface p-4.5 border border-rule/40 space-y-2 flex flex-col justify-between">
+          <div className="bg-white p-4.5 border border-slate-900/[0.07]/40 space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <p className="text-label-sm text-ink-faint uppercase">Clientes Perdidos (Decisão Humana)</p>
+              <p className="text-label-sm text-slate-400 uppercase">Clientes Perdidos (Decisão Humana)</p>
               <div className="p-2 bg-rose-50 text-rose-600">
                 <UserX size={14} />
               </div>
@@ -2946,11 +2946,11 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <p className="text-2xl font-bold text-rose-600 tracking-tight font-mono">
                 {customerLifecycleStats.lostCount}
               </p>
-              <p className="text-[10px] text-ink-faint font-semibold mt-1">
+              <p className="text-[10px] text-slate-400 font-semibold mt-1">
                 Removidos da carteira por decisão comercial
               </p>
             </div>
-            <div className="w-full bg-surface-mid h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div className="bg-rose-500 h-full" style={{ width: customerLifecycleStats.lostCount > 0 ? '30%': '0%' }} />
             </div>
           </div>
@@ -2961,13 +2961,13 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
           
           {/* Section A: Alertas Visuais de Needs Reactivation */}
-          <div className="bg-surface p-5 border border-rule/50 space-y-4">
-            <div className="flex items-center justify-between border-b border-rule pb-3">
+          <div className="bg-white p-5 border border-slate-900/[0.07]/50 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-900/[0.07] pb-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={16} className="text-amber-500" />
-                <h4 className="text-[13px] font-bold text-ink-soft uppercase tracking-tight">Fila de Reativação Visual (Ociosidade)</h4>
+                <h4 className="text-[13px] font-bold text-slate-600 uppercase tracking-tight">Fila de Reativação Visual (Ociosidade)</h4>
               </div>
-              <span className="bg-amber-50 text-amber-800 text-[10px] font-bold px-2 py-0.5 font-mono">
+              <span className="bg-amber-50 text-amber-800 text-[10px] font-bold px-2 py-0.5 font-mono rounded-lg">
                 {customerLifecycleStats.needsReactivationCount} alertas
               </span>
             </div>
@@ -2975,16 +2975,16 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             {customerLifecycleStats.listNeedsReactivation.length === 0 ? (
               <div className="py-12 text-center space-y-2">
                 <CheckCircle className="text-emerald-500 mx-auto w-8 h-8 border border-emerald-100 p-1 bg-emerald-50" />
-                <p className="text-xs font-bold text-ink-soft">Tudo em dia!</p>
-                <p className="text-[10px] text-ink-faint">Todos os clientes ativos e recorrentes estão dentro do calendário esperado.</p>
+                <p className="text-xs font-bold text-slate-600">Tudo em dia!</p>
+                <p className="text-[10px] text-slate-400">Todos os clientes ativos e recorrentes estão dentro do calendário esperado.</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-50 max-h-[300px] overflow-y-auto pr-1 space-y-2.5">
+              <div className="divide-y divide-slate-900/[0.05] max-h-[300px] overflow-y-auto pr-1 space-y-2.5">
                 {customerLifecycleStats.listNeedsReactivation.map(({ lead, daysElapsedSinceLastService, type, missingDate }) => (
-                  <div key={lead.id} className="flex items-center justify-between pt-2.5 first:pt-0 group hover:bg-surface-low/40 p-1.5 transition-all border border-transparent hover:border-amber-100">
+                  <div key={lead.id} className="flex items-center justify-between pt-2.5 first:pt-0 group hover:bg-slate-50/40 p-1.5 transition-all border border-transparent hover:border-amber-100">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-ink-soft text-xs">{lead.name}</span>
+                        <span className="font-bold text-slate-600 text-xs">{lead.name}</span>
                         <span className={cn(
                           "px-1.5 py-0.5 text-[9px] font-bold font-sans leading-none",
                           type === 'recurring' ? "bg-emerald-50 border border-emerald-100 text-emerald-700": "bg-indigo-50 border border-indigo-100 text-indigo-700"
@@ -2992,7 +2992,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           {type === 'recurring' ? 'RECORRENTE' : 'ATIVO PONTUAL'}
                         </span>
                       </div>
-                      <p className="text-[10px] text-ink-faint font-mono font-semibold flex items-center gap-1.5">
+                      <p className="text-[10px] text-slate-400 font-mono font-semibold flex items-center gap-1.5">
                         <span>📱 {lead.phone}</span>
                         <span className="text-rule">|</span>
                         <span>🗓️ Último Serviço: {lead.last_service_date ? new Date(lead.last_service_date).toLocaleDateString('pt-BR') : 'Sem registro'}</span>
@@ -3004,7 +3004,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         {missingDate ? (
                           <>
                             <p className="text-[10px] font-bold text-amber-600 font-mono leading-none">⚠️ Sem Registro</p>
-                            <p className="text-[9px] font-bold text-ink-faint leading-none mt-1">Configurar serviço</p>
+                            <p className="text-[9px] font-bold text-slate-400 leading-none mt-1">Configurar serviço</p>
                           </>
                         ) : (
                           <>
@@ -3018,7 +3018,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                       <button
                         onClick={() => setSelectedLeadId(lead.id)}
-                        className="bg-surface-mid hover:bg-indigo-600 group-hover:bg-indigo-600 text-ink-soft hover:text-white group-hover:text-white px-2.5 py-1.5 text-[10px] font-bold transition-all flex items-center gap-1 border border-rule/60"
+                        className="bg-slate-100 hover:bg-indigo-600 group-hover:bg-indigo-600 text-slate-600 hover:text-white group-hover:text-white px-2.5 py-1.5 text-[10px] font-bold transition-all flex items-center gap-1 border border-slate-900/[0.07]/60 rounded-lg"
                       >
                         <Phone size={10} />
                         CRM
@@ -3031,10 +3031,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
           </div>
 
           {/* Section B: Fidelização & Rentabilidade */}
-          <div className="bg-surface p-5 border border-rule/50 flex flex-col justify-between gap-4">
+          <div className="bg-white p-5 border border-slate-900/[0.07]/50 flex flex-col justify-between gap-4">
             
             {/* Retention Rate Display */}
-            <div className="flex flex-col sm:flex-row items-center gap-5 bg-surface-low/50 p-4 border border-rule/30">
+            <div className="flex flex-col sm:flex-row items-center gap-5 bg-slate-50/50 p-4 border border-slate-900/[0.07]/30">
               <div className="relative flex items-center justify-center">
                 {/* Visual Circle Gauge */}
                 <svg className="w-20 h-20">
@@ -3057,15 +3057,15 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   />
                 </svg>
                 <div className="absolute text-center mt-0.5">
-                  <span className="text-lg font-bold text-ink-soft font-mono tracking-tighter">
+                  <span className="text-lg font-bold text-slate-600 font-mono tracking-tighter">
                     {customerLifecycleStats.retentionRate}%
                   </span>
                 </div>
               </div>
 
               <div className="space-y-1 text-center sm:text-left flex-1">
-                <h5 className="text-[13px] font-bold text-ink-soft uppercase tracking-tight">Taxa de Retenção da Carteira</h5>
-                <p className="text-[11px] text-ink-muted leading-relaxed font-semibold">
+                <h5 className="text-[13px] font-bold text-slate-600 uppercase tracking-tight">Taxa de Retenção da Carteira</h5>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
                   Mede a robustez da base calculada sobre exclusões manuais ou perdas de contratos.
                 </p>
                 <div className="pt-1 flex items-center gap-1.5 justify-center sm:justify-start">
@@ -3082,35 +3082,35 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             </div>
 
             {/* Top Recurring Client Metric */}
-            <div className="bg-surface-low/50 p-4 border border-rule/30 flex flex-col justify-between flex-1 gap-2">
-              <div className="flex items-center justify-between border-b border-rule pb-2">
+            <div className="bg-slate-50/50 p-4 border border-slate-900/[0.07]/30 flex flex-col justify-between flex-1 gap-2">
+              <div className="flex items-center justify-between border-b border-slate-900/[0.07] pb-2">
                 <div className="flex items-center gap-1.5">
                   <Award size={14} className="text-amber-500" />
-                  <span className="text-label-sm text-ink-soft uppercase">Top Value Recurring Client</span>
+                  <span className="text-label-sm text-slate-600 uppercase">Top Value Recurring Client</span>
                 </div>
-                <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 leading-none">⭐ VIP</span>
+                <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 leading-none rounded-lg">⭐ VIP</span>
               </div>
 
               {customerLifecycleStats.topRecurringClient ? (
                 <div className="flex justify-between items-center pt-1">
                   <div className="space-y-0.5">
-                    <p className="text-xs font-bold text-ink-soft">
+                    <p className="text-xs font-bold text-slate-600">
                       {customerLifecycleStats.topRecurringClient.name}
                     </p>
-                    <p className="text-[10px] text-ink-faint font-semibold">
-                      Plano: <span className="font-bold text-ink-muted font-mono capitalize">{customerLifecycleStats.topRecurringClient.projected_frequency}</span>
+                    <p className="text-[10px] text-slate-400 font-semibold">
+                      Plano: <span className="font-bold text-slate-500 font-mono capitalize">{customerLifecycleStats.topRecurringClient.projected_frequency}</span>
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-emerald-600 font-mono">
                       ${customerLifecycleStats.topRecurringLtv.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="text-label-sm text-ink-faint uppercase">LTV Anual Projetado</p>
+                    <p className="text-label-sm text-slate-400 uppercase">LTV Anual Projetado</p>
                   </div>
                 </div>
               ) : (
                 <div className="py-4 text-center">
-                  <p className="text-[10px] text-ink-faint font-semibold italic">Nenhum contrato recorrente fechado com LTV ainda.</p>
+                  <p className="text-[10px] text-slate-400 font-semibold italic">Nenhum contrato recorrente fechado com LTV ainda.</p>
                 </div>
               )}
             </div>
@@ -3127,7 +3127,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="bg-indigo-950 text-indigo-300 text-label-sm uppercase px-2.5 py-1 border border-indigo-800/50">
+              <span className="bg-indigo-950 text-indigo-300 text-[11px] font-semibold px-2.5 py-1 border border-indigo-800/50 rounded-lg">
                 MÓDULO 4 • American Market Customer Recovery
               </span>
               <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
@@ -3136,18 +3136,18 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <Sparkles className="text-indigo-400" size={20} />
               Customer Recovery Center (Pós-Venda Ativo)
             </h3>
-            <p className="text-xs text-ink-faint">
+            <p className="text-xs text-slate-400">
               Gerador de scripts de alta conversão, templates de SMS/Email (EUA) e gestão de tentativas manuais para reativação de afluentes e de recorrência rápida.
             </p>
           </div>
           
           {/* Recovery Stats badge group */}
           <div className="flex flex-wrap gap-2 text-[10px] font-bold">
-            <div className="bg-emerald-950/60 border border-emerald-800 text-emerald-400 px-3 py-1.5 flex items-center gap-1">
+            <div className="bg-emerald-950/60 border border-emerald-800 text-emerald-400 px-3 py-1.5 flex items-center gap-1 rounded-lg">
               <span>🚀 Recovered:</span>
               <span className="font-mono font-bold">{recoveryStats.successCount}</span>
             </div>
-            <div className="bg-indigo-950/60 border border-indigo-850 text-indigo-400 px-3 py-1.5 flex items-center gap-1">
+            <div className="bg-indigo-950/60 border border-indigo-850 text-indigo-400 px-3 py-1.5 flex items-center gap-1 rounded-lg">
               <span>📞 Total Attempts:</span>
               <span className="font-mono font-bold">{recoveryStats.totalAttempts}</span>
             </div>
@@ -3162,7 +3162,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               
               {/* Select Client Dropdown Box */}
               <div className="md:col-span-4 space-y-2.5">
-                <label className="text-label-sm uppercase text-ink-faint block">
+                <label className="text-[11px] font-semibold text-slate-400 block">
                   1. Select Client to Recover
                 </label>
                 <select
@@ -3195,7 +3195,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   </optgroup>
                 </select>
 
-                <p className="text-[10px] text-ink-muted italic leading-snug">
+                <p className="text-[10px] text-slate-500 italic leading-snug">
                   💡 Tip: Selecione um cliente acima para carregar automaticamente o histórico e gerar as propostas de reativação americanas.
                 </p>
               </div>
@@ -3204,33 +3204,33 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               {lead ? (
                 <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-4 items-center">
                   <div className="p-2.5 bg-ink/60 border border-white/10 space-y-0.5">
-                    <p className="text-label-sm text-ink-muted uppercase">Last Service Date</p>
+                    <p className="text-label-sm text-slate-500 uppercase">Last Service Date</p>
                     <p className="text-xs font-bold text-indigo-400 font-mono">
                       {lead.last_service_date ? new Date(lead.last_service_date).toLocaleDateString('pt-BR') : 'N/A'}
                     </p>
                   </div>
                   <div className="p-2.5 bg-ink/60 border border-white/10 space-y-0.5">
-                    <p className="text-label-sm text-ink-muted uppercase">Home Blueprint</p>
-                    <p className="text-xs font-bold text-ink-faint">
+                    <p className="text-label-sm text-slate-500 uppercase">Home Blueprint</p>
+                    <p className="text-xs font-bold text-slate-400">
                       {lead.bedrooms || '?' } bds / {lead.bathrooms || '?'} bths
                     </p>
                   </div>
                   <div className="p-2.5 bg-ink/60 border border-white/10 space-y-0.5">
-                    <p className="text-label-sm text-ink-muted uppercase">Estimated Ticket</p>
+                    <p className="text-label-sm text-slate-500 uppercase">Estimated Ticket</p>
                     <p className="text-xs font-bold text-emerald-400 font-mono">
                       ${lead.estimated_price || lead.closed_value || '150'}
                     </p>
                   </div>
                   <div className="p-2.5 bg-ink/60 border border-white/10 space-y-0.5">
-                    <p className="text-label-sm text-ink-muted uppercase">Frequency Model</p>
-                    <p className="text-xs font-bold text-ink-faint capitalize">
+                    <p className="text-label-sm text-slate-500 uppercase">Frequency Model</p>
+                    <p className="text-xs font-bold text-slate-400 capitalize">
                       {lead.projected_frequency || 'one-time'}
                     </p>
                   </div>
                 </div>
               ) : (
                 <div className="md:col-span-8 flex items-center justify-center p-6 border border-dashed border-white/10">
-                  <p className="text-xs text-ink-muted text-center">Nenhum cliente selecionado no momento. Selecione um cliente no menu esquerdo.</p>
+                  <p className="text-xs text-slate-500 text-center">Nenhum cliente selecionado no momento. Selecione um cliente no menu esquerdo.</p>
                 </div>
               )}
 
@@ -3251,14 +3251,14 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 <div className="bg-ink p-4.5 border border-white/80 space-y-4">
                   <div className="flex items-center gap-1.5 border-b border-white/60 pb-2.5">
                     <Save size={13} className="text-indigo-400" />
-                    <span className="text-label-sm uppercase text-ink-faint">2. Log Reactivation Effort</span>
+                    <span className="text-[11px] font-semibold text-slate-400">2. Log Reactivation Effort</span>
                   </div>
 
                   {lead ? (
                     <div className="space-y-3.5">
                       {/* Channel Pick */}
                       <div className="space-y-1.5">
-                        <label className="text-label-sm text-ink-faint uppercase block">Reactivation Channel</label>
+                        <label className="text-label-sm text-slate-400 uppercase block">Reactivation Channel</label>
                         <div className="grid grid-cols-3 gap-2">
                           <button
                             onClick={() => setRecoveryChannel('sms')}
@@ -3266,7 +3266,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                               "py-1.5 text-[10px] font-bold uppercase tracking-wide border transition-all flex items-center justify-center gap-1",
                               recoveryChannel === 'sms' 
                                 ? "bg-indigo-600 border-indigo-500 text-white" 
-                                : "bg-ink border-white/10 text-ink-faint hover:text-rule"
+                                : "bg-ink border-white/10 text-slate-400 hover:text-rule"
                             )}
                           >
                             💬 SMS
@@ -3277,7 +3277,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                               "py-1.5 text-[10px] font-bold uppercase tracking-wide border transition-all flex items-center justify-center gap-1",
                               recoveryChannel === 'call' 
                                 ? "bg-indigo-600 border-indigo-500 text-white" 
-                                : "bg-ink border-white/10 text-ink-faint hover:text-rule"
+                                : "bg-ink border-white/10 text-slate-400 hover:text-rule"
                             )}
                           >
                             📞 Call
@@ -3288,7 +3288,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                               "py-1.5 text-[10px] font-bold uppercase tracking-wide border transition-all flex items-center justify-center gap-1",
                               recoveryChannel === 'email' 
                                 ? "bg-indigo-600 border-indigo-500 text-white" 
-                                : "bg-ink border-white/10 text-ink-faint hover:text-rule"
+                                : "bg-ink border-white/10 text-slate-400 hover:text-rule"
                             )}
                           >
                             ✉️ Email
@@ -3298,7 +3298,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                       {/* Result Pick */}
                       <div className="space-y-1.5">
-                        <label className="text-label-sm text-ink-faint uppercase block">Attempt Result</label>
+                        <label className="text-label-sm text-slate-400 uppercase block">Attempt Result</label>
                         <select
                           value={recoveryStatus}
                           onChange={(e) => setRecoveryStatus(e.target.value as any)}
@@ -3313,12 +3313,12 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                       {/* Notes Check */}
                       <div className="space-y-1.5">
-                        <label className="text-label-sm text-ink-faint uppercase block">Call/Message Log Notes</label>
+                        <label className="text-label-sm text-slate-400 uppercase block">Call/Message Log Notes</label>
                         <textarea
                           placeholder="e.g. Spoke with husband, loved the $20 catch-up discount. Scheduled for next Tuesday."
                           value={recoveryNotes}
                           onChange={(e) => setRecoveryNotes(e.target.value)}
-                          className="w-full bg-ink border border-white/10 text-rule text-xs p-2 h-16 outline-none focus:border-indigo-500 resize-none font-semibold text-ink-faint"
+                          className="w-full bg-ink border border-white/10 text-rule text-xs p-2 h-16 outline-none focus:border-indigo-500 resize-none font-semibold text-slate-400"
                         />
                       </div>
 
@@ -3352,7 +3352,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                     </div>
                   ) : (
-                    <div className="py-6 text-center text-xs text-ink-muted font-semibold italic">
+                    <div className="py-6 text-center text-xs text-slate-500 font-semibold italic">
                       Por favor, selecione um cliente no topo para registrar as tentativas.
                     </div>
                   )}
@@ -3363,18 +3363,18 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 <div className="bg-ink p-4.5 border border-white/80 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="flex items-center justify-between border-b border-white/60 pb-2.5">
                     <div className="flex items-center gap-1.5">
-                      <Clock size={13} className="text-ink-faint" />
-                      <span className="text-label-sm uppercase text-ink-faint">Customer Reactivation Logs</span>
+                      <Clock size={13} className="text-slate-400" />
+                      <span className="text-[11px] font-semibold text-slate-400">Customer Reactivation Logs</span>
                     </div>
                     {lead && (
-                      <span className="bg-ink border border-white/10 text-ink-faint text-[9px] font-mono font-bold px-2 py-0.5">
+                      <span className="bg-ink border border-white/10 text-slate-400 text-[9px] font-mono font-bold px-2 py-0.5 rounded-lg">
                         {lead.name}
                       </span>
                     )}
                   </div>
 
                   {!lead ? (
-                    <div className="py-8 text-center text-xs text-ink-muted font-semibold italic">
+                    <div className="py-8 text-center text-xs text-slate-500 font-semibold italic">
                       Selecione um cliente para ver o histórico.
                     </div>
                   ) : (() => {
@@ -3390,8 +3390,8 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                     if (historyList.length === 0) {
                       return (
                         <div className="py-8 text-center space-y-1 bg-ink/30 border border-dashed border-white/50">
-                          <p className="text-xs text-ink-faint font-bold">Nenhum histórico registrado</p>
-                          <p className="text-[10px] text-ink-muted px-3 leading-normal">Ainda não há tentativas de reativação listadas para este cliente.</p>
+                          <p className="text-xs text-slate-400 font-bold">Nenhum histórico registrado</p>
+                          <p className="text-[10px] text-slate-500 px-3 leading-normal">Ainda não há tentativas de reativação listadas para este cliente.</p>
                         </div>
                       );
                     }
@@ -3406,7 +3406,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                                   "px-1.5 py-0.5 text-[8px] font-bold uppercase border tracking-wide leading-none",
                                   att.channel === 'sms' ? "bg-indigo-950/60 border-indigo-800 text-indigo-400":
                                   att.channel === 'call' ? "bg-violet-950/60 border-violet-800 text-violet-400":
-                                  "bg-accent-ink/60 border-accent/30 text-accent"
+                                  "bg-blue-600-ink/60 border-accent/30 text-blue-600"
                                 )}>
                                   {att.channel}
                                 </span>
@@ -3415,20 +3415,20 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                                   att.status === 'success' ? "bg-emerald-950/60 border-emerald-800 text-emerald-400":
                                   att.status === 'refused' ? "bg-rose-950/60 border-rose-800 text-rose-400":
                                   att.status === 'no_response' ? "bg-amber-950/60 border-amber-800 text-amber-400":
-                                  "bg-ink border-white/10 text-ink-faint"
+                                  "bg-ink border-white/10 text-slate-400"
                                 )}>
                                   {att.status === 'success' ? 'Reativado' : att.status === 'refused' ? 'Recusado' : att.status === 'no_response' ? 'Sem Resposta' : 'Pendente'}
                                 </span>
                               </div>
-                              <span className="text-[9px] text-ink-muted font-mono font-semibold">
+                              <span className="text-[9px] text-slate-500 font-mono font-semibold">
                                 🗓️ {new Date(att.date).toLocaleDateString()} at {new Date(att.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
-                            <p className="text-[11px] text-ink-faint font-medium pl-1 leading-relaxed">
+                            <p className="text-[11px] text-slate-400 font-medium pl-1 leading-relaxed">
                               {att.notes}
                             </p>
-                            <p className="text-[9.5px] text-ink-muted pl-1 font-semibold">
-                              Logged by: <span className="text-ink-faint">{att.agentName || 'Agent'}</span>
+                            <p className="text-[9.5px] text-slate-500 pl-1 font-semibold">
+                              Logged by: <span className="text-slate-400">{att.agentName || 'Agent'}</span>
                             </p>
                           </div>
                         ))}
@@ -3447,7 +3447,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/60 pb-3">
                     <div className="flex items-center gap-1.5">
                       <Sparkles size={14} className="text-indigo-400" />
-                      <span className="text-label-sm uppercase text-indigo-300">3. USA High-Converting Campaign Angles</span>
+                      <span className="text-[11px] font-semibold text-indigo-300">3. USA High-Converting Campaign Angles</span>
                     </div>
 
                     {/* Angle Selector Tabs */}
@@ -3456,7 +3456,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         onClick={() => setRecoveryAngle('miss_you')}
                         className={cn(
                           "px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide transition-all",
-                          recoveryAngle === 'miss_you' ? "bg-indigo-600 text-white": "text-ink-faint hover:text-ink-faint"
+                          recoveryAngle === 'miss_you' ? "bg-indigo-600 text-white": "text-slate-400 hover:text-slate-400"
                         )}
                       >
                         Gift check
@@ -3465,7 +3465,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         onClick={() => setRecoveryAngle('seasonal')}
                         className={cn(
                           "px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide transition-all",
-                          recoveryAngle === 'seasonal' ? "bg-indigo-600 text-white": "text-ink-faint hover:text-ink-faint"
+                          recoveryAngle === 'seasonal' ? "bg-indigo-600 text-white": "text-slate-400 hover:text-slate-400"
                         )}
                       >
                         Seasonal
@@ -3474,7 +3474,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         onClick={() => setRecoveryAngle('priority')}
                         className={cn(
                           "px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide transition-all",
-                          recoveryAngle === 'priority' ? "bg-indigo-600 text-white": "text-ink-faint hover:text-ink-faint"
+                          recoveryAngle === 'priority' ? "bg-indigo-600 text-white": "text-slate-400 hover:text-slate-400"
                         )}
                       >
                         VIP Lock
@@ -3483,7 +3483,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         onClick={() => setRecoveryAngle('quality')}
                         className={cn(
                           "px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide transition-all",
-                          recoveryAngle === 'quality' ? "bg-indigo-600 text-white": "text-ink-faint hover:text-ink-faint"
+                          recoveryAngle === 'quality' ? "bg-indigo-600 text-white": "text-slate-400 hover:text-slate-400"
                         )}
                       >
                         Quality Check
@@ -3497,20 +3497,20 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       {/* Copy Box 1: SMS */}
                       <div className="bg-ink border border-white/10 p-3.5 space-y-2 relative">
                         <div className="flex items-center justify-between pb-1">
-                          <span className="text-label-sm uppercase text-indigo-400 font-mono">📱 Mobile SMS (US Friendly / Conversational)</span>
+                          <span className="text-[11px] font-semibold text-indigo-400 font-mono">📱 Mobile SMS (US Friendly / Conversational)</span>
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(recoveryTemplates.sms);
                               setCopiedState('sms');
                               setTimeout(() => setCopiedState(null), 2000);
                             }}
-                            className="bg-ink hover:bg-indigo-600 text-label-sm uppercase text-indigo-300 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1"
+                            className="bg-ink hover:bg-indigo-600 text-[11px] font-semibold text-indigo-300 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1 rounded-lg"
                           >
                             {copiedState === 'sms' ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
                             {copiedState === 'sms' ? 'Copied!' : 'Copy SMS'}
                           </button>
                         </div>
-                        <p className="text-xs text-ink-faint leading-relaxed font-mono select-all bg-ink p-2.5 border border-white/10 whitespace-pre-wrap">
+                        <p className="text-xs text-slate-400 leading-relaxed font-mono select-all bg-ink p-2.5 border border-white/10 whitespace-pre-wrap">
                           {recoveryTemplates.sms}
                         </p>
                       </div>
@@ -3518,20 +3518,20 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       {/* Copy Box 2: CALL SCRIPT */}
                       <div className="bg-ink border border-white/10 p-3.5 space-y-2 relative">
                         <div className="flex items-center justify-between pb-1">
-                          <span className="text-label-sm uppercase text-violet-400 font-mono">🗣️ Phone Call Script (High Empathy)</span>
+                          <span className="text-[11px] font-semibold text-violet-400 font-mono">🗣️ Phone Call Script (High Empathy)</span>
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(recoveryTemplates.callScript);
                               setCopiedState('call');
                               setTimeout(() => setCopiedState(null), 2000);
                             }}
-                            className="bg-ink hover:bg-indigo-600 text-label-sm uppercase text-violet-300 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1"
+                            className="bg-ink hover:bg-indigo-600 text-[11px] font-semibold text-violet-300 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1 rounded-lg"
                           >
                             {copiedState === 'call' ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
                             {copiedState === 'call' ? 'Copied!' : 'Copy Script'}
                           </button>
                         </div>
-                        <div className="text-xs text-ink-faint leading-relaxed max-h-[140px] overflow-y-auto bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
+                        <div className="text-xs text-slate-400 leading-relaxed max-h-[140px] overflow-y-auto bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
                           {recoveryTemplates.callScript}
                         </div>
                       </div>
@@ -3539,20 +3539,20 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       {/* Copy Box 3: EMAIL */}
                       <div className="bg-ink border border-white/10 p-3.5 space-y-2 relative">
                         <div className="flex items-center justify-between pb-1">
-                          <span className="text-label-sm uppercase text-accent font-mono">✉️ Professional Reactivation Email</span>
+                          <span className="text-[11px] font-semibold text-blue-600 font-mono">✉️ Professional Reactivation Email</span>
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(recoveryTemplates.email);
                               setCopiedState('email');
                               setTimeout(() => setCopiedState(null), 2000);
                             }}
-                            className="bg-ink hover:bg-indigo-600 text-label-sm uppercase text-accent hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1"
+                            className="bg-ink hover:bg-indigo-600 text-[11px] font-semibold text-blue-600 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1 rounded-lg"
                           >
                             {copiedState === 'email' ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
                             {copiedState === 'email' ? 'Copied!' : 'Copy Email'}
                           </button>
                         </div>
-                        <div className="text-xs text-ink-faint leading-relaxed max-h-[140px] overflow-y-auto bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
+                        <div className="text-xs text-slate-400 leading-relaxed max-h-[140px] overflow-y-auto bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
                           {recoveryTemplates.email}
                         </div>
                       </div>
@@ -3560,16 +3560,16 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                     </div>
                   ) : (
                     <div className="py-24 text-center space-y-3 border border-dashed border-white/10 flex-1 flex flex-col justify-center">
-                      <Sparkles className="mx-auto w-8 h-8 text-ink-muted animate-pulse" />
-                      <p className="text-xs font-bold text-ink-muted">Selecione um cliente para começar</p>
-                      <p className="text-[10px] text-ink-muted max-w-sm mx-auto px-4 leading-normal">Qualquer cliente comercial ou residencial pode ser selecionado acima para reativar um relacionamento com propostas de alto impacto.</p>
+                      <Sparkles className="mx-auto w-8 h-8 text-slate-500 animate-pulse" />
+                      <p className="text-xs font-bold text-slate-500">Selecione um cliente para começar</p>
+                      <p className="text-[10px] text-slate-500 max-w-sm mx-auto px-4 leading-normal">Qualquer cliente comercial ou residencial pode ser selecionado acima para reativar um relacionamento com propostas de alto impacto.</p>
                     </div>
                   )}
 
                 </div>
 
                 {lead && (
-                  <div className="pt-2 bg-ink p-2.5 border border-white/10 flex items-center justify-between text-[11px] font-semibold text-ink-faint">
+                  <div className="pt-2 bg-ink p-2.5 border border-white/10 flex items-center justify-between text-[11px] font-semibold text-slate-400">
                     <span className="flex items-center gap-1">🛡️ No Bots Auto-sending Policy Activated</span>
                     <span className="text-indigo-400">American Copywriter v4.2 • Passive Outreach</span>
                   </div>
@@ -3590,7 +3590,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="bg-emerald-950 text-emerald-300 text-label-sm uppercase px-2.5 py-1 border border-emerald-800/50">
+              <span className="bg-emerald-950 text-emerald-300 text-[11px] font-semibold px-2.5 py-1 border border-emerald-800/50 rounded-lg">
                 MÓDULO 5 • Revenue Recovery Center
               </span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -3599,17 +3599,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               <TrendingUp className="text-emerald-400" size={20} />
               Reativação de Orçamentos Perdidos (Middle-Funnel)
             </h3>
-            <p className="text-xs text-ink-faint">
+            <p className="text-xs text-slate-400">
               Gestão estratégica e cópias em alta conversão focadas exclusivamente em orçamentos já enviados que estão parados no meio do funil sem fechamento recente.
             </p>
           </div>
           
           <div className="flex flex-wrap gap-2 text-[10px] font-bold">
-            <div className="bg-emerald-950/60 border border-emerald-800 text-emerald-400 px-3 py-1.5 flex items-center gap-1">
+            <div className="bg-emerald-950/60 border border-emerald-800 text-emerald-400 px-3 py-1.5 flex items-center gap-1 rounded-lg">
               <span>📊 Pending Quotes:</span>
               <span className="font-mono font-bold">{quoteRecoveryStats.pendingCount}</span>
             </div>
-            <div className="bg-amber-950/60 border border-amber-800 text-amber-400 px-3 py-1.5 flex items-center gap-1">
+            <div className="bg-amber-950/60 border border-amber-800 text-amber-400 px-3 py-1.5 flex items-center gap-1 rounded-lg">
               <span>💰 Revenue Stuck:</span>
               <span className="font-mono font-bold">${quoteRecoveryStats.totalFinancialValueStuck.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
@@ -3620,27 +3620,27 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           <div className="bg-ink p-4 border border-white/10 space-y-1">
-            <p className="text-label-sm text-ink-faint uppercase">Orçamentos Pendentes</p>
+            <p className="text-label-sm text-slate-400 uppercase">Orçamentos Pendentes</p>
             <p className="text-xl font-bold text-white font-mono">{quoteRecoveryStats.pendingCount}</p>
-            <p className="text-[9px] text-ink-muted font-semibold leading-relaxed">Quotes ativamente emitidas sem venda.</p>
+            <p className="text-[9px] text-slate-500 font-semibold leading-relaxed">Quotes ativamente emitidas sem venda.</p>
           </div>
 
           <div className="bg-ink p-4 border border-white/10 space-y-1">
-            <p className="text-label-sm text-ink-faint uppercase">Inativos &gt; 24h a 48h</p>
+            <p className="text-label-sm text-slate-400 uppercase">Inativos &gt; 24h a 48h</p>
             <p className="text-xl font-bold text-amber-500 font-mono">{quoteRecoveryStats.unanswered24h}</p>
-            <p className="text-[9px] text-ink-muted font-semibold leading-relaxed">Quotes enviadas sem resposta há mais de 1 dia.</p>
+            <p className="text-[9px] text-slate-500 font-semibold leading-relaxed">Quotes enviadas sem resposta há mais de 1 dia.</p>
           </div>
 
           <div className="bg-ink p-4 border border-white/10 space-y-1">
-            <p className="text-label-sm text-ink-faint uppercase">Inativos &gt; 48h a 72h</p>
+            <p className="text-label-sm text-slate-400 uppercase">Inativos &gt; 48h a 72h</p>
             <p className="text-xl font-bold text-orange-500 font-mono">{quoteRecoveryStats.unanswered48h}</p>
-            <p className="text-[9px] text-ink-muted font-semibold leading-relaxed">Quotes enviadas há mais de 2 dias sem fechamento.</p>
+            <p className="text-[9px] text-slate-500 font-semibold leading-relaxed">Quotes enviadas há mais de 2 dias sem fechamento.</p>
           </div>
 
           <div className="bg-ink p-4 border border-white/10 space-y-1">
-            <p className="text-label-sm text-ink-faint uppercase">Inativos &gt; 72 horas</p>
+            <p className="text-label-sm text-slate-400 uppercase">Inativos &gt; 72 horas</p>
             <p className="text-xl font-bold text-rose-500 font-mono">{quoteRecoveryStats.unanswered72h}</p>
-            <p className="text-[9px] text-ink-muted font-semibold leading-relaxed">Fila prioritária. Críticos com risco de perda do lead.</p>
+            <p className="text-[9px] text-slate-500 font-semibold leading-relaxed">Fila prioritária. Críticos com risco de perda do lead.</p>
           </div>
 
         </div>
@@ -3655,7 +3655,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 <AlertCircle size={14} className="text-red-400" />
                 <h4 className="text-label-md text-rule uppercase">Orçamentos sob Risco de Perda</h4>
               </div>
-              <span className="bg-red-950 text-red-400 text-[9px] font-bold px-2 py-0.5 border border-red-900/60 font-mono">
+              <span className="bg-red-950 text-red-400 text-[9px] font-bold px-2 py-0.5 border border-red-900/60 font-mono rounded-lg">
                 Ordenado por Ticket
               </span>
             </div>
@@ -3663,8 +3663,8 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
             {quoteRecoveryStats.largestQuotes.length === 0 ? (
               <div className="py-12 text-center space-y-2">
                 <CheckCircle className="text-emerald-500 mx-auto w-8 h-8 p-1 bg-emerald-950/60 border border-emerald-900" />
-                <p className="text-xs font-bold text-ink-faint">Tudo limpo!</p>
-                <p className="text-[10px] text-ink-muted">Nenhum orçamento pendente precisando de intervenção manual no momento.</p>
+                <p className="text-xs font-bold text-slate-400">Tudo limpo!</p>
+                <p className="text-[10px] text-slate-500">Nenhum orçamento pendente precisando de intervenção manual no momento.</p>
               </div>
             ) : (
               <div className="divide-y divide-slate-900 max-h-[380px] overflow-y-auto pr-1 space-y-2.5">
@@ -3682,17 +3682,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="font-bold text-rule text-xs">{leadObj.name}</span>
                           {item.isBackfilled && (
-                            <span className="bg-ink text-ink-faint font-mono font-semibold text-[8px] px-1 py-0.5 leading-none border border-white/10">
+                            <span className="bg-ink text-slate-400 font-mono font-semibold text-[8px] px-1 py-0.5 leading-none border border-white/10 rounded-lg">
                               Histórico (Backfilled)
                             </span>
                           )}
-                          <span className="font-semibold text-[9px] text-ink-faint font-mono">
+                          <span className="font-semibold text-[9px] text-slate-400 font-mono">
                             ({leadObj.bedrooms || '?'}B / {leadObj.bathrooms || '?'}Ba)
                           </span>
                         </div>
-                        <p className="text-[10px] text-ink-muted font-mono flex items-center gap-1.5">
+                        <p className="text-[10px] text-slate-500 font-mono flex items-center gap-1.5">
                           <span>📱 {leadObj.phone}</span>
-                          <span className="text-ink-soft">|</span>
+                          <span className="text-slate-600">|</span>
                           <span>🕒 {timeDisplay} ocioso</span>
                         </p>
                       </div>
@@ -3700,7 +3700,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       <div className="flex items-center gap-2.5">
                         <div className="text-right">
                           <p className="text-xs font-bold text-emerald-400 font-mono">${item.price}</p>
-                          <p className="text-[8px] font-bold text-ink-muted uppercase tracking-widest">{item.attemptsCount} contatos</p>
+                          <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">{item.attemptsCount} contatos</p>
                         </div>
 
                         <button
@@ -3711,7 +3711,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                             "px-2 py-1.5 text-[9px] font-bold uppercase transition-all flex items-center gap-1",
                             String(selectedQuoteLeadId) === String(leadObj.id)
                               ? "bg-emerald-600 border border-emerald-500 text-white shadow"
-                              : "bg-ink hover:bg-ink-soft text-ink-faint border border-white/10"
+                              : "bg-ink hover:bg-ink-soft text-slate-400 border border-white/10"
                           )}
                         >
                           <TrendingUp size={9} />
@@ -3724,9 +3724,9 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               </div>
             )}
 
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold text-ink-muted">
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold text-slate-500">
               <span>SLA Máximo Recomendado: 72 horas</span>
-              <span className="text-ink-faint">Total Retido: ${quoteRecoveryStats.totalFinancialValueStuck.toLocaleString('en-US', { minimumFractionDigits: 0 })}</span>
+              <span className="text-slate-400">Total Retido: ${quoteRecoveryStats.totalFinancialValueStuck.toLocaleString('en-US', { minimumFractionDigits: 0 })}</span>
             </div>
           </div>
 
@@ -3744,17 +3744,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <h4 className="text-sm font-bold text-white">{lead.name}</h4>
                         {lead.city && (
-                          <span className="bg-ink border border-white/10 text-ink-faint text-[8px] font-sans px-1.5 py-0.5 uppercase leading-none">
+                          <span className="bg-ink border border-white/10 text-slate-400 text-[8px] font-sans px-1.5 py-0.5 uppercase leading-none rounded-lg">
                             📍 {lead.city}
                           </span>
                         )}
                         {lead.quote_sent_at?.includes('_backfilled') && (
-                          <span className="bg-ink text-[8px] font-mono border border-white/10 text-ink-muted px-1.5 py-0.5 leading-none">
+                          <span className="bg-ink text-[8px] font-mono border border-white/10 text-slate-500 px-1.5 py-0.5 leading-none rounded-lg">
                             Legacy Backfilled
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-ink-faint font-mono">
+                      <p className="text-[10px] text-slate-400 font-mono">
                         Estimativa Enviada em: <span className="text-rule">
                           {lead.quote_sent_at 
                             ? new Date(lead.quote_sent_at.split('_')[0]).toLocaleString('en-US') 
@@ -3764,7 +3764,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                     </div>
 
                     <div className="text-right">
-                      <p className="text-xs text-ink-faint leading-none">Valor Estimado</p>
+                      <p className="text-xs text-slate-400 leading-none">Valor Estimado</p>
                       <p className="text-sm font-bold text-emerald-400 font-mono mt-1">
                         ${lead.revenue_estimate || parseFloat(String(lead.estimated_price).replace(/[^0-9.]/g, '')) || '150.00'}
                       </p>
@@ -3773,7 +3773,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                   {/* Selector of Angles */}
                   <div className="space-y-1.5">
-                    <label className="text-label-sm text-ink-faint uppercase block">Selecione o Gancho de Reativação Comercial</label>
+                    <label className="text-label-sm text-slate-400 uppercase block">Selecione o Gancho de Reativação Comercial</label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <button
                         onClick={() => setQuoteAngle('budget_fit')}
@@ -3781,14 +3781,14 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           "px-2.5 py-2 text-[10px] font-bold text-left border transition-all flex flex-col justify-between gap-1",
                           quoteAngle === 'budget_fit' 
                             ? "bg-indigo-950/65 border-indigo-500 text-indigo-300 shadow" 
-                            : "bg-ink border-white/10 hover:border-white/10 text-ink-faint"
+                            : "bg-ink border-white/10 hover:border-white/10 text-slate-400"
                         )}
                       >
                         <span className="font-bold flex items-center gap-1 text-white">
                           <DollarSign size={10} className="text-indigo-400" />
                           1. Budget Match
                         </span>
-                        <span className="text-[8px] text-ink-muted leading-normal block font-semibold">Desconto especial de $15 para ajuste orçamentário.</span>
+                        <span className="text-[8px] text-slate-500 leading-normal block font-semibold">Desconto especial de $15 para ajuste orçamentário.</span>
                       </button>
 
                       <button
@@ -3797,14 +3797,14 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           "px-2.5 py-2 text-[10px] font-bold text-left border transition-all flex flex-col justify-between gap-1",
                           quoteAngle === 'priority_slot' 
                             ? "bg-emerald-950/65 border-emerald-500 text-emerald-300 shadow" 
-                            : "bg-ink border-white/10 hover:border-white/10 text-ink-faint"
+                            : "bg-ink border-white/10 hover:border-white/10 text-slate-400"
                         )}
                       >
                         <span className="font-bold flex items-center gap-1 text-white">
                           <Clock size={10} className="text-emerald-400" />
                           2. Route Slot Priority
                         </span>
-                        <span className="text-[8px] text-ink-muted leading-normal block font-semibold">Brecha na rota vizinha com desconto de otimização logística.</span>
+                        <span className="text-[8px] text-slate-500 leading-normal block font-semibold">Brecha na rota vizinha com desconto de otimização logística.</span>
                       </button>
 
                       <button
@@ -3813,14 +3813,14 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           "px-2.5 py-2 text-[10px] font-bold text-left border transition-all flex flex-col justify-between gap-1",
                           quoteAngle === 'satisfaction_check' 
                             ? "bg-amber-950/65 border-amber-500 text-amber-300 shadow" 
-                            : "bg-ink border-white/10 hover:border-white/10 text-ink-faint"
+                            : "bg-ink border-white/10 hover:border-white/10 text-slate-400"
                         )}
                       >
                         <span className="font-bold flex items-center gap-1 text-white">
                           <Sparkles size={10} className="text-amber-400" />
                           3. Quality Guarantee
                         </span>
-                        <span className="text-[8px] text-ink-muted leading-normal block font-semibold">Follow-up centrado na garantia de 50 pontos Dany Clean Pro.</span>
+                        <span className="text-[8px] text-slate-500 leading-normal block font-semibold">Follow-up centrado na garantia de 50 pontos Dany Clean Pro.</span>
                       </button>
                     </div>
                   </div>
@@ -3828,8 +3828,8 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   {/* Copywriting Dashboard with tabs */}
                   <div className="space-y-3.5">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                      <span className="text-label-sm text-ink-faint uppercase">Canais Disponíveis (Passive Consultive Outreach)</span>
-                      <span className="text-[9px] text-ink-muted italic">No automated texts sent</span>
+                      <span className="text-label-sm text-slate-400 uppercase">Canais Disponíveis (Passive Consultive Outreach)</span>
+                      <span className="text-[9px] text-slate-500 italic">No automated texts sent</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
@@ -3844,13 +3844,13 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                               setQuoteCopiedState('sms');
                               setTimeout(() => setQuoteCopiedState(null), 2000);
                             }}
-                            className="bg-ink hover:bg-indigo-600 text-label-sm uppercase text-accent hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1"
+                            className="bg-ink hover:bg-indigo-600 text-[11px] font-semibold text-blue-600 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1 rounded-lg"
                           >
                             {quoteCopiedState === 'sms' ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
                             {quoteCopiedState === 'sms' ? 'Copied!' : 'Copy SMS'}
                           </button>
                         </div>
-                        <div className="text-xs text-ink-faint leading-relaxed bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
+                        <div className="text-xs text-slate-400 leading-relaxed bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
                           {quoteRecoveryTemplates.sms}
                         </div>
                       </div>
@@ -3865,13 +3865,13 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                               setQuoteCopiedState('call');
                               setTimeout(() => setQuoteCopiedState(null), 2000);
                             }}
-                            className="bg-ink hover:bg-amber-600 text-label-sm uppercase text-amber-300 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1"
+                            className="bg-ink hover:bg-amber-600 text-[11px] font-semibold text-amber-300 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1 rounded-lg"
                           >
                             {quoteCopiedState === 'call' ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
                             {quoteCopiedState === 'call' ? 'Copied!' : 'Copy Script'}
                           </button>
                         </div>
-                        <div className="text-xs text-ink-faint leading-relaxed max-h-[120px] overflow-y-auto bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
+                        <div className="text-xs text-slate-400 leading-relaxed max-h-[120px] overflow-y-auto bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
                           {quoteRecoveryTemplates.callScript}
                         </div>
                       </div>
@@ -3886,13 +3886,13 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                               setQuoteCopiedState('email');
                               setTimeout(() => setQuoteCopiedState(null), 2000);
                             }}
-                            className="bg-ink hover:bg-emerald-600 text-label-sm uppercase text-accent hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1"
+                            className="bg-ink hover:bg-emerald-600 text-[11px] font-semibold text-blue-600 hover:text-white px-2.5 py-1 border border-white/10 transition-all flex items-center gap-1 rounded-lg"
                           >
                             {quoteCopiedState === 'email' ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
                             {quoteCopiedState === 'email' ? 'Copied!' : 'Copy Email'}
                           </button>
                         </div>
-                        <div className="text-xs text-ink-faint leading-relaxed max-h-[140px] overflow-y-auto bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
+                        <div className="text-xs text-slate-400 leading-relaxed max-h-[140px] overflow-y-auto bg-ink p-2.5 border border-white/10 font-sans whitespace-pre-wrap">
                           {quoteRecoveryTemplates.email}
                         </div>
                       </div>
@@ -3904,17 +3904,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   <div className="bg-ink p-3.5 border border-white/10 space-y-3">
                     <div className="flex items-center gap-1 border-b border-white/10 pb-2">
                       <Save size={13} className="text-emerald-400" />
-                      <h5 className="text-label-sm uppercase text-ink-faint">Registrar Contato / Tentativa de Recuperação</h5>
+                      <h5 className="text-[11px] font-semibold text-slate-400">Registrar Contato / Tentativa de Recuperação</h5>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       
                       <div className="space-y-1">
-                        <label className="text-label-sm text-ink-faint uppercase">Canal Utilizado</label>
+                        <label className="text-label-sm text-slate-400 uppercase">Canal Utilizado</label>
                         <select
                           value={quoteChannel}
                           onChange={(e: any) => setQuoteChannel(e.target.value)}
-                          className="w-full bg-ink text-xs border border-white/10 text-ink-faint px-2.5 py-2 font-bold focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full bg-ink text-xs border border-white/10 text-slate-400 px-2.5 py-2 font-bold focus:ring-1 focus:ring-indigo-500 focus:outline-none rounded-lg"
                         >
                           <option value="sms">📱 SMS / Text Message</option>
                           <option value="call">📞 Phone Call</option>
@@ -3923,7 +3923,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-label-sm text-ink-faint uppercase">Resultado do Contato</label>
+                        <label className="text-label-sm text-slate-400 uppercase">Resultado do Contato</label>
                         <select
                           value={quoteRecoveryStatus}
                           onChange={(e: any) => {
@@ -3932,7 +3932,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                               setQuoteClosedValueInput(''); // Clear input if not success
                             }
                           }}
-                          className="w-full bg-ink text-xs border border-white/10 text-ink-faint px-2.5 py-2 font-bold focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                          className="w-full bg-ink text-xs border border-white/10 text-slate-400 px-2.5 py-2 font-bold focus:ring-1 focus:ring-indigo-500 focus:outline-none rounded-lg"
                         >
                           <option value="pending">⏳ Pendente (Sem Resposta Imediata)</option>
                           <option value="no_response">⏱️ Sem Resposta (Inativo)</option>
@@ -3955,22 +3955,22 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           required
                           value={quoteClosedValueInput}
                           onChange={(e) => setQuoteClosedValueInput(e.target.value)}
-                          className="w-full bg-ink font-mono text-xs border border-emerald-500/60 text-emerald-400 px-3 py-2.5 focus:ring-1 focus:ring-emerald-400 focus:outline-none"
+                          className="w-full bg-ink font-mono text-xs border border-emerald-500/60 text-emerald-400 px-3 py-2.5 focus:ring-1 focus:ring-emerald-400 focus:outline-none rounded-lg"
                         />
-                        <p className="text-[9px] text-ink-faint font-semibold italic">
+                        <p className="text-[9px] text-slate-400 font-semibold italic">
                           Obrigatório! O valor real de fechamento desse contrato deve ser informado manualmente para prosseguir com a conversão de vendas.
                         </p>
                       </div>
                     )}
 
                     <div className="space-y-1">
-                      <label className="text-label-sm text-ink-faint uppercase">Notas Internas / Observações</label>
+                      <label className="text-label-sm text-slate-400 uppercase">Notas Internas / Observações</label>
                       <textarea
                         rows={2}
                         placeholder="Ex: Cliente adorou o desconto de $15 e preferiu agendar para quinta-feira com plano quinzenal..."
                         value={quoteNotes}
                         onChange={(e) => setQuoteNotes(e.target.value)}
-                        className="w-full bg-ink text-xs border border-white/10 text-ink-faint px-2.5 py-2 focus:ring-1 focus:ring-indigo-500 focus:outline-none placeholder:text-ink-muted"
+                        className="w-full bg-ink text-xs border border-white/10 text-slate-400 px-2.5 py-2 focus:ring-1 focus:ring-indigo-500 focus:outline-none placeholder:text-slate-500 rounded-lg"
                       />
                     </div>
 
@@ -4018,9 +4018,9 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 </div>
               ) : (
                 <div className="py-24 text-center space-y-3 border border-dashed border-white/10 flex-1 flex flex-col justify-center">
-                  <Sparkles className="mx-auto w-8 h-8 text-ink-muted animate-pulse" />
-                  <p className="text-xs font-bold text-ink-muted">Selecione um orçamento para começar</p>
-                  <p className="text-[10px] text-ink-muted max-w-sm mx-auto px-4 leading-normal">Qualquer lead que esteja com orçamento pendente de fechamento comercial aparecerá na coluna ao lado para receber follow-up proativo.</p>
+                  <Sparkles className="mx-auto w-8 h-8 text-slate-500 animate-pulse" />
+                  <p className="text-xs font-bold text-slate-500">Selecione um orçamento para começar</p>
+                  <p className="text-[10px] text-slate-500 max-w-sm mx-auto px-4 leading-normal">Qualquer lead que esteja com orçamento pendente de fechamento comercial aparecerá na coluna ao lado para receber follow-up proativo.</p>
                 </div>
               );
             })()}
@@ -4029,9 +4029,9 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
         </div>
 
-        <div className="pt-2 bg-ink/60 p-3 border border-white/10 flex items-center justify-between text-[11px] font-semibold text-ink-faint">
+        <div className="pt-2 bg-ink/60 p-3 border border-white/10 flex items-center justify-between text-[11px] font-semibold text-slate-400">
           <span className="flex items-center gap-1 text-emerald-400">🛡️ No Bots Auto-sending Policy Activated</span>
-          <span className="text-ink-muted">Revenue Recovery Core v5.1 • Passive Middle-Funnel CRM</span>
+          <span className="text-slate-500">Revenue Recovery Core v5.1 • Passive Middle-Funnel CRM</span>
         </div>
 
       </div>
@@ -4043,7 +4043,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
         <div className="lg:col-span-2 space-y-6">
           
           {/* Controls Bar */}
-          <div className="bg-surface p-4 border border-rule flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="bg-white p-4 border border-slate-900/[0.07] flex flex-col md:flex-row gap-4 items-center justify-between">
             
             {/* Horizontal Tabs List */}
             <div className="flex flex-wrap gap-2 w-full md:w-auto">
@@ -4053,10 +4053,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   "px-3 py-2 text-[11px] font-bold transition-all flex items-center gap-1.5",
                   activeTab === 'hot' 
                     ? "bg-rose-50 text-rose-700 border border-rose-100 " 
-                    : "text-ink-muted hover:bg-surface-low hover:text-ink-soft"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-600"
                 )}
               >
-                <Flame size={13} className={activeTab === 'hot' ? 'text-rose-500 animate-pulse': 'text-ink-faint'} />
+                <Flame size={13} className={activeTab === 'hot' ? 'text-rose-500 animate-pulse': 'text-slate-400'} />
                 🔥 Hot Leads ({hotLeads.length})
               </button>
 
@@ -4066,10 +4066,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   "px-3 py-2 text-[11px] font-bold transition-all flex items-center gap-1.5",
                   activeTab === 'followup' 
                     ? "bg-amber-50 text-amber-700 border border-amber-100 " 
-                    : "text-ink-muted hover:bg-surface-low hover:text-ink-soft"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-600"
                 )}
               >
-                <Clock size={13} className={activeTab === 'followup' ? 'text-amber-500': 'text-ink-faint'} />
+                <Clock size={13} className={activeTab === 'followup' ? 'text-amber-500': 'text-slate-400'} />
                 ⌛ Pendentes ({followupLeads.length})
               </button>
 
@@ -4079,10 +4079,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   "px-3 py-2 text-[11px] font-bold transition-all flex items-center gap-1.5",
                   activeTab === 'lost' 
                     ? "bg-indigo-50 text-indigo-700 border border-indigo-100 " 
-                    : "text-ink-muted hover:bg-surface-low hover:text-ink-soft"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-600"
                 )}
               >
-                <AlertCircle size={13} className={activeTab === 'lost' ? 'text-indigo-500': 'text-ink-faint'} />
+                <AlertCircle size={13} className={activeTab === 'lost' ? 'text-indigo-500': 'text-slate-400'} />
                 💨 Em Fuga ({lostOpportunities.length})
               </button>
 
@@ -4092,10 +4092,10 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   "px-3 py-2 text-[11px] font-bold transition-all flex items-center gap-1.5",
                   activeTab === 'top_revenue'
                     ? "bg-emerald-50 text-emerald-700 border border-emerald-100 " 
-                    : "text-ink-muted hover:bg-surface-low hover:text-ink-soft"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-600"
                 )}
               >
-                <DollarSign size={13} className={activeTab === 'top_revenue' ? 'text-emerald-500': 'text-ink-faint'} />
+                <DollarSign size={13} className={activeTab === 'top_revenue' ? 'text-emerald-500': 'text-slate-400'} />
                 📈 Alto Valor ({topRevenueLeads.length})
               </button>
 
@@ -4104,43 +4104,43 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 className={cn(
                   "px-3 py-2 text-[11px] font-bold transition-all flex items-center gap-1.5",
                   activeTab === 'all'
-                    ? "bg-surface-mid text-ink-soft border border-rule " 
-                    : "text-ink-muted hover:bg-surface-low hover:text-ink-soft"
+                    ? "bg-slate-100 text-slate-600 border border-slate-900/[0.07] " 
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-600"
                 )}
               >
-                <Layers size={13} className="text-ink-faint" />
+                <Layers size={13} className="text-slate-400" />
                 Dossiê Completo ({leads.length})
               </button>
             </div>
 
             {/* Search Box */}
             <div className="relative w-full md:w-56">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" size={13} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
               <input 
                 type="text" 
                 placeholder="Filtrar por nome, cidade..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-surface-low border border-rule hover:border-rule focus:border-indigo-500/50 focus:bg-surface text-xs pl-8 pr-3 py-2 outline-none transition-all placeholder-slate-400 font-medium"
+                className="w-full bg-slate-50 rounded-lg ring-1 ring-slate-900/[0.05] hover:border-slate-900/[0.07] focus:border-indigo-500/50 focus:bg-white text-xs pl-8 pr-3 py-2 outline-none transition-all placeholder-slate-400 font-medium"
               />
             </div>
 
           </div>
 
           {/* List Display */}
-          <div className="bg-surface border border-rule overflow-hidden">
+          <div className="bg-white rounded-lg ring-1 ring-slate-900/[0.07] overflow-hidden">
             {currentTabLeads.length === 0 ? (
               <div className="p-12 text-center flex flex-col items-center justify-center">
-                <div className="p-4 bg-surface-low text-ink-faint mb-3">
+                <div className="p-4 bg-slate-50 text-slate-400 mb-3">
                   <SlidersHorizontal size={24} />
                 </div>
-                <h4 className="font-bold text-ink mb-1 text-sm">Nenhum lead nesta categoria</h4>
-                <p className="text-xs text-ink-faint max-w-sm">
+                <h4 className="font-bold text-slate-900 mb-1 text-sm">Nenhum lead nesta categoria</h4>
+                <p className="text-xs text-slate-400 max-w-sm">
                   Todos os leads foram processados, ou não atendem aos critérios desta segmentação temporariamente.
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-50">
+              <div className="divide-y divide-slate-900/[0.05]">
                 <AnimatePresence mode="popLayout">
                   {currentTabLeads.map((lead, idx) => {
                     const rec = getVisualRecommendation(lead);
@@ -4157,18 +4157,18 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         onClick={() => setSelectedLeadId(isSelected ? null : lead.id)}
                         className={cn(
 "p-4 sm:p-5 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4",
-                          isSelected ? "bg-surface-low/70 border-l-4 border-indigo-500": "hover:bg-surface-low/30"
+                          isSelected ? "bg-slate-50/70 border-l-4 border-indigo-500": "hover:bg-slate-50/30"
                         )}
                       >
                         {/* Left portion: Core Info */}
                         <div className="flex-grow space-y-1.5 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-ink-soft text-sm hover:text-indigo-600 truncate">{lead.name || 'Anonymous'}</span>
+                            <span className="font-bold text-slate-600 text-sm hover:text-indigo-600 truncate">{lead.name || 'Anonymous'}</span>
                             
                             {/* Execution checklist mini badges */}
                             <div className="flex items-center gap-1">
                               {lead.call_made === 1 && (
-                                <span className="bg-accent-soft text-accent-ink text-[8px] font-bold px-1" title="Ligado">LIG</span>
+                                <span className="bg-blue-50 text-blue-800 text-[8px] font-bold px-1" title="Ligado">LIG</span>
                               )}
                               {lead.client_answered === 1 && (
                                 <span className="bg-indigo-100 text-indigo-800 text-[8px] font-bold px-1" title="Atendido">ATE</span>
@@ -4189,7 +4189,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                                 "text-[9px] font-bold px-1.5 py-0.5 font-mono shrink-0 ml-auto sm:ml-0",
                                 lead.lead_score >= 75 ? "bg-rose-50 text-rose-700 border border-rose-100":
                                 lead.lead_score >= 40 ? "bg-amber-50 text-amber-700 border border-amber-100":
-                                "bg-surface-low text-ink-muted border border-rule"
+                                "bg-slate-50 text-slate-500 border border-slate-900/[0.07]"
                               )}>
                                 Score: {lead.lead_score}
                               </span>
@@ -4197,7 +4197,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                           </div>
                           
                           {/* Details line */}
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-faint font-medium">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400 font-medium">
                             <span className="capitalize">{lead.service_type || 'Limpeza Padrão'}</span>
                             {lead.city && <span>• {lead.city}</span>}
                             {lead.bedrooms && <span>• {lead.bedrooms}Q/{lead.bathrooms}B</span>}
@@ -4206,7 +4206,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                           {/* Commercial notes snippet in the card list */}
                           {lead.commercial_notes && (
-                            <p className="text-[11px] font-bold text-indigo-600 bg-indigo-50/40 px-2 py-0.5 inline-block max-w-lg truncate">
+                            <p className="text-[11px] font-bold text-indigo-600 bg-indigo-50/40 px-2 py-0.5 inline-block max-w-lg truncate rounded-lg">
                               💼 {lead.commercial_notes}
                             </p>
                           )}
@@ -4224,8 +4224,8 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                             ) : (
                               lead.revenue_estimate !== undefined && lead.revenue_estimate !== null && (
                                 <>
-                                  <p className="text-label-sm text-ink-faint uppercase leading-none">Receita Estimada</p>
-                                  <p className="text-base font-bold text-ink-soft font-mono">${lead.revenue_estimate}</p>
+                                  <p className="text-label-sm text-slate-400 uppercase leading-none">Receita Estimada</p>
+                                  <p className="text-base font-bold text-slate-600 font-mono">${lead.revenue_estimate}</p>
                                 </>
                               )
                             )}
@@ -4252,7 +4252,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
         {/* RHS: Consultive Detail Panel / Sales Execution Tracker (Fase 4 Editor) */}
         <div className="space-y-6">
-          <div className="bg-surface border border-rule p-6 sticky top-24">
+          <div className="bg-white rounded-xl ring-1 ring-slate-900/[0.06] shadow-[var(--shadow-panel)] p-5 sticky top-24">
             
             {selectedLead ? (
               <div className="space-y-6">
@@ -4260,38 +4260,38 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-bold text-ink border-b border-dashed border-rule pb-1 text-base">{selectedLead.name}</h3>
-                    <p className="text-label-sm text-ink-faint uppercase mt-1">{selectedLead.phone}</p>
-                    {selectedLead.email && <p className="text-[10px] text-ink-faint font-medium truncate">{selectedLead.email}</p>}
+                    <h3 className="font-bold text-slate-900 border-b border-dashed border-slate-900/[0.07] pb-1 text-base">{selectedLead.name}</h3>
+                    <p className="text-label-sm text-slate-400 uppercase mt-1">{selectedLead.phone}</p>
+                    {selectedLead.email && <p className="text-[10px] text-slate-400 font-medium truncate">{selectedLead.email}</p>}
                   </div>
                   <button 
                     onClick={() => setSelectedLeadId(null)}
-                    className="p-1.5 hover:bg-surface-low text-ink-faint hover:text-ink-muted transition-colors"
+                    className="p-1.5 hover:bg-slate-50 text-slate-400 hover:text-slate-500 transition-colors"
                   >
                     <X size={16} />
                   </button>
                 </div>
 
                 {/* TRACKER SALES EXECUTION BOARD - Phase 4 Manual Entry */}
-                <div className="bg-surface-low/50 border border-rule p-4 space-y-4">
-                  <div className="flex items-center gap-2 border-b border-rule pb-2">
+                <div className="bg-slate-50/50 border border-slate-900/[0.07] p-4 space-y-4">
+                  <div className="flex items-center gap-2 border-b border-slate-900/[0.07] pb-2">
                     <SlidersHorizontal size={14} className="text-indigo-600" />
-                    <span className="text-label-sm uppercase text-ink-soft">Acompanhamento Comercial (Manual)</span>
+                    <span className="text-[11px] font-semibold text-slate-600">Acompanhamento Comercial (Manual)</span>
                   </div>
 
                   {/* 1. Call made */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-ink-muted">1. Ligação feita?</span>
-                    <div className="flex bg-surface-mid p-0.5 border border-rule shrink-0">
+                    <span className="text-xs font-semibold text-slate-500">1. Ligação feita?</span>
+                    <div className="flex bg-slate-100 p-0.5 border border-slate-900/[0.07] shrink-0">
                       <button 
                         onClick={() => setFormCallMade(true)}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formCallMade ? "bg-indigo-600 text-white shadow": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formCallMade ? "bg-indigo-600 text-white shadow": "text-slate-400")}
                       >
                         SIM
                       </button>
                       <button 
                         onClick={() => { setFormCallMade(false); setFormClientAnswered(false); }}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formCallMade ? "bg-surface-high text-ink-soft font-bold": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formCallMade ? "bg-slate-200 text-slate-600 font-bold": "text-slate-400")}
                       >
                         NÃO
                       </button>
@@ -4300,17 +4300,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                   {/* 2. Client answered (active only if called is True) */}
                   <div className={cn("flex items-center justify-between gap-2 transition-opacity", !formCallMade ? "opacity-50 pointer-events-none" : "opacity-100")}>
-                    <span className="text-xs font-semibold text-ink-muted">2. Cliente atendeu?</span>
-                    <div className="flex bg-surface-mid p-0.5 border border-rule shrink-0">
+                    <span className="text-xs font-semibold text-slate-500">2. Cliente atendeu?</span>
+                    <div className="flex bg-slate-100 p-0.5 border border-slate-900/[0.07] shrink-0">
                       <button 
                         onClick={() => setFormClientAnswered(true)}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formClientAnswered ? "bg-indigo-600 text-white shadow": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formClientAnswered ? "bg-indigo-600 text-white shadow": "text-slate-400")}
                       >
                         SIM
                       </button>
                       <button 
                         onClick={() => setFormClientAnswered(false)}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formClientAnswered ? "bg-surface-high text-ink-soft font-bold": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formClientAnswered ? "bg-slate-200 text-slate-600 font-bold": "text-slate-400")}
                       >
                         NÃO
                       </button>
@@ -4319,17 +4319,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                   {/* 3. Quote sent */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-ink-muted">3. Orçamento enviado?</span>
-                    <div className="flex bg-surface-mid p-0.5 border border-rule shrink-0">
+                    <span className="text-xs font-semibold text-slate-500">3. Orçamento enviado?</span>
+                    <div className="flex bg-slate-100 p-0.5 border border-slate-900/[0.07] shrink-0">
                       <button 
                         onClick={() => setFormQuoteSent(true)}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formQuoteSent ? "bg-indigo-600 text-white shadow": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formQuoteSent ? "bg-indigo-600 text-white shadow": "text-slate-400")}
                       >
                         SIM
                       </button>
                       <button 
                         onClick={() => setFormQuoteSent(false)}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formQuoteSent ? "bg-surface-high text-ink-soft font-bold": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formQuoteSent ? "bg-slate-200 text-slate-600 font-bold": "text-slate-400")}
                       >
                         NÃO
                       </button>
@@ -4338,17 +4338,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                   {/* 4. Service scheduled */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-ink-muted">4. Serviço agendado?</span>
-                    <div className="flex bg-surface-mid p-0.5 border border-rule shrink-0">
+                    <span className="text-xs font-semibold text-slate-500">4. Serviço agendado?</span>
+                    <div className="flex bg-slate-100 p-0.5 border border-slate-900/[0.07] shrink-0">
                       <button 
                         onClick={() => setFormServiceScheduled(true)}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formServiceScheduled ? "bg-indigo-600 text-white shadow": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formServiceScheduled ? "bg-indigo-600 text-white shadow": "text-slate-400")}
                       >
                         SIM
                       </button>
                       <button 
                         onClick={() => setFormServiceScheduled(false)}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formServiceScheduled ? "bg-surface-high text-ink-soft font-bold": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formServiceScheduled ? "bg-slate-200 text-slate-600 font-bold": "text-slate-400")}
                       >
                         NÃO
                       </button>
@@ -4357,17 +4357,17 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                   {/* 5. Sale closed */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-ink-muted">5. Venda fechada?</span>
-                    <div className="flex bg-surface-mid p-0.5 border border-rule shrink-0">
+                    <span className="text-xs font-semibold text-slate-500">5. Venda fechada?</span>
+                    <div className="flex bg-slate-100 p-0.5 border border-slate-900/[0.07] shrink-0">
                       <button 
                         onClick={() => { setFormSaleClosed(true); if(!formClosedValue && selectedLead.revenue_estimate) setFormClosedValue(selectedLead.revenue_estimate.toString()); }}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formSaleClosed ? "bg-emerald-600 text-white shadow font-bold": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", formSaleClosed ? "bg-emerald-600 text-white shadow font-bold": "text-slate-400")}
                       >
                         SIM
                       </button>
                       <button 
                         onClick={() => { setFormSaleClosed(false); setFormClosedValue(''); }}
-                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formSaleClosed ? "bg-surface-high text-ink-soft font-bold": "text-ink-faint")}
+                        className={cn("px-2.5 py-1 text-[10px] font-bold transition-all", !formSaleClosed ? "bg-slate-200 text-slate-600 font-bold": "text-slate-400")}
                       >
                         NÃO
                       </button>
@@ -4376,47 +4376,47 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                   {/* 6. Closed value $ (visible and required when sale is closed) */}
                   <div className={cn("space-y-1.5 transition-all", formSaleClosed ? "block" : "hidden")}>
-                    <label className="text-label-sm text-ink-muted uppercase block">6. Valor fechado em dólares ($)</label>
+                    <label className="text-label-sm text-slate-500 uppercase block">6. Valor fechado em dólares ($)</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint font-mono font-bold">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono font-bold">$</span>
                       <input 
                         type="number" 
                         value={formClosedValue}
                         onChange={(e) => setFormClosedValue(e.target.value)}
                         placeholder={selectedLead.revenue_estimate?.toString() || '0.00'}
-                        className="w-full bg-surface border border-rule focus:border-emerald-500 pl-7 pr-3 py-1.5 font-mono font-bold text-sm outline-none"
+                        className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:border-emerald-500 pl-7 pr-3 py-1.5 font-mono font-bold text-sm outline-none"
                       />
                     </div>
                   </div>
 
                   {/* 7. Commercial notes */}
                   <div className="space-y-1.5">
-                    <label className="text-label-sm text-ink-muted uppercase block">7. Observação comercial curta</label>
+                    <label className="text-label-sm text-slate-500 uppercase block">7. Observação comercial curta</label>
                     <textarea 
                       value={formCommercialNotes}
                       onChange={(e) => setFormCommercialNotes(e.target.value.substring(0, 200))}
                       placeholder="Ex: Ligado às 14h, agendou limpeza quinzenal para segunda-feira."
                       rows={2}
-                      className="w-full bg-surface border border-rule focus:focus:border-indigo-500 p-2.5 text-xs font-semibold outline-none resize-none leading-relaxed"
+                      className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:focus:border-indigo-500 p-2.5 text-xs font-semibold outline-none resize-none leading-relaxed"
                     />
-                    <div className="text-[9px] text-ink-faint text-right font-medium">
+                    <div className="text-[9px] text-slate-400 text-right font-medium">
                       {(formCommercialNotes || '').length}/200 caracteres
                     </div>
                   </div>
 
                   {/* Phase 5: LTV Recorrente */}
-                  <div className="border-t border-rule pt-3.5 space-y-3.5">
+                  <div className="border-t border-slate-900/[0.07] pt-3.5 space-y-3.5">
                     <div className="flex items-center gap-2">
                       <TrendingUp size={13} className="text-indigo-600" />
-                      <span className="text-label-sm uppercase text-ink-soft">8. Projeção de LTV Recorrente</span>
+                      <span className="text-[11px] font-semibold text-slate-600">8. Projeção de LTV Recorrente</span>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[11px] font-semibold text-ink-muted block">Frequência Contratada/Projetada</label>
+                      <label className="text-[11px] font-semibold text-slate-500 block">Frequência Contratada/Projetada</label>
                       <select
                         value={formProjectedFrequency}
                         onChange={(e) => setFormProjectedFrequency(e.target.value)}
-                        className="w-full bg-surface border border-rule focus:border-indigo-500 p-2 text-xs font-semibold outline-none"
+                        className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:border-indigo-500 p-2 text-xs font-semibold outline-none"
                       >
                         <option value="one-time">Não-recorrente (Limpeza Única - 1x)</option>
                         <option value="monthly">Mensal (Previsão de 12x/ano)</option>
@@ -4426,24 +4426,24 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                     </div>
 
                     <div className="bg-indigo-50/50 border border-indigo-100/60 p-3 flex items-center justify-between">
-                      <span className="text-xs font-bold text-ink-muted">LTV Estimado (12 meses):</span>
+                      <span className="text-xs font-bold text-slate-500">LTV Estimado (12 meses):</span>
                       <span className="text-sm font-bold text-indigo-700 font-mono">${formProjectedLtv}</span>
                     </div>
                   </div>
 
                   {/* Phase 5: Registro Inteligente de Objeções */}
-                  <div className="border-t border-rule pt-3.5 space-y-3">
+                  <div className="border-t border-slate-900/[0.07] pt-3.5 space-y-3">
                     <div className="flex items-center gap-2">
                       <AlertTriangle size={13} className="text-amber-500" />
-                      <span className="text-label-sm uppercase text-ink-soft">9. Diagnóstico de Objeções</span>
+                      <span className="text-[11px] font-semibold text-slate-600">9. Diagnóstico de Objeções</span>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[11px] font-semibold text-ink-muted block">Principal Motivo de Perda / Objeção</label>
+                      <label className="text-[11px] font-semibold text-slate-500 block">Principal Motivo de Perda / Objeção</label>
                       <select
                         value={formObjectionCategory}
                         onChange={(e) => setFormObjectionCategory(e.target.value)}
-                        className="w-full bg-surface border border-rule focus:focus:border-indigo-500 p-2 text-xs font-semibold outline-none"
+                        className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:focus:border-indigo-500 p-2 text-xs font-semibold outline-none"
                       >
                         <option value="none">Nenhuma (Negócio Ativo / Sem barreira)</option>
                         <option value="price">Preço muito alto (Fator Financeiro)</option>
@@ -4457,15 +4457,15 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                     {formObjectionCategory !== 'none' && (
                       <div className="space-y-1.5 animate-in slide-in-from-top-1">
-                        <label className="text-label-sm text-ink-muted uppercase block">Notas complementares da objeção</label>
+                        <label className="text-label-sm text-slate-500 uppercase block">Notas complementares da objeção</label>
                         <textarea
                           value={formObjectionNotes}
                           onChange={(e) => setFormObjectionNotes(e.target.value.substring(0, 200))}
                           placeholder="Especifique melhor o feedback do cliente. Ex: achou caro comparado à concorrente que cobra $100."
                           rows={2}
-                          className="w-full bg-surface border border-rule focus:focus:border-indigo-500 p-2.5 text-xs font-semibold outline-none resize-none leading-relaxed"
+                          className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:focus:border-indigo-500 p-2.5 text-xs font-semibold outline-none resize-none leading-relaxed"
                         />
-                        <div className="text-[9px] text-ink-faint text-right font-medium">
+                        <div className="text-[9px] text-slate-400 text-right font-medium">
                           {(formObjectionNotes || '').length}/200 caracteres
                         </div>
                       </div>
@@ -4473,18 +4473,18 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   </div>
 
                   {/* Módulo 1: Atribuição & Origem */}
-                  <div className="border-t border-rule pt-3.5 space-y-3">
+                  <div className="border-t border-slate-900/[0.07] pt-3.5 space-y-3">
                     <div className="flex items-center gap-2">
                       <Target size={13} className="text-indigo-600" />
-                      <span className="text-label-sm uppercase text-ink-soft">10. Atribuição & Origem do Lead</span>
+                      <span className="text-[11px] font-semibold text-slate-600">10. Atribuição & Origem do Lead</span>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[11px] font-semibold text-ink-muted block">Canal de Aquisição Oficial</label>
+                      <label className="text-[11px] font-semibold text-slate-500 block">Canal de Aquisição Oficial</label>
                       <select
                         value={formAttributionChannel}
                         onChange={(e) => setFormAttributionChannel(e.target.value)}
-                        className="w-full bg-surface border border-rule focus:focus:border-indigo-500 p-2 text-xs font-semibold outline-none"
+                        className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:focus:border-indigo-500 p-2 text-xs font-semibold outline-none"
                       >
                         <option value="Website">Website</option>
                         <option value="Organic">Organic</option>
@@ -4502,52 +4502,52 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                     <div className="grid grid-cols-3 gap-2 pt-1">
                       <div className="space-y-1">
-                        <label className="text-label-sm text-ink-faint uppercase">UTM Source</label>
+                        <label className="text-label-sm text-slate-400 uppercase">UTM Source</label>
                         <input
                           type="text"
                           value={formUtmSource}
                           onChange={(e) => setFormUtmSource(e.target.value)}
                           placeholder="source"
-                          className="w-full bg-surface border border-rule focus:border-indigo-500 p-1.5 text-xs font-semibold outline-none"
+                          className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:border-indigo-500 p-1.5 text-xs font-semibold outline-none"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-label-sm text-ink-faint uppercase">UTM Medium</label>
+                        <label className="text-label-sm text-slate-400 uppercase">UTM Medium</label>
                         <input
                           type="text"
                           value={formUtmMedium}
                           onChange={(e) => setFormUtmMedium(e.target.value)}
                           placeholder="medium"
-                          className="w-full bg-surface border border-rule focus:border-indigo-500 p-1.5 text-xs font-semibold outline-none"
+                          className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:border-indigo-500 p-1.5 text-xs font-semibold outline-none"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-label-sm text-ink-faint uppercase">UTM Campaign</label>
+                        <label className="text-label-sm text-slate-400 uppercase">UTM Campaign</label>
                         <input
                           type="text"
                           value={formUtmCampaign}
                           onChange={(e) => setFormUtmCampaign(e.target.value)}
                           placeholder="campaign"
-                          className="w-full bg-surface border border-rule focus:border-indigo-500 p-1.5 text-xs font-semibold outline-none"
+                          className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:border-indigo-500 p-1.5 text-xs font-semibold outline-none"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Módulo 3: Customer Lifecycle */}
-                  <div className="border-t border-rule pt-3.5 space-y-3.5">
+                  <div className="border-t border-slate-900/[0.07] pt-3.5 space-y-3.5">
                     <div className="flex items-center gap-2">
                       <Users size={13} className="text-emerald-600" />
-                      <span className="text-label-sm uppercase text-ink-soft">11. Customer Lifecycle (Módulo 3)</span>
+                      <span className="text-[11px] font-semibold text-slate-600">11. Customer Lifecycle (Módulo 3)</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1.5">
-                        <label className="text-label-sm text-ink-muted uppercase block">Status de Ciclo de Vida</label>
+                        <label className="text-label-sm text-slate-500 uppercase block">Status de Ciclo de Vida</label>
                         <select
                           value={formLifecycleStatus}
                           onChange={(e) => setFormLifecycleStatus(e.target.value)}
-                          className="w-full bg-surface border border-rule focus:focus:border-emerald-500 p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-emerald-500"
+                          className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:focus:border-emerald-500 p-2 text-xs font-semibold outline-none focus:ring-1 focus:ring-emerald-500"
                         >
                           <option value="lead">Lead</option>
                           <option value="active">Active Client</option>
@@ -4558,16 +4558,16 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-label-sm text-ink-muted uppercase block">Último Serviço Atendido</label>
+                        <label className="text-label-sm text-slate-500 uppercase block">Último Serviço Atendido</label>
                         <input
                           type="date"
                           value={formLastServiceDate}
                           onChange={(e) => setFormLastServiceDate(e.target.value)}
-                          className="w-full bg-surface border border-rule focus:focus:border-emerald-500 p-1.5 text-xs font-semibold outline-none focus:ring-1 focus:ring-emerald-500"
+                          className="w-full bg-white rounded-lg ring-1 ring-slate-900/[0.07] focus:focus:border-emerald-500 p-1.5 text-xs font-semibold outline-none focus:ring-1 focus:ring-emerald-500"
                         />
                       </div>
                     </div>
-                    <p className="text-[9px] text-ink-faint font-semibold leading-normal pb-1">
+                    <p className="text-[9px] text-slate-400 font-semibold leading-normal pb-1">
                       ⚠️ O status &quot;Active&quot; e &quot;Recurring&quot; são atualizados automaticamente ao fechar venda baseado na frequência, mas você pode forçar ou redefinir para &quot;Paused&quot; ou &quot;Lost&quot; manualmente.
                     </p>
                   </div>
@@ -4591,7 +4591,7 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                   <button 
                     onClick={handleSaveTracking}
                     disabled={isSaving}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-label-md uppercase py-3 px-4 transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-[12px] font-semibold py-3 px-4 transition-all flex items-center justify-center gap-2"
                   >
                     {isSaving ? (
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -4606,26 +4606,26 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
 
                 {/* Shadow Metrics Detailed Recap */}
                 <div className="space-y-3.5">
-                  <h4 className="text-label-md uppercase text-ink-faint">Detalhamento Técnico</h4>
+                  <h4 className="text-[12px] font-semibold text-slate-400">Detalhamento Técnico</h4>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-surface-low/50 p-3 border border-rule">
-                      <p className="text-label-sm text-ink-faint uppercase mb-1">Qualidade do Lead</p>
+                    <div className="bg-slate-50/50 p-3 border border-slate-900/[0.07]">
+                      <p className="text-label-sm text-slate-400 uppercase mb-1">Qualidade do Lead</p>
                       <div className="flex items-baseline gap-1">
                         <span className={cn(
                           "text-xl font-bold font-mono",
                           (selectedLead.lead_score ?? 0) >= 75 ? "text-rose-600":
                           (selectedLead.lead_score ?? 0) >= 40 ? "text-amber-500":
-                          "text-ink-muted"
+                          "text-slate-500"
                         )}>
                           {selectedLead.lead_score ?? "N/A"}
                         </span>
-                        <span className="text-xs text-ink-faint font-bold">/100</span>
+                        <span className="text-xs text-slate-400 font-bold">/100</span>
                       </div>
                     </div>
 
-                    <div className="bg-surface-low/50 p-3 border border-rule">
-                      <p className="text-label-sm text-ink-faint uppercase mb-1">Impacto Financeiro</p>
+                    <div className="bg-slate-50/50 p-3 border border-slate-900/[0.07]">
+                      <p className="text-label-sm text-slate-400 uppercase mb-1">Impacto Financeiro</p>
                       <p className="text-xl font-bold text-emerald-600 font-mono">
                         {selectedLead.revenue_estimate !== undefined && selectedLead.revenue_estimate !== null 
                           ? `$${selectedLead.revenue_estimate}` 
@@ -4634,9 +4634,9 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                     </div>
                   </div>
 
-                  <div className="bg-surface-low/50 p-3 border border-rule space-y-1">
-                    <p className="text-label-sm text-ink-faint uppercase">Intenção Identificada</p>
-                    <p className="text-xs font-bold text-ink-soft">{selectedLead.intent_category || "Sem Categoria"}</p>
+                  <div className="bg-slate-50/50 p-3 border border-slate-900/[0.07] space-y-1">
+                    <p className="text-label-sm text-slate-400 uppercase">Intenção Identificada</p>
+                    <p className="text-xs font-bold text-slate-600">{selectedLead.intent_category || "Sem Categoria"}</p>
                   </div>
 
                   {selectedLead.ai_summary && (
@@ -4645,19 +4645,19 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
                         <Sparkles size={10} className="text-indigo-500 animate-pulse" />
                         Resumo Sintético da Proposta
                       </p>
-                      <p className="text-xs text-ink-soft leading-relaxed font-semibold italic">
+                      <p className="text-xs text-slate-600 leading-relaxed font-semibold italic">
                         "{selectedLead.ai_summary}"
                       </p>
                     </div>
                   )}
 
                   {selectedLead.conversation_summary && (
-                    <div className="bg-surface-low/50 p-3 border border-rule space-y-1">
-                      <p className="text-label-sm text-ink-faint uppercase flex items-center gap-1">
+                    <div className="bg-slate-50/50 p-3 border border-slate-900/[0.07] space-y-1">
+                      <p className="text-label-sm text-slate-400 uppercase flex items-center gap-1">
                         <MessageSquare size={10} />
                         Histórico do Chat por Jennifer
                       </p>
-                      <p className="text-[11px] text-ink-muted leading-relaxed line-clamp-3">
+                      <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-3">
                         {selectedLead.conversation_summary}
                       </p>
                     </div>
@@ -4667,12 +4667,12 @@ export default function CommercialCenter({ leads, isLoading, auth }: CommercialC
               </div>
             ) : (
               <div className="text-center py-10 space-y-3">
-                <div className="mx-auto w-12 h-12 bg-surface-low text-ink-faint rounded-full flex items-center justify-center">
+                <div className="mx-auto w-12 h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center">
                   <SlidersHorizontal size={20} />
                 </div>
                 <div>
-                  <h4 className="font-bold text-ink text-sm">Selecione um Lead</h4>
-                  <p className="text-xs text-ink-faint max-w-xs mx-auto mt-1">
+                  <h4 className="font-bold text-slate-900 text-sm">Selecione um Lead</h4>
+                  <p className="text-xs text-slate-400 max-w-xs mx-auto mt-1">
                     Toque em qualquer lead listado ao lado para visualizar os insights completos do Shadow Mode e salvar o acompanhamento comercial de vendas.
                   </p>
                 </div>

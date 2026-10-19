@@ -75,16 +75,16 @@ export default function CustomersManager() {
 
   return (
     <div className="space-y-4 sm:space-y-8 animate-in fade-in duration-500">
-      <div className="bg-surface border border-rule p-4 sm:p-8">
+      <div className="bg-white rounded-xl ring-1 ring-slate-900/[0.06] shadow-[var(--shadow-panel)] p-5 sm:p-6">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
           <div>
-            <h3 className="font-bold text-xl sm:text-2xl text-ink flex items-center gap-2">
+            <h3 className="font-sans text-[20px] font-bold tracking-[-0.02em] text-slate-900 flex items-center gap-2">
               Customer Base 
-              <span className="flex items-center gap-1 text-label-sm text-green-600 bg-green-50 px-2 py-1 uppercase border border-green-100">
+              <span className="flex items-center gap-1 text-label-sm text-green-600 bg-green-50 px-2 py-1 uppercase border border-green-100 rounded-lg">
                 <ShieldCheck size={10} /> Read Only Mode
               </span>
             </h3>
-            <p className="text-sm text-ink-muted">
+            <p className="text-sm text-slate-500">
               Showing {filteredCustomers.length} of {customers?.length || 0} customers
             </p>
           </div>
@@ -92,11 +92,11 @@ export default function CustomersManager() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
             {/* Search Input */}
             <div className="relative flex-grow sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input 
                 type="text" 
                 placeholder="Search name, phone, city..." 
-                className="pl-10 pr-4 py-2 bg-surface-low border border-rule text-sm focus:ring-2 focus:ring-accent outline-none w-full"
+                className="pl-10 pr-4 py-2 rounded-lg bg-slate-50 rounded-lg ring-1 ring-slate-900/[0.05] text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -105,21 +105,21 @@ export default function CustomersManager() {
             {/* Sort Toggle */}
             <button 
               onClick={() => setSortBy(sortBy === 'newest' ? 'oldest' : 'newest')}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-surface border border-rule text-xs font-bold text-ink-muted hover:bg-surface-low transition-all"
+              className="flex items-center justify-center gap-2 px-3 h-9 bg-white rounded-lg ring-1 ring-slate-900/[0.07] text-[13px] font-semibold text-slate-500 hover:bg-slate-50 transition-all"
             >
               <ArrowUpDown size={14} />
               {sortBy === 'newest' ? 'Newest' : 'Oldest'}
             </button>
 
             {/* Status Filter */}
-            <div className="flex items-center gap-1 bg-surface-low p-1 border border-rule overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-1 bg-slate-50 p-1 border border-slate-900/[0.07] overflow-x-auto no-scrollbar">
               {['all', 'active', 'inactive'].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
                   className={cn(
-                    "px-3 py-1.5 text-label-sm uppercase transition-all whitespace-nowrap",
-                    filter === f ? "bg-surface text-accent border border-rule": "text-ink-faint hover:text-ink-muted"
+                    "px-3 py-1.5 text-[11px] font-semibold transition-all whitespace-nowrap",
+                    filter === f ? "bg-white text-blue-600 border border-slate-900/[0.07]": "text-slate-400 hover:text-slate-500"
                   )}
                 >
                   {f}
@@ -130,7 +130,7 @@ export default function CustomersManager() {
         </div>
 
         {isLoading ? (
-          <div className="py-20 text-center text-ink-faint italic">
+          <div className="py-20 text-center text-slate-400 italic">
             Loading customer records...
           </div>
         ) : error ? (
@@ -140,71 +140,71 @@ export default function CustomersManager() {
           </div>
         ) : !filteredCustomers || filteredCustomers.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center text-center">
-            <div className="w-20 h-20 bg-surface-low flex items-center justify-center text-ink-faint mb-6 border border-rule">
+            <div className="w-20 h-20 bg-slate-50 flex items-center justify-center text-slate-400 mb-6 border border-slate-900/[0.07]">
               <Users size={40} />
             </div>
-            <h4 className="text-xl font-bold text-ink mb-2">No Customers Found</h4>
-            <p className="text-ink-muted max-w-md mx-auto italic">
+            <h4 className="text-xl font-bold text-slate-900 mb-2">No Customers Found</h4>
+            <p className="text-slate-500 max-w-md mx-auto italic">
               When you convert leads into customers, they will appear here. The system is ready to receive your first records.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="w-full text-left min-w-[800px] sm:min-w-full">
-              <thead className="bg-surface-low text-label-sm text-ink-faint uppercase">
+              <thead className="text-[11px] font-semibold text-slate-400">
                 <tr>
-                  <th className="px-4 sm:px-6 py-4">Customer</th>
-                  <th className="px-4 sm:px-6 py-4">Contact Info</th>
-                  <th className="px-4 sm:px-6 py-4">Location</th>
-                  <th className="px-4 sm:px-6 py-4">Status</th>
-                  <th className="px-4 sm:px-6 py-4">Created At</th>
-                  <th className="px-4 sm:px-6 py-4">Actions</th>
+                  <th className="px-3 py-3 rounded-lg">Customer</th>
+                  <th className="px-3 py-3 rounded-lg">Contact Info</th>
+                  <th className="px-3 py-3 rounded-lg">Location</th>
+                  <th className="px-3 py-3 rounded-lg">Status</th>
+                  <th className="px-3 py-3 rounded-lg">Created At</th>
+                  <th className="px-3 py-3 rounded-lg">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-900/[0.05]">
                 {filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-surface-low/50 transition-colors group">
-                    <td className="px-4 sm:px-6 py-4">
+                  <tr key={customer.id} className="hover:bg-slate-50/80 transition-colors duration-100 group">
+                    <td className="px-3 py-3 rounded-lg">
                        <div className="flex items-center gap-3">
-                         <div className="w-8 h-8 bg-accent-soft text-accent flex items-center justify-center font-bold text-xs">
+                         <div className="w-8 h-8 bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
                            {customer.name.charAt(0)}
                          </div>
-                         <p className="font-bold text-ink text-sm group-hover:text-accent transition-colors">{customer.name}</p>
+                         <p className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">{customer.name}</p>
                        </div>
                     </td>
-                    <td className="px-4 sm:px-6 py-4 space-y-1">
-                       <p className="text-xs text-ink-muted flex items-center gap-1.5 font-medium">
-                         <Phone size={12} className="text-ink-faint" /> {customer.phone}
+                    <td className="px-4 sm:px-6 py-4 space-y-1 rounded-lg">
+                       <p className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
+                         <Phone size={12} className="text-slate-400" /> {customer.phone}
                        </p>
-                       <p className="text-[10px] text-ink-faint flex items-center gap-1.5">
-                         <Mail size={12} className="text-ink-faint" /> {customer.email}
+                       <p className="text-[10px] text-slate-400 flex items-center gap-1.5">
+                         <Mail size={12} className="text-slate-400" /> {customer.email}
                        </p>
                     </td>
-                    <td className="px-4 sm:px-6 py-4">
-                       <p className="text-xs text-ink-muted font-medium">{customer.city}</p>
-                       <p className="text-[10px] text-ink-faint flex items-center gap-1">
+                    <td className="px-3 py-3 rounded-lg">
+                       <p className="text-xs text-slate-500 font-medium">{customer.city}</p>
+                       <p className="text-[10px] text-slate-400 flex items-center gap-1">
                          <MapPin size={10} /> {customer.zip_code}
                        </p>
                     </td>
-                    <td className="px-4 sm:px-6 py-4">
+                    <td className="px-3 py-3 rounded-lg">
                        <span className={cn(
-                         "px-3 py-1 text-label-sm uppercase",
-                         customer.status === 'active' ? "bg-green-100 text-green-700 border border-green-200": "bg-surface-mid text-ink-muted"
+                         "px-3 py-1 text-[11px] font-semibold",
+                         customer.status === 'active' ? "bg-green-100 text-green-700 border border-green-200": "bg-slate-100 text-slate-500"
                        )}>
                          {customer.status}
                        </span>
                     </td>
-                    <td className="px-4 sm:px-6 py-4 text-[10px] text-ink-faint font-mono">
+                    <td className="px-3 py-3 text-[12px] text-slate-400 tabular-nums rounded-lg">
                       {(() => {
                         const date = customer.createdAt && (customer.createdAt as any).toDate ? (customer.createdAt as any).toDate() : 
                                      customer.createdAt ? new Date(customer.createdAt) : null;
                         return date ? date.toLocaleDateString() : 'N/A';
                       })()}
                     </td>
-                    <td className="px-4 sm:px-6 py-4">
+                    <td className="px-3 py-3 rounded-lg">
                       <button 
                         onClick={() => setSelectedCustomer(customer)}
-                        className="p-2 bg-surface-low text-ink-faint hover:text-accent hover:bg-accent-soft transition-all flex items-center justify-center gap-1 text-[10px] font-bold"
+                        className="p-2 bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center gap-1 text-[10px] font-bold"
                       >
                         Details <ChevronRight size={14} />
                       </button>

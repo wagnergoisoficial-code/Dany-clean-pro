@@ -398,31 +398,31 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
 
   return (
     <div className="space-y-4 sm:space-y-8 animate-in fade-in duration-500">
-      <div className="bg-surface border border-rule p-4 sm:p-8">
-        <h3 className="font-bold text-xl sm:text-2xl text-ink mb-6 font-display">Adicionar Novas Fotos ao Portfólio</h3>
+      <div className="bg-white rounded-xl ring-1 ring-slate-900/[0.06] shadow-[var(--shadow-panel)] p-5 sm:p-6">
+        <h3 className="font-sans text-[20px] font-bold tracking-[-0.02em] text-slate-900 mb-6 font-display">Adicionar Novas Fotos ao Portfólio</h3>
         
         {/* Information banner about uploads */}
-        <div className="flex justify-between items-center border-b border-rule pb-4 mb-6 flex-wrap gap-2">
+        <div className="flex justify-between items-center border-b border-slate-900/[0.07] pb-4 mb-6 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center p-2 bg-accent-soft text-accent">
+            <span className="inline-flex items-center justify-center p-2 bg-blue-50 text-blue-600">
               <Upload size={18} />
             </span>
             <div>
-              <p className="text-sm font-semibold text-ink leading-tight">Envio de Fotos do Dispositivo</p>
-              <p className="text-[11px] text-ink-muted">Selecione fotos da galeria do seu celular ou do seu notebook</p>
+              <p className="text-sm font-semibold text-slate-900 leading-tight">Envio de Fotos do Dispositivo</p>
+              <p className="text-[11px] text-slate-500">Selecione fotos da galeria do seu celular ou do seu notebook</p>
             </div>
           </div>
           {firebaseUser && (
-            <div className="flex items-center gap-2 text-xs text-emerald-600 font-bold bg-emerald-50/50 px-3 py-1.5 border border-emerald-100">
+            <div className="flex items-center gap-2 text-xs text-emerald-600 font-bold bg-emerald-50/50 px-3 py-1.5 border border-emerald-100 rounded-lg">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               {firebaseUser.email}
             </div>
           )}
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start mb-6">
           <div className="space-y-2">
-            <label className="text-label-md text-ink-muted uppercase block mb-1">1ª Etapa: Escolha a Categoria</label>
+            <label className="text-label-md text-slate-500 uppercase block mb-1">1ª Etapa: Escolha a Categoria</label>
             <select 
-              className="bg-surface-low border border-rule px-4 py-3.5 text-sm w-full focus:outline-none focus:border-accent focus:bg-surface transition-all font-semibold text-ink-soft cursor-pointer"
+              className="bg-slate-50 rounded-lg ring-1 ring-slate-900/[0.05] px-4 py-3.5 text-sm w-full focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-semibold text-slate-600 cursor-pointer"
               value={newImage.category}
               onChange={(e) => setNewImage({...newImage, category: e.target.value})}
             >
@@ -431,18 +431,18 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
               <option value="Deep Clean">Limpeza Pesada (Deep Clean)</option>
               <option value="Event Prep">Pós-Obra / Eventos (Event Prep)</option>
             </select>
-            <p className="text-[11px] text-ink-faint">As fotos que você selecionar serão categorizadas sob este grupo no site automaticamente.</p>
+            <p className="text-[11px] text-slate-400">As fotos que você selecionar serão categorizadas sob este grupo no site automaticamente.</p>
           </div>
           
           <div className="md:col-span-2 space-y-2">
-            <label className="text-label-md text-ink-muted uppercase block mb-1">2ª Etapa: Carregar Fotos da Galeria</label>
+            <label className="text-label-md text-slate-500 uppercase block mb-1">2ª Etapa: Carregar Fotos da Galeria</label>
             
             <div 
               onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
-              className={`border-2 border-dashed p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[160px] ${isDragging ? 'border-accent bg-accent-soft/50 ': 'border-rule bg-surface-low hover:bg-surface-mid/50 hover:border-blue-400'}`}
+              className={`border-2 border-dashed p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[160px] ${isDragging ? 'border-accent bg-blue-50/50 ': 'border-slate-900/[0.07] bg-slate-50 hover:bg-slate-100/50 hover:border-blue-400'}`}
             >
               <input 
                 type="file" 
@@ -456,14 +456,14 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
               {uploadingFile ? (
                 <div className="flex flex-col items-center gap-2">
                   <div className="animate-spin rounded-full h-8 w-8 border-3 border-accent border-t-transparent" />
-                  <p className="text-[12px] text-accent font-bold uppercase tracking-wider animate-pulse">{fileName || 'Salvando fotos no banco de dados...'}</p>
-                  <p className="text-[10px] text-ink-faint">Processando e enviando de forma 100% direta e automática</p>
+                  <p className="text-[12px] text-blue-600 font-bold uppercase tracking-wider animate-pulse">{fileName || 'Salvando fotos no banco de dados...'}</p>
+                  <p className="text-[10px] text-slate-400">Processando e enviando de forma 100% direta e automática</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-1.5 p-1">
-                  <Upload className="text-accent w-8 h-8 animate-pulse mb-1" />
-                  <p className="text-label-md text-ink-soft uppercase">Arraste fotos aqui ou Clique para buscar</p>
-                  <p className="text-[11px] text-ink-muted max-w-md">
+                  <Upload className="text-blue-600 w-8 h-8 animate-pulse mb-1" />
+                  <p className="text-label-md text-slate-600 uppercase">Arraste fotos aqui ou Clique para buscar</p>
+                  <p className="text-[11px] text-slate-500 max-w-md">
                     Selecione uma ou mais fotos do seu celular (abrindo sua galeria de fotos) ou notebook. Elas serão salvas no site imediatamente!
                   </p>
                   
@@ -474,7 +474,7 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
                       e.stopPropagation();
                       fileInputRef.current?.click();
                     }}
-                    className="mt-3 bg-accent hover:bg-accent-strong active:scale-95 text-white font-bold text-xs py-2.5 px-6 transition-all duration-200 cursor-pointer flex items-center gap-2 hover:shadow animate-bounce"
+                    className="mt-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs py-2.5 px-6 transition-all duration-200 cursor-pointer flex items-center gap-2 hover:shadow animate-bounce"
                   >
                     <Upload className="w-4 h-4" />
                     Abrir Minha Galeria
@@ -493,7 +493,7 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {isLoading ? (
-          <div className="col-span-full py-12 text-center text-ink-faint italic">Carregando itens do portfólio...</div>
+          <div className="col-span-full py-12 text-center text-slate-400 italic">Carregando itens do portfólio...</div>
         ) : Array.isArray(displayImages) && displayImages.length > 0 ? (
           (displayImages as any[]).map((item) => (
             <div 
@@ -504,21 +504,21 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
                 setEditingFileName('');
                 setEditingUploadError(null);
               }}
-              className="group relative bg-surface overflow-hidden border border-rule aspect-square cursor-pointer hover:border-accent/20 transition-all duration-300"
+              className="group relative bg-white overflow-hidden border border-slate-900/[0.07] aspect-square cursor-pointer hover:border-accent/20 transition-all duration-300"
             >
               {item.isDefault ? (
-                <div className="absolute top-2 left-2 z-10 bg-ink/70 backdrop-blur-sm text-white px-2 py-0.5 text-label-sm uppercase">
+                <div className="absolute top-2 left-2 z-10 bg-ink/70 backdrop-blur-sm text-white px-2 py-0.5 text-[11px] font-semibold rounded-lg">
                   Foto de Exemplo
                 </div>
               ) : (
-                <div className="absolute top-2 left-2 z-10 bg-emerald-600/90 backdrop-blur-sm text-white px-2 py-0.5 text-label-sm uppercase flex items-center gap-1 shadow">
+                <div className="absolute top-2 left-2 z-10 bg-emerald-600/90 backdrop-blur-sm text-white px-2 py-0.5 text-[11px] font-semibold flex items-center gap-1 shadow rounded-lg">
                   Sua Foto
                 </div>
               )}
               <img src={item?.url || ''} className="w-full h-full object-cover" alt={item?.title || ''} />
               <div className="absolute inset-0 bg-ink/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 text-center">
                 <p className="text-white font-bold text-sm mb-1">{item?.title || 'Sem título'}</p>
-                <p className="text-accent text-label-sm uppercase mb-4">{item?.category || 'Residential'}</p>
+                <p className="text-blue-600 text-[11px] font-semibold mb-4">{item?.category || 'Residential'}</p>
                 <div className="flex gap-2">
                   <button 
                     onClick={(e) => {
@@ -538,7 +538,7 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
                       setEditingFileName('');
                       setEditingUploadError(null);
                     }}
-                    className="bg-accent text-white p-2 hover:bg-accent-strong transition-all flex items-center justify-center cursor-pointer"
+                    className="bg-blue-600 text-white p-2 hover:bg-blue-700 transition-all flex items-center justify-center cursor-pointer"
                     title="Substituir foto / Editar detalhes"
                   >
                     <Edit3 size={16} />
@@ -565,19 +565,19 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
             </div>
           ))
         ) : (
-          <div className="col-span-full py-12 text-center text-ink-faint italic font-medium">Nenhum item encontrado no portfólio.</div>
+          <div className="col-span-full py-12 text-center text-slate-400 italic font-medium">Nenhum item encontrado no portfólio.</div>
         )}
       </div>
 
       {/* Edit and Replace Image Modal */}
       {editingItem && (
         <div className="fixed inset-0 bg-ink/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-rule flex flex-col max-h-[90vh] overflow-y-auto">
+          <div className="bg-white max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-900/[0.07] flex flex-col max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-xl text-ink font-display">Substituir Foto & Detalhes</h3>
+              <h3 className="font-bold text-xl text-slate-900 font-display">Substituir Foto & Detalhes</h3>
               <button 
                 onClick={() => setEditingItem(null)} 
-                className="text-ink-faint hover:text-ink-muted p-1 hover:bg-surface-low transition-all cursor-pointer"
+                className="text-slate-400 hover:text-slate-500 p-1 hover:bg-slate-50 transition-all cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -585,10 +585,10 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
 
             <div className="space-y-6">
               <div>
-                <label className="text-label-md text-ink-muted uppercase block mb-2">Substituir Foto (Upload do Dispositivo)</label>
+                <label className="text-label-md text-slate-500 uppercase block mb-2">Substituir Foto (Upload do Dispositivo)</label>
                 <div 
                   onClick={() => editFileInputRef.current?.click()}
-                  className="border-2 border-dashed p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center bg-surface-low hover:bg-surface-mid/50 min-h-[140px] border-rule"
+                  className="border-2 border-dashed p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100/50 min-h-[140px] border-slate-900/[0.07]"
                 >
                   <input 
                     type="file" 
@@ -601,17 +601,17 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
                   {editingFileUploading ? (
                     <div className="flex flex-col items-center gap-2">
                       <div className="animate-spin rounded-full h-6 w-6 border-2 border-accent border-t-transparent" />
-                      <p className="text-label-sm text-ink-muted uppercase animate-pulse">Enviando nova imagem da sua galeria...</p>
+                      <p className="text-label-sm text-slate-500 uppercase animate-pulse">Enviando nova imagem da sua galeria...</p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-2">
-                      <Upload className="text-accent w-6 h-6 animate-pulse" />
-                      <p className="text-label-md text-ink-soft uppercase">Clique para escolher outra foto</p>
-                      <p className="text-[9px] text-ink-faint">Substitua por um arquivo JPG, PNG ou WEBP da sua galeria</p>
+                      <Upload className="text-blue-600 w-6 h-6 animate-pulse" />
+                      <p className="text-label-md text-slate-600 uppercase">Clique para escolher outra foto</p>
+                      <p className="text-[9px] text-slate-400">Substitua por um arquivo JPG, PNG ou WEBP da sua galeria</p>
                       {editingFileName ? (
-                        <p className="text-[10px] text-emerald-600 font-bold max-w-[250px] truncate mt-1 bg-emerald-50 px-2 py-0.5">Selecionado: {editingFileName}</p>
+                        <p className="text-[10px] text-emerald-600 font-bold max-w-[250px] truncate mt-1 bg-emerald-50 px-2 py-0.5 rounded-lg">Selecionado: {editingFileName}</p>
                       ) : (
-                        editingItem?.url && <p className="text-[9px] text-ink-faint">Foto atual já configurada</p>
+                        editingItem?.url && <p className="text-[9px] text-slate-400">Foto atual já configurada</p>
                       )}
                     </div>
                   )}
@@ -624,8 +624,8 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
               {/* Current Preview */}
               {editingItem?.url && (
                 <div className="space-y-2">
-                  <label className="text-label-md text-ink-muted uppercase block">Pré-visualização da Imagem</label>
-                  <div className="overflow-hidden border border-rule aspect-video max-h-[150px] relative bg-surface-low flex items-center justify-center">
+                  <label className="text-label-md text-slate-500 uppercase block">Pré-visualização da Imagem</label>
+                  <div className="overflow-hidden border border-slate-900/[0.07] aspect-video max-h-[150px] relative bg-slate-50 flex items-center justify-center">
                     <img src={editingItem.url} className="w-full h-full object-cover" alt="Preview" />
                   </div>
                 </div>
@@ -634,9 +634,9 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
               {/* Edit Details */}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-label-md text-ink-muted uppercase block">Título da Foto</label>
+                  <label className="text-label-md text-slate-500 uppercase block">Título da Foto</label>
                   <input 
-                    className="bg-surface-low border border-rule px-4 py-3 text-sm w-full focus:outline-none focus:border-accent transition-colors"
+                    className="bg-slate-50 rounded-lg ring-1 ring-slate-900/[0.05] px-4 py-3 text-sm w-full focus:outline-none focus:border-blue-500 transition-colors"
                     placeholder="Ex: Limpeza de Cozinha Detalhada"
                     value={editingItem?.title || ''}
                     onChange={(e) => setEditingItem(prev => prev ? { ...prev, title: e.target.value } : null)}
@@ -644,9 +644,9 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-label-md text-ink-muted uppercase block">Categoria</label>
+                  <label className="text-label-md text-slate-500 uppercase block">Categoria</label>
                   <select 
-                    className="bg-surface-low border border-rule px-4 py-3 text-sm w-full focus:outline-none focus:border-accent transition-colors"
+                    className="bg-slate-50 rounded-lg ring-1 ring-slate-900/[0.05] px-4 py-3 text-sm w-full focus:outline-none focus:border-blue-500 transition-colors"
                     value={editingItem?.category || 'Residential'}
                     onChange={(e) => setEditingItem(prev => prev ? { ...prev, category: e.target.value } : null)}
                   >
@@ -659,17 +659,17 @@ export default function GalleryManager({ auth }: GalleryManagerProps) {
               </div>
             </div>
 
-            <div className="flex gap-4 mt-8 pt-4 border-t border-rule">
+            <div className="flex gap-4 mt-8 pt-4 border-t border-slate-900/[0.07]">
               <button 
                 onClick={() => setEditingItem(null)}
-                className="flex-1 border border-rule text-ink-muted py-3 font-bold text-sm hover:bg-surface-low transition-all cursor-pointer"
+                className="flex-1 border border-slate-900/[0.07] text-slate-500 py-3 font-bold text-sm hover:bg-slate-50 transition-all cursor-pointer"
               >
                 Cancelar
               </button>
               <button 
                 onClick={() => updateImage.mutate(editingItem)}
                 disabled={updateImage.isPending || editingFileUploading || !editingItem?.url}
-                className="flex-grow bg-accent text-white py-3 font-bold text-sm hover:bg-accent-strong transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-grow bg-blue-600 text-white py-3 font-bold text-sm hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {updateImage.isPending ? 'Salvando...' : <><Save size={16} /> Salvar Alterações</>}
               </button>
