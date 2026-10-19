@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
 @import "tailwindcss";
 
 /*
@@ -8,8 +8,15 @@
   No rounded cards, no decorative borders — rhythm comes from rules and whitespace.
 */
 @theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  /* One typeface, everywhere.
+     There were two — a serif for headings and a sans for everything else —
+     and the switch between them is what reads as a stock template: a page
+     that looks like Times New Roman in one place and something else in the
+     next. Figtree carries the whole range on its own, 300 to 900, warm
+     enough for a cleaning company and clear enough at 11px in a panel.
+     Weight and spacing do the work the second family used to do. */
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Figtree", ui-sans-serif, system-ui, sans-serif;
 
   /* Surfaces */
   --color-surface: #ffffff;
@@ -36,12 +43,12 @@
   /* Type scale */
   --text-label-sm: 10px;
   --text-label-sm--line-height: 14px;
-  --text-label-sm--letter-spacing: 0.16em;
+  --text-label-sm--letter-spacing: 0.12em;
   --text-label-sm--font-weight: 700;
 
   --text-label-md: 12px;
   --text-label-md--line-height: 16px;
-  --text-label-md--letter-spacing: 0.12em;
+  --text-label-md--letter-spacing: 0.08em;
   --text-label-md--font-weight: 700;
 
   --text-label-lg: 14px;
@@ -65,22 +72,23 @@
 
   --text-headline-sm: 22px;
   --text-headline-sm--line-height: 30px;
-  --text-headline-sm--font-weight: 500;
+  --text-headline-sm--letter-spacing: -0.015em;
+  --text-headline-sm--font-weight: 600;
 
   --text-headline-md: 28px;
   --text-headline-md--line-height: 36px;
-  --text-headline-md--letter-spacing: -0.01em;
-  --text-headline-md--font-weight: 400;
+  --text-headline-md--letter-spacing: -0.022em;
+  --text-headline-md--font-weight: 700;
 
   --text-headline-lg: 40px;
   --text-headline-lg--line-height: 48px;
-  --text-headline-lg--letter-spacing: -0.015em;
-  --text-headline-lg--font-weight: 400;
+  --text-headline-lg--letter-spacing: -0.03em;
+  --text-headline-lg--font-weight: 700;
 
   --text-display: 56px;
   --text-display--line-height: 62px;
-  --text-display--letter-spacing: -0.02em;
-  --text-display--font-weight: 400;
+  --text-display--letter-spacing: -0.035em;
+  --text-display--font-weight: 800;
 }
 
 @layer base {
@@ -93,7 +101,10 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-normal text-ink;
+    /* No font-normal here: the type scale sets a weight per size, and
+       forcing 400 over it left every heading thin now that the family is a
+       sans rather than a serif. */
+    @apply font-display text-ink;
   }
 
   ::selection {
