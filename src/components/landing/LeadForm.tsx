@@ -6,6 +6,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, isFirebaseReady } from '../../lib/firebase';
 import { cn } from '../../lib/utils';
 import { useConfig } from '../../hooks/useConfig';
+import { track } from '../../lib/metaPixel';
 
 const fieldClass =
   "w-full bg-surface-low px-4 py-3.5 text-body-md text-ink placeholder:text-ink-faint border border-transparent focus:border-accent focus:bg-surface outline-none transition-colors";
@@ -100,6 +101,9 @@ export default function LeadForm() {
     },
     onSuccess: () => {
       setSubmitted(true);
+      // Counted only once the request is safely stored, so the ads optimise
+      // for quotes that reached the inbox, not for clicks on a button.
+      track('Lead', { content_name: 'Quote form' });
     },
     onError: (error: any) => {
       console.error("Submission error details:", error);

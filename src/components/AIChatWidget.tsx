@@ -3,6 +3,7 @@ import { MessageSquare, Send, X, Bot, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { useConfig } from '../hooks/useConfig';
+import { track } from '../lib/metaPixel';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -84,6 +85,7 @@ export default function AIChatWidget() {
             const data = await response.json();
             if (data.success) {
               setLeadSaved(true);
+              track('Lead', { content_name: 'Website chat' });
               console.log('AI lead saved', data.leadId);
             } else {
               console.log('AI lead save failed', data.error);
