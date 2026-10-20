@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import Container from '../components/ui/Container';
+import { SMS_NUMBER, SMS_NUMBER_DISPLAY } from '../lib/smsLine';
 import { 
   FileText,
   ShieldCheck,
@@ -154,7 +155,7 @@ export default function TermsAndConditions() {
                     </div>
                   </a>
                   <a 
-                    href="tel:+12183575938" 
+                    href={`sms:${SMS_NUMBER}`} 
                     className="flex items-center gap-3 text-ink-faint hover:text-white transition-colors"
                   >
                     <div className="w-8 h-8 bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
@@ -162,7 +163,7 @@ export default function TermsAndConditions() {
                     </div>
                     <div>
                       <p className="text-label-sm uppercase text-ink-muted font-mono">SMS Hub</p>
-                      <p className="font-semibold text-rule">+1 (218) 357-5938</p>
+                      <p className="font-semibold text-rule">{SMS_NUMBER_DISPLAY}</p>
                     </div>
                   </a>
                 </div>
@@ -561,6 +562,7 @@ export default function TermsAndConditions() {
                   <p className="text-ink text-label-md sm:text-sm uppercase font-mono">DANY CLEAN PRO OPERATIONS</p>
                   <p className="text-xs sm:text-sm">Headquartered in Connecticut, United States</p>
                   <p className="text-xs sm:text-sm">Phone: <a href="tel:+12183575938" className="text-accent hover:underline font-semibold font-mono">+1 (218) 357-5938</a></p>
+                  <p className="text-xs sm:text-sm">Text (SMS only): <a href={`sms:${SMS_NUMBER}`} className="text-accent hover:underline font-semibold font-mono">{SMS_NUMBER_DISPLAY}</a></p>
                   <p className="text-xs sm:text-sm">Email: <a href="mailto:danycleanenpro@gmail.com" className="text-accent hover:underline font-semibold">danycleanenpro@gmail.com</a></p>
                   <p className="text-xs sm:text-sm">Website: <a href="https://ais-pre-4fnvpzw3cvjvt7ikeaspo5-19020320692.us-west2.run.app" className="text-accent hover:underline font-mono">Dany Clean Pro Portal</a></p>
                 </div>

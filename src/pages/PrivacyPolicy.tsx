@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import Container from '../components/ui/Container';
+import { SMS_NUMBER, SMS_NUMBER_DISPLAY } from '../lib/smsLine';
 import { 
   Shield, 
   Lock, 
@@ -145,7 +146,7 @@ export default function PrivacyPolicy() {
                     </div>
                   </a>
                   <a 
-                    href="tel:+12183575938" 
+                    href={`sms:${SMS_NUMBER}`} 
                     className="flex items-center gap-3 text-ink-faint hover:text-white transition-colors"
                   >
                     <div className="w-8 h-8 bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
@@ -153,7 +154,7 @@ export default function PrivacyPolicy() {
                     </div>
                     <div>
                       <p className="text-label-sm uppercase text-ink-muted">SMS / Operations</p>
-                      <p className="font-semibold text-rule">+1 (218) 357-5938</p>
+                      <p className="font-semibold text-rule">{SMS_NUMBER_DISPLAY}</p>
                     </div>
                   </a>
                 </div>
@@ -452,8 +453,8 @@ export default function PrivacyPolicy() {
                     <div>
                       <h4 className="font-bold text-ink text-sm">SMS & Direct Operations</h4>
                       <p className="text-xs text-ink-muted mb-1">Standard mobile assistance and immediate support</p>
-                      <a href="tel:+12183575938" className="text-sm font-semibold text-accent hover:underline flex items-center gap-1">
-                        +1 (218) 357-5938
+                      <a href={`sms:${SMS_NUMBER}`} className="text-sm font-semibold text-accent hover:underline flex items-center gap-1">
+                        {SMS_NUMBER_DISPLAY}
                         <ArrowUpRight size={14} />
                       </a>
                     </div>

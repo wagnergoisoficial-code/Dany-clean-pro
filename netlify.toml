@@ -88,6 +88,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/sms-line-call"
+  to = "/.netlify/functions/sms-line-call"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/diagnostics"
   to = "/.netlify/functions/diagnostics"
   status = 200

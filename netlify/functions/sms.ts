@@ -123,7 +123,7 @@ export const handler: Handler = async (event) => {
     return emptyTwiml();   // Twilio sends the compliance confirmation itself
   }
   if (keyword === 'HELP') {
-    return twiml('Dany Clean Pro — residential & commercial cleaning in Connecticut. Call or text (218) 357-5938. Reply STOP to opt out. Msg & data rates may apply.');
+    return twiml('Dany Clean Pro — residential & commercial cleaning in Connecticut. Text us here any time, or call (218) 357-5938. Reply STOP to opt out. Msg & data rates may apply.');
   }
 
   // --- 3. context, best effort ---

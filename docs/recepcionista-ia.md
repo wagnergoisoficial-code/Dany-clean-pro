@@ -17,17 +17,66 @@ sem mexer em mais nada.
 
 ---
 
+## Dois números: um para ligar, um para SMS
+
+| Número | Para quê | Quem atende |
+|---|---|---|
+| **(218) 357-5938** | só ligações | agente de voz (Vapi, ver `voice-agent-setup.md`) |
+| **(475) 341-3699** | só SMS — envia e recebe | recepcionista de SMS (`/api/sms`) |
+
+Os botões "Text us" do site, as páginas de Privacidade e Termos e os e-mails
+para o cliente já mostram o (475) para mensagens e o (218) para ligações.
+Todo SMS que o sistema manda (por exemplo o texto depois de uma ligação) sai
+do (475), então quando o cliente responde, a resposta cai na recepcionista.
+
+### Configurar o (475) 341-3699 no console da Twilio
+
+**1. A2P 10DLC — sem isso as operadoras bloqueiam o envio.**
+Em **Messaging → Services**, abrir o Messaging Service que tem a campanha A2P
+aprovada (o mesmo do (218)) → **Sender Pool → Add Senders** → adicionar o
+(475) 341-3699. Se não houver campanha aprovada ainda, ela precisa ser
+registrada antes (Messaging → Regulatory Compliance → A2P 10DLC). Enquanto
+isso, os SMS saem com erro **30034** no log.
+
+**2. Receber mensagens.** Em **Phone Numbers → (475) 341-3699**:
+
+| Seção | Campo | Valor |
+|---|---|---|
+| Messaging | *A message comes in* → Webhook | `https://danycleanpro.com/api/sms` (HTTP POST) |
+| Voice | *A call comes in* → Webhook | `https://danycleanpro.com/api/sms-line-call` (HTTP POST) |
+
+Como o número está num Messaging Service, quem decide o webhook é o Service:
+em **Messaging Service → Integration → Incoming Messages**, escolher
+**Defer to sender's webhook** (usa o webhook acima). A outra opção que serve é
+*Send a webhook* com a mesma URL `/api/sms`.
+
+A linha de Voice é para quem ligar no número de SMS: ouve que o número é só
+para mensagem e qual número ligar, e a ligação encerra.
+
+**3. Netlify.** Nada novo é obrigatório: o (475) já é o padrão no código.
+`TWILIO_SMS_NUMBER` só precisa existir se esse número mudar um dia. As de
+sempre continuam: `TWILIO_ACCOUNT_SID` e `TWILIO_AUTH_TOKEN` (o token tem que
+ser o da mesma conta onde o (475) está, senão a assinatura não confere e o
+`/api/sms` responde 403).
+
+**4. Testar.** Mandar um SMS de um celular para o (475) 341-3699. Deve chegar
+resposta em alguns segundos, e o lead aparecer em **Manage Leads** com origem
+`twilio-sms`. Se não vier, ver Netlify → Functions → `sms`:
+`SIGNATURE MISMATCH` = token errado; nenhum log = webhook não está apontado.
+Mandar `HELP` deve responder com o (218) para ligações.
+
+---
+
 ## Caminho A — no próprio Twilio (já implementado)
 
-No console do Twilio, em **Phone Numbers → o seu número**:
+Ligações no (218) e SMS no (475), configurados como na seção acima. Se for
+usar a voz deste caminho em vez da Vapi, no (218):
 
 | Seção | Campo | Valor |
 |---|---|---|
 | Voice | *A call comes in* → Webhook | `https://danycleanpro.com/api/voice` (POST) |
-| Messaging | *A message comes in* → Webhook | `https://danycleanpro.com/api/sms` (POST) |
 
-E em Netlify, as variáveis `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` e
-`TWILIO_PHONE_NUMBER`.
+E em Netlify, as variáveis `TWILIO_ACCOUNT_SID` e `TWILIO_AUTH_TOKEN`.
 
 O `TWILIO_AUTH_TOKEN` não é opcional: ele é o que prova que a chamada veio
 mesmo do Twilio. Sem ele os webhooks respondem a qualquer um, e cada acesso

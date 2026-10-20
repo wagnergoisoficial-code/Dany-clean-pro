@@ -35,8 +35,9 @@ Na Vapi: **Phone Numbers → Import from Twilio**. Informe o Account SID e o
 Auth Token, e o número (218) 357-5938.
 
 A Vapi assume o atendimento das ligações. O número continua sendo seu, no
-Twilio, com o registro A2P válido — e o SMS continua vindo para o nosso
-`/api/sms`, que já funciona.
+Twilio. **Não importe o (475) 341-3699 na Vapi**: ele é o número só de SMS,
+atendido pelo nosso `/api/sms` (ver `recepcionista-ia.md`). O texto que sai
+depois de uma ligação vai por ele.
 
 ## 3. Primeira fala do agente
 

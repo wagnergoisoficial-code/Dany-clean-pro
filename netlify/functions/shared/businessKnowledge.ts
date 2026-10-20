@@ -29,6 +29,8 @@ export const BUSINESS = {
    */
   saying: 'Say the name as "DAN-ee Cleen Pro" — one N in Dany, and Clean as in cleaning. Never "Danny", never "Queen".',
   phone: '(218) 357-5938',
+  /** Texts only. A customer who calls it is told to text, or to call the line above. */
+  sms: '(475) 341-3699',
   email: 'danycleanenpro@gmail.com',
   base: 'Waterbury, Connecticut',
   tagline: 'Professional Cleaning. Exceptional Care.',
@@ -180,7 +182,7 @@ ABOUT THE BUSINESS
 ${BUSINESS.name} — professional residential and commercial cleaning, based in ${BUSINESS.base}.
 ${BUSINESS.saying}
 ${BUSINESS.tagline}
-Phone ${BUSINESS.phone}. Email ${BUSINESS.email}.
+Phone (calls) ${BUSINESS.phone}. Text (SMS only, no calls) ${BUSINESS.sms}. Email ${BUSINESS.email}.
 
 SERVICE AREA
 ${BUSINESS.areas}

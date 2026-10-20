@@ -12,6 +12,7 @@ import { sendMail, MailMessage } from './leadEmail';
 
 const SITE = 'https://danycleanpro.com';
 const PHONE = '(218) 357-5938';
+const TEXT = '(475) 341-3699';   // SMS only — a call there is not answered
 const INBOX = 'danycleanenpro@gmail.com';
 
 export type ClientEmailKind = 'confirmation' | 'quote_followup' | 'review_request' | 'winback';
@@ -54,7 +55,7 @@ function shell(opts: {
             <tr><td style="padding-top:20px;">
               <div style="font:700 10px/14px Helvetica,Arial,sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:#2563eb;">Talk to us directly</div>
               <div style="font:400 15px/24px Helvetica,Arial,sans-serif;color:#0f172a;margin-top:6px;">
-                Call or text ${PHONE}<br>${INBOX}
+                Call ${PHONE} · Text ${TEXT}<br>${INBOX}
               </div>
             </td></tr>
           </table>
@@ -96,7 +97,7 @@ export function buildClientEmail(kind: ClientEmailKind, lead: Record<string, any
           `We'll call or text within a few hours to confirm details and give you your price.`,
           `No payment is needed to get the estimate.`,
           '',
-          `Call or text ${PHONE} · ${INBOX}`,
+          `Call ${PHONE} · Text ${TEXT} · ${INBOX}`,
         ].join('\n'),
       };
 
@@ -121,7 +122,7 @@ export function buildClientEmail(kind: ClientEmailKind, lead: Record<string, any
           `If the timing wasn't right, tell us when works and we'll hold a slot.`,
           `If you've sorted it elsewhere, reply "all set" and we'll close it out.`,
           '',
-          `Call or text ${PHONE} · ${SITE}/#quote`,
+          `Call ${PHONE} · Text ${TEXT} · ${SITE}/#quote`,
           '',
           optOut,
         ].join('\n'),
@@ -169,7 +170,7 @@ export function buildClientEmail(kind: ClientEmailKind, lead: Record<string, any
           `Hi ${first},`,
           '',
           `It's been a while since we last cleaned for you — we'd love to have you back.`,
-          `Reply here or text ${PHONE} and we'll find a time that fits.`,
+          `Reply here or text ${TEXT} and we'll find a time that fits.`,
           '',
           optOut,
         ].join('\n'),

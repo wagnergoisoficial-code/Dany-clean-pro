@@ -5,6 +5,7 @@ import { cn } from '../../lib/utils';
 import Container from '../ui/Container';
 import Logo from '../ui/Logo';
 import { useConfig } from '../../hooks/useConfig';
+import { smsHref, SMS_NUMBER_DISPLAY } from '../../lib/smsLine';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Header() {
@@ -17,15 +18,6 @@ export default function Header() {
   const isHome = location.pathname === '/';
   // Over the full-bleed hero the bar is transparent and reads on the gradient.
   const overlay = isHome && !isScrolled && !isOpen;
-
-  const getSmsUrl = () => {
-    const isIOS = typeof window !== 'undefined' && (
-      /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-    );
-    const separator = isIOS ? '&' : '?';
-    return `sms:+12183575938${separator}body=Hi,%20I%20would%20like%20a%20cleaning%20quote.`;
-  };
 
   const triggerAICall = (e: React.MouseEvent) => {
     // We allow the default action (making the call) 
@@ -167,7 +159,7 @@ export default function Header() {
                 <Phone size={16} />
               </a>
               <a
-                href={getSmsUrl()}
+                href={smsHref()}
                 onClick={handleSMSLaunch}
                 title="Send us a text message"
                 className={cn(
@@ -302,7 +294,7 @@ export default function Header() {
                   </a>
 
                   <a 
-                    href={getSmsUrl()} 
+                    href={smsHref()} 
                     onClick={(e) => {
                       setIsOpen(false);
                       handleSMSLaunch(e);
@@ -312,7 +304,7 @@ export default function Header() {
                     <MessageSquare size={18} className="text-accent shrink-0" />
                     <span>
                       <span className="block text-label-sm uppercase text-ink-faint">Text us</span>
-                      <span className="block text-body-md font-semibold text-ink">+1 (218) 357-5938</span>
+                      <span className="block text-body-md font-semibold text-ink">{SMS_NUMBER_DISPLAY}</span>
                     </span>
                   </a>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, MessageSquare, Copy, Check, Sparkles, Smartphone, ArrowUpRight } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { smsHref, SMS_NUMBER_DISPLAY } from '../lib/smsLine';
 
 interface SMSFallbackModalProps {
   onClose: () => void;
@@ -11,21 +12,10 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
   const [copiedNumber, setCopiedNumber] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState(false);
 
-  const phoneNumber = "+12183575938";
-  const formattedPhone = "+1 (218) 357-5938";
   const presetMessage = "Hi, I would like a cleaning quote.";
 
-  const getSmsUrl = () => {
-    const isIOS = typeof window !== 'undefined' && (
-      /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-    );
-    const separator = isIOS ? '&' : '?';
-    return `sms:${phoneNumber}${separator}body=Hi,%20I%20would%20like%20a%20cleaning%20quote.`;
-  };
-
   const copyNumberToClipboard = () => {
-    navigator.clipboard.writeText(formattedPhone);
+    navigator.clipboard.writeText(SMS_NUMBER_DISPLAY);
     setCopiedNumber(true);
     setTimeout(() => setCopiedNumber(false), 2000);
   };
@@ -96,7 +86,7 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
             </div>
             <div>
               <p className="text-label-sm uppercase text-ink-faint">SMS Recipient</p>
-              <p className="text-body-md font-semibold text-ink">{formattedPhone}</p>
+              <p className="text-body-md font-semibold text-ink">{SMS_NUMBER_DISPLAY}</p>
             </div>
           </div>
 
@@ -117,7 +107,7 @@ export default function SMSFallbackModal({ onClose }: SMSFallbackModalProps) {
         <div className="space-y-3 pt-2">
           {/* Main Direct SMS Deep Link */}
           <a
-            href={getSmsUrl()}
+            href={smsHref()}
             className="w-full bg-accent hover:bg-accent-strong text-white py-4 px-6 text-label-md uppercase flex items-center justify-center gap-3 transition-colors text-center"
           >
             LAUNCH MESSAGE APP <ArrowUpRight size={16} />

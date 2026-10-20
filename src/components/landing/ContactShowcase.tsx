@@ -2,19 +2,10 @@ import React from 'react';
 import { MessageSquare, PhoneCall, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 import Container from '../ui/Container';
 import { useConfig } from '../../hooks/useConfig';
+import { smsHref, SMS_NUMBER_DISPLAY } from '../../lib/smsLine';
 
 export default function ContactShowcase() {
   const { businessPhone } = useConfig();
-  const formattedPhone = "+1 (218) 357-5938";
-
-  const getSmsUrl = () => {
-    const isIOS = typeof window !== 'undefined' && (
-      /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-    );
-    const separator = isIOS ? '&' : '?';
-    return `sms:+12183575938${separator}body=Hi,%20I%20would%20like%20a%20cleaning%20quote.`;
-  };
 
   const triggerAICall = (e: React.MouseEvent) => {
     // Dispatch global event for interactive voice call popup, allowing native protocol too
@@ -38,9 +29,9 @@ export default function ContactShowcase() {
       description:
         'Text us for instant cleaning quotes and support. Your native messages app opens a live chat with Jennifer, our automated booking assistant.',
       valueLabel: 'Official SMS channel',
-      value: formattedPhone,
+      value: SMS_NUMBER_DISPLAY,
       action: 'Text Us Now',
-      href: getSmsUrl(),
+      href: smsHref(),
       onClick: handleSMSLaunch
     },
     {
