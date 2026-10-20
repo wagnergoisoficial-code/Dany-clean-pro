@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
 import admin from 'firebase-admin';
 import { firestore } from './shared/firestore';
-import { findSlots, bookTentative, calendarConfigured, backendName } from './shared/schedule';
+import { bookTentative, calendarConfigured, backendName } from './shared/schedule';
 import type { BookingResult } from './shared/slotEngine';
 import { knowledgePrompt } from './shared/businessKnowledge';
 import { sendLeadEmail, sendBookingEmail } from './shared/leadEmail';
@@ -17,8 +17,8 @@ import { softly, within } from './shared/withTimeout';
  * do something. This is that endpoint, so the business logic stays here and
  * the platform stays replaceable.
  *
- *   POST /api/agent/slots   what times are free        -> { slots: [...] }
- *   POST /api/agent/hold    hold one for approval      -> { ok, when }
+ *   POST /api/agent/slots   no times; hours check only -> { slots: [] }
+ *   POST /api/agent/hold    note a preferred time      -> { ok, when }
  *   POST /api/agent/lead    record the call            -> { ok }
  *
  * No reply here ever tells the model to end the call. Tools report facts; the
@@ -30,6 +30,20 @@ import { softly, within } from './shared/withTimeout';
  */
 
 const HEADERS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+
+/**
+ * Only Dany schedules. A test call went "one moment, let me check Friday at
+ * 9", the caller waited, and nothing was ever confirmed — the assistant had
+ * promised a check it could not finish. So the phone never offers, checks or
+ * holds a time: it writes down the day the caller would like and makes the
+ * one promise a person keeps. Every tool reply below says the same thing, so
+ * a tool still attached on the platform cannot talk the assistant back into
+ * booking.
+ */
+const DANY_CONFIRMS = 'Dany will call you back within 30 minutes to confirm the day and the price.';
+const NO_BOOKING = 'Do not offer or check times, and never say anything is booked, reserved or held. '
+  + `Note the day and time they would like, tell them: "${DANY_CONFIRMS}" `
+  + 'Put that day and time in save_lead as preferred_date, and carry on with the call.';
 
 /**
  * Vapi will not read a bare JSON body. It matches a tool result by id and
@@ -278,34 +292,18 @@ export const handler: Handler = async (event) => {
 
     /* ---------------------------------------------------------- */
     case 'slots': {
-      if (!calendarConfigured() || (backendName() === 'internal' && !initAdmin())) {
-        return reply(toolCallId, 200, { slots: [], message: 'The calendar is unavailable. Ask which day and roughly what time suits them, say the team will confirm, and carry on with the call.' });
-      }
-
-      const slots = await softly(() => findSlots(args.service_type), 1200, 'slots', []);
-      const offered = slots.map(s => ({ id: s.id, when: s.label }));
-
-      // A caller who has already named a time deserves an answer about that
-      // time. Asking for 6:30pm and hearing three unrelated mornings read out
-      // is where the conversation stalls — the assistant has nothing sensible
-      // to say, so say it for it.
+      // No times are read out any more (see NO_BOOKING). What is still worth
+      // saying is when the team does not work: a caller asking for 7pm should
+      // hear that now, not from Dany half an hour later.
       const wanted = String(args.preferred_time || args.preferred_date || '').trim();
       const outside = wanted ? describeIfOutsideHours(wanted) : null;
 
-      if (!offered.length) {
-        return reply(toolCallId, 200, {
-          slots: [],
-          message: 'Could not read the calendar. Ask which day and roughly what time suits them, say the team will confirm, put their answer in save_lead as preferred_date, and carry on with the call.',
-        });
-      }
-
       return reply(toolCallId, 200, {
-        slots: offered,
-        asked_for: wanted || undefined,
+        slots: [],
         outside_working_hours: !!outside,
         message: outside
-          ? `${outside} Say that plainly, then offer two of the times listed here as the nearest alternatives.`
-          : 'Offer two of these, not all of them. Send back the id of the one the customer accepts.',
+          ? `${outside} Say that plainly and ask for another day or time. ${NO_BOOKING}`
+          : NO_BOOKING,
       });
     }
 
@@ -317,7 +315,7 @@ export const handler: Handler = async (event) => {
       // That is still an appointment, and the inbox still has to hear about it.
       const said = String(args.preferred_date || args.when || args.time || '').trim();
       if (!slotId && !said) {
-        return reply(toolCallId, 200, { ok: false, message: 'Ask which day and roughly what time they would like, then try again.' });
+        return reply(toolCallId, 200, { ok: false, message: `Ask which day and roughly what time they would like. ${NO_BOOKING}` });
       }
 
       // Only the Firestore-backed calendar needs the admin credential. With
@@ -332,7 +330,7 @@ export const handler: Handler = async (event) => {
         : { booked: false, error: 'no calendar configured' };
 
       if (!result.booked && result.error === 'that time was just taken') {
-        return reply(toolCallId, 200, { ok: false, message: 'Someone just took that time. Ask for the slots again and offer another.' });
+        return reply(toolCallId, 200, { ok: false, message: `That time is not free. Ask which other day or time would suit them. ${NO_BOOKING}` });
       }
 
       const at = new Date(result.booked ? result.start! : slotId);
@@ -363,19 +361,13 @@ export const handler: Handler = async (event) => {
       if (mail.sent) console.log('[agent] booking e-mailed:', when, '| held:', result.booked);
       else console.error('[agent] BOOKING NOT E-MAILED:', when, '|', mail.error);
 
-      if (!result.booked) {
-        // Nothing was written, but the customer said a time out loud. Carry it
-        // to save_lead rather than dropping it — and never leave the assistant
-        // without a next line, which is what ends calls abruptly.
-        return reply(toolCallId, 200, {
-          ok: true, pending: true, when, emailed: mail.sent,
-          message: `Tell the customer you've put them down for ${when} and the team will call to confirm it. Then continue, and include that time in save_lead as preferred_date.`,
-        });
-      }
-
+      // Whether or not a tentative event was written, the caller hears the
+      // same thing: the time is a preference, and Dany confirms it. Never
+      // leave the assistant without a next line, which is what ends calls
+      // abruptly.
       return reply(toolCallId, 200, {
-        ok: true, when, eventId: result.eventId, emailed: mail.sent,
-        message: `Held for ${when}. Tell the customer it is reserved and the team will confirm shortly.`,
+        ok: true, pending: !result.booked, when, eventId: result.eventId, emailed: mail.sent,
+        message: `Noted as their preferred time: ${when}. ${NO_BOOKING}`,
       });
     }
 
@@ -437,11 +429,15 @@ export const handler: Handler = async (event) => {
       // ends is the conversation's business. "End the call" here was being
       // obeyed the moment the model reached for save_lead mid-booking, which
       // is exactly how a caller lost the line while times were being offered.
+      // The assistant only mentions the text when one actually left.
       return reply(toolCallId, 200, {
         ok: true,
         stored,
         emailed: mail.sent,
-        message: 'Saved. Keep going — ask if there is anything else they need, and only say goodbye once they are done.',
+        texted: texted.sent,
+        message: `Saved. Tell them: "${DANY_CONFIRMS}"`
+          + (texted.sent ? ' Also tell them a text from Dany Clean Pro is on its way with the details.' : '')
+          + ' Then ask if there is anything else they need, and only say goodbye once they are done.',
       });
     }
 

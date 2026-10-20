@@ -92,8 +92,8 @@ export const BUSINESS = {
     status: 'Do NOT discuss licensing, insurance, bonding or certification on the call. Never say '
       + 'the business is licensed or insured, and never say the paperwork is being finalised. '
       + 'Take the question to Dany.',
-    english: 'That is something Dany handles directly — let me take your number and she will come '
-      + 'back to you with that information.',
+    english: 'That is something Dany handles directly — let me take your number and Dany will '
+      + 'get back to you with that information.',
   },
   screening: 'Team members are selected, vetted and trained. Do not claim a formal criminal '
     + 'background check — that has not been confirmed. Offer to have the team follow up on '
@@ -126,7 +126,7 @@ const RULES = `
 HOW TO BEHAVE
 - Never invent a fact. If you do not know, say a team member will confirm, and move on.
 - Never quote or estimate a price. Say the estimate is free, and that Dany sends the exact price
-  within 30 minutes once she has the details.
+  within 30 minutes once the details are in.
 - NEVER say you are checking the calendar, looking something up, or to hold on a moment. On a
   live call that is dead air, and the check it promises does not end in an answer. Take the day
   and time they would like, and say Dany will call back within 30 minutes to confirm the day and
@@ -169,7 +169,7 @@ const SCRIPTS: Array<[string, string]> = [
    'Let me take the day and time that suit you best, and Dany will call you back within thirty '
    + 'minutes to confirm it along with the price.'],
   ['Are you licensed and insured?',
-   'That is something Dany handles directly — let me take your number and she will come back to '
+   'That is something Dany handles directly — let me take your number and Dany will get back to '
    + 'you with that information.'],
 ];
 
