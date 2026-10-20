@@ -6,6 +6,7 @@ import type { BookingResult } from './shared/slotEngine';
 import { knowledgePrompt } from './shared/businessKnowledge';
 import { sendLeadEmail, sendBookingEmail } from './shared/leadEmail';
 import { sendClientEmail } from './shared/clientEmail';
+import { sendSms, afterCallText } from './shared/smsOut';
 import { softly, within } from './shared/withTimeout';
 
 /**
@@ -401,6 +402,14 @@ export const handler: Handler = async (event) => {
       const mail = await sendLeadEmail({ ...lead, leadId: null })
         .catch((err: any) => ({ sent: false, error: String(err?.message || err) }));
       if (!mail.sent) console.error('[agent] LEAD NOT E-MAILED:', phone, '|', mail.error);
+
+      // And the caller gets the promise in writing. They have just agreed to
+      // wait half an hour on a stranger's word; a text gives them the name,
+      // the number, and a thread they can pull on themselves. Bounded, because
+      // this runs while the call is still open.
+      const texted = await within(() => sendSms(phone, afterCallText(lead.name)), 3000, 'after-call text')
+        .catch((err: any) => ({ sent: false, error: String(err?.message || err) }));
+      if (!texted.sent) console.warn('[agent] after-call text not sent:', phone, '|', texted.error);
       if (lead.email) await sendClientEmail('confirmation', lead).catch(() => {});
 
       let stored = false;

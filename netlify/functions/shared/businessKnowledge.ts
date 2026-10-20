@@ -21,6 +21,13 @@ import { softly } from './withTimeout';
 
 export const BUSINESS = {
   name: 'Dany Clean Pro',
+  /**
+   * Heard back from a live call as "Danny Queen Pro". A speech model reads the
+   * letters it is given, so the correction has to be in the words it reads,
+   * not in a note asking it to try harder: "Dany" is one N and rhymes with
+   * "Annie", and "Clean" is the ordinary word.
+   */
+  saying: 'Say the name as "DAN-ee Cleen Pro" — one N in Dany, and Clean as in cleaning. Never "Danny", never "Queen".',
   phone: '(218) 357-5938',
   email: 'danycleanenpro@gmail.com',
   base: 'Waterbury, Connecticut',
@@ -73,18 +80,19 @@ export const BUSINESS = {
    * must not be improvised: claiming cover that does not exist is the kind of
    * thing a customer relies on when letting someone into their home.
    */
+  /**
+   * The owner asked for this to stop being answered on the call. Saying the
+   * paperwork is "still being finalised" is honest but lands as doubt at the
+   * moment someone is deciding whether to let a stranger into their house, and
+   * the assistant cannot read how the question was meant. It goes to a person.
+   */
   licensing: {
-    status: 'Licensing and insurance are still being finalised. The business is NOT to be '
-      + 'described as licensed, insured, bonded or state-certified, and no policy or '
-      + 'licence number exists to quote. Do not suggest a date for completion.',
-    english: 'We are currently working on finalizing our licensing and insurance. We do not '
-      + 'want to misrepresent our current status. If you have specific requirements, I can '
-      + 'take your information and ask our team to follow up before scheduling.',
-    portuguese: 'Estamos trabalhando para finalizar a nossa licença e o nosso seguro. Queremos '
-      + 'ser transparentes sobre a nossa situação atual. Se você precisa de documentação '
-      + 'específica, posso encaminhar sua solicitação para a nossa equipe antes do agendamento.',
+    status: 'Do NOT discuss licensing, insurance, bonding or certification on the call. Never say '
+      + 'the business is licensed or insured, and never say the paperwork is being finalised. '
+      + 'Take the question to Dany.',
+    english: 'That is something Dany handles directly — let me take your number and she will come '
+      + 'back to you with that information.',
   },
-
   screening: 'Team members are selected, vetted and trained. Do not claim a formal criminal '
     + 'background check — that has not been confirmed. Offer to have the team follow up on '
     + 'specific screening questions.',
@@ -107,19 +115,21 @@ HOW A CALL SHOULD GO
 - Identify the type of cleaning, and whether it is one-time or recurring.
 - Ask how many bedrooms and bathrooms, roughly what size, and the general condition.
 - For add-ons — oven, refrigerator, interior windows, cabinets — ask, but never imply they are free.
-- Ask which day and roughly what time suits them, and check real availability before saying a slot exists.
-- If the scheduling tool fails: do not go quiet and do not end the call. Say a team member will
-  follow up to confirm, and carry on.
+- Ask which day and roughly what time would suit them, and write it down. Do not check anything
+  and do not say you are checking — Dany confirms the day and the price within 30 minutes.
 - Before finishing, repeat a short summary and confirm the contact number.
 `.trim();
 
 const RULES = `
 HOW TO BEHAVE
 - Never invent a fact. If you do not know, say a team member will confirm, and move on.
-- Never quote or estimate a price. Pricing depends on type, size and condition, and the team
-  confirms it after reviewing the home.
-- Never promise a specific appointment time. You take a preference; the team confirms it.
-  Nothing is booked until the customer receives a confirmation.
+- Never quote or estimate a price. Say the estimate is free, and that Dany sends the exact price
+  within 30 minutes once she has the details.
+- NEVER say you are checking the calendar, looking something up, or to hold on a moment. On a
+  live call that is dead air, and the check it promises does not end in an answer. Take the day
+  and time they would like, and say Dany will call back within 30 minutes to confirm the day and
+  the price. That is a promise a person keeps, so it is the only one to make.
+- Never promise a specific appointment time, and never say anything is booked.
 - Never confirm coverage for a city or ZIP code on your own, especially in Massachusetts.
   Take the city and ZIP and say the team will confirm availability.
 - The company name is "Dany Clean Pro", with one N. Never "Danny".
@@ -136,8 +146,8 @@ const SCRIPTS: Array<[string, string]> = [
    + 'cities in Massachusetts near the Connecticut border. Please share your city and ZIP code '
    + 'so our team can confirm availability in your area.'],
   ['How much does cleaning cost?',
-   'Pricing depends on the type of cleaning, property size, and condition. I can gather a few '
-   + 'details so our team can provide an estimate.'],
+   'The estimate is completely free. Let me take a few details and Dany will send you the exact '
+   + 'price within thirty minutes.'],
   ['Do you offer deep cleaning?',
    'Yes, deep cleaning is among the services we offer. Could you tell me the number of bedrooms '
    + 'and bathrooms?'],
@@ -154,11 +164,11 @@ const SCRIPTS: Array<[string, string]> = [
    'Our team members are selected, vetted, and trained. For details about specific screening '
    + 'procedures, I can ask our team to follow up.'],
   ['Can I book for tomorrow?',
-   'I can check availability or take your preferred time and have our team confirm it. A booking '
-   + 'is not confirmed until you receive confirmation.'],
-  ['What if the booking system is unavailable?',
-   "I'm unable to confirm available appointment times right now. I can take your contact "
-   + 'information and have a team member follow up.'],
+   'Let me take the day and time that suit you best, and Dany will call you back within thirty '
+   + 'minutes to confirm it along with the price.'],
+  ['Are you licensed and insured?',
+   'That is something Dany handles directly — let me take your number and she will come back to '
+   + 'you with that information.'],
 ];
 
 function render(extra: string): string {
@@ -168,6 +178,7 @@ function render(extra: string): string {
   return `
 ABOUT THE BUSINESS
 ${BUSINESS.name} — professional residential and commercial cleaning, based in ${BUSINESS.base}.
+${BUSINESS.saying}
 ${BUSINESS.tagline}
 Phone ${BUSINESS.phone}. Email ${BUSINESS.email}.
 

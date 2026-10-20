@@ -13,9 +13,11 @@ import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, isFirebaseReady } from '../lib/firebase';
 
 import { useState } from 'react';
-import AdminSidebar from './admin/layout/AdminSidebar';
-import AdminTopbar from './admin/layout/AdminTopbar';
-import Overview from './admin/Overview';
+import AdminShell from '../components/admin/panel/AdminShell';
+import HelpDialog from '../components/admin/panel/HelpDialog';
+import { ToastProvider } from '../components/admin/panel/Toasts';
+import PanelHome from './admin/PanelHome';
+import '../styles/admin-panel.css';
 import LeadsManager from './admin/LeadsManager';
 import GalleryManager from './admin/GalleryManager';
 import ReviewManager from './admin/ReviewManager';
@@ -93,54 +95,39 @@ export default function AdminDashboard({ auth, fbUser, onLogout }: { auth: AuthS
     { label: 'Completed', value: leads?.filter(l => l.status === 'completed')?.length || 0, icon: CheckCircle2, color: 'text-purple-600 bg-purple-50' }
   ];
 
+  const [search, setSearch] = useState('');
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Array<{ id: string; text: string; at: string; read: boolean; type: string }>>([]);
+
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Mobile Drawer Backdrop */}
-      {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden backdrop-blur-[2px]"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
+    <ToastProvider>
+      <AdminShell
+        email={fbUser?.email || auth.user?.username || ''}
+        displayName={fbUser?.displayName?.split(' ')[0] || 'Dany'}
+        businessName="Dany Clean Pro"
+        photo={fbUser?.photoURL}
+        onLogout={onLogout}
+        onHelp={() => setHelpOpen(true)}
+        search={search}
+        onSearch={setSearch}
+        onSubmitSearch={() => navigate('/admin/dashboard')}
+        notifications={notifications}
+        onMarkRead={() => setNotifications(items => items.map(item => ({ ...item, read: true })))}
+      >
+        <Routes>
+          <Route index element={<PanelHome leads={leads || []} isLoading={isLoading} search={search} />} />
+          <Route path="leads" element={<LeadsManager auth={auth} />} />
+          <Route path="schedule" element={<ScheduleManager />} />
+          <Route path="commercial" element={<CommercialCenter leads={leads || []} isLoading={isLoading} auth={auth} />} />
+          <Route path="customers" element={<CustomersManager />} />
+          <Route path="gallery" element={<GalleryManager auth={auth} />} />
+          <Route path="reviews" element={<ReviewManager auth={auth} />} />
+          <Route path="settings" element={<SettingsManager />} />
+          <Route path="team" element={<TeamManager />} />
+        </Routes>
+      </AdminShell>
 
-      <AdminSidebar 
-        onLogout={onLogout} 
-      />
-      
-      {isMobileMenuOpen && (
-        <AdminSidebar 
-          isMobile 
-          onClose={() => setIsMobileMenuOpen(false)} 
-          onLogout={onLogout} 
-        />
-      )}
-
-      {/* Main Content Area */}
-      <main className="flex-grow flex flex-col min-w-0">
-        <AdminTopbar 
-          auth={auth} 
-          fbUser={fbUser} 
-          onMenuClick={() => setIsMobileMenuOpen(true)}
-          onLogout={onLogout}
-          hasError={!!leadsError}
-        />
-
-        <div className="flex-grow overflow-y-auto">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          <Routes>
-            <Route index element={<Overview leads={leads || []} isLoading={isLoading} />} />
-            <Route path="leads" element={<LeadsManager auth={auth} />} />
-            <Route path="schedule" element={<ScheduleManager />} />
-            <Route path="commercial" element={<CommercialCenter leads={leads || []} isLoading={isLoading} auth={auth} />} />
-            <Route path="customers" element={<CustomersManager />} />
-            <Route path="gallery" element={<GalleryManager auth={auth} />} />
-            <Route path="reviews" element={<ReviewManager auth={auth} />} />
-            <Route path="settings" element={<SettingsManager />} />
-            <Route path="team" element={<TeamManager />} />
-          </Routes>
-          </div>
-        </div>
-      </main>
-    </div>
+      <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
+    </ToastProvider>
   );
 }
