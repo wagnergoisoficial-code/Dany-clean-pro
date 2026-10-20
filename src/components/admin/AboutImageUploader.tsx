@@ -134,7 +134,7 @@ export default function AboutImageUploader({ className }: AboutImageUploaderProp
         <div>
           <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
-            ABOUT SECTION IMAGE
+            Current photo
           </h4>
           <p className="text-xs text-slate-500 mt-0.5">Appears beside the story about the business</p>
         </div>
