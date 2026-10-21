@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
@@ -7,10 +7,22 @@ import { db, isFirebaseReady } from '../../lib/firebase';
 import { cn } from '../../lib/utils';
 import { useConfig } from '../../hooks/useConfig';
 import { track } from '../../lib/metaPixel';
+import type { QuoteDefaults } from '../../lib/quote';
 
 const fieldClass =
-  "w-full bg-surface-low px-4 py-3.5 text-body-md text-ink placeholder:text-ink-faint border border-transparent focus:border-accent focus:bg-surface outline-none transition-colors";
-const labelClass = "text-label-md uppercase text-ink mb-2 block";
+  "w-full h-[50px] rounded-[3px] bg-site-mist px-4 text-[14.5px] font-medium text-site-navy placeholder:font-normal placeholder:text-[#a3acb9] border border-transparent focus:border-site-blue focus:bg-white outline-none transition-colors";
+const labelClass = "mb-2 block text-[12.5px] font-semibold uppercase tracking-[0.06em] text-site-navy";
+
+/** The services the form offers; a card elsewhere on the page can pick one of these. */
+const SERVICES = [
+  'Standard Residential Cleaning',
+  'Deep Cleaning',
+  'Move-In / Move-Out',
+  'Office & Commercial',
+  'Airbnb / Vacation Rental',
+  'Post-Construction',
+  'Post-Event',
+];
 
 /**
  * Mirror a Firestore-written lead into the operations inbox.
@@ -36,10 +48,35 @@ function notifyByEmail(payload: Record<string, any>) {
   }
 }
 
-export default function LeadForm() {
+interface LeadFormProps {
+  /**
+   * A choice made elsewhere on the page — a service card, the footer's e-mail
+   * field. `nonce` changes on every request, so choosing the same card twice
+   * still applies. It fills those fields only and leaves the rest as typed.
+   */
+  prefill?: QuoteDefaults & { nonce: number };
+}
+
+export default function LeadForm({ prefill }: LeadFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [smsConsent, setSmsConsent] = useState(false);
   const { businessPhone } = useConfig();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form || !prefill?.nonce) return;
+    const service = form.elements.namedItem('service_type') as HTMLSelectElement | null;
+    if (service && prefill.service_type && SERVICES.includes(prefill.service_type)) {
+      service.value = prefill.service_type;
+    }
+    const email = form.elements.namedItem('email') as HTMLInputElement | null;
+    if (email && prefill.email && !email.value) email.value = prefill.email;
+    const name = form.elements.namedItem('name') as HTMLInputElement | null;
+    // After the scroll has started, so the jump to the field does not cut it short.
+    const timer = window.setTimeout(() => name?.focus({ preventScroll: true }), 450);
+    return () => window.clearTimeout(timer);
+  }, [prefill]);
 
   const mutation = useMutation({
     mutationFn: async (formData: any) => {
@@ -137,27 +174,27 @@ export default function LeadForm() {
   if (submitted) {
     return (
       <div className="flex flex-col items-center text-center py-10">
-        <div className="w-16 h-16 bg-accent-soft text-accent flex items-center justify-center mb-6">
-          <CheckCircle size={30} />
+        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-site-blue text-white">
+          <CheckCircle size={30} strokeWidth={1.75} />
         </div>
-        <h3 className="font-display text-headline-sm text-ink mb-3">Request received</h3>
-        <p className="text-body-md text-ink-muted max-w-md mb-8">
-          Thank you. Your request went straight to our scheduling desk — expect a personal call or
-          text within a few hours to confirm availability and review your requirements.
+        <h3 className="mb-3 text-[22px] font-bold text-site-navy">Request received</h3>
+        <p className="mb-8 max-w-md text-[14.5px] leading-[1.85] text-site-text">
+          Thank you. Dany has your request and will get back to you within 30 minutes to confirm the day
+          and send the exact price. A confirmation is on its way to your e-mail.
         </p>
-        <div className="bg-surface-low p-5 w-full max-w-md text-left mb-8">
-          <p className="text-body-sm text-ink">
-            <span className="text-label-sm uppercase text-ink-faint block mb-1">Direct contact</span>
+        <div className="mb-8 w-full max-w-md bg-site-mist p-5 text-left">
+          <p className="text-[14px] font-semibold text-site-navy">
+            <span className="mb-1 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-site-text">Call Dany</span>
             {businessPhone}
           </p>
-          <p className="text-body-sm text-ink mt-3">
-            <span className="text-label-sm uppercase text-ink-faint block mb-1">Email</span>
+          <p className="mt-3 text-[14px] font-semibold text-site-navy">
+            <span className="mb-1 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-site-text">Email</span>
             danycleanenpro@gmail.com
           </p>
         </div>
         <button 
           onClick={() => setSubmitted(false)}
-          className="text-label-md uppercase text-accent hover:text-accent-strong transition-colors border-b border-accent/40 pb-1"
+          className="border-b border-site-blue/40 pb-1 text-[12.5px] font-semibold uppercase tracking-[0.08em] text-site-blue transition-colors hover:text-site-blue-strong"
         >
           Submit another request
         </button>
@@ -166,7 +203,7 @@ export default function LeadForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col">
           <label className={labelClass} htmlFor="lead-name">Your Full Name *</label>
@@ -185,7 +222,7 @@ export default function LeadForm() {
             type="tel"
             id="lead-phone"
             name="phone"
-            placeholder={businessPhone}
+            placeholder="e.g. (203) 555-0142"
             className={fieldClass}
           />
         </div>
@@ -219,13 +256,9 @@ export default function LeadForm() {
           <select 
             id="lead-service"
             name="service_type"
-            className={cn(fieldClass, "appearance-none cursor-pointer")}
+            className={cn(fieldClass, "select-chevron appearance-none cursor-pointer")}
           >
-            <option>Standard Residential Cleaning</option>
-            <option>Deep Cleaning</option>
-            <option>Move-In / Move-Out</option>
-            <option>Post-Construction</option>
-            <option>Office &amp; Commercial</option>
+            {SERVICES.map(option => <option key={option}>{option}</option>)}
           </select>
         </div>
       </div>
@@ -233,33 +266,33 @@ export default function LeadForm() {
       <div className="grid grid-cols-2 gap-6">
         <div className="flex flex-col">
           <label className={labelClass} htmlFor="lead-bedrooms">Bedrooms</label>
-          <select id="lead-bedrooms" name="bedrooms" className={cn(fieldClass, "appearance-none cursor-pointer")}>
+          <select id="lead-bedrooms" name="bedrooms" className={cn(fieldClass, "select-chevron appearance-none cursor-pointer")}>
             {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n} Bedroom{n > 1 ? 's' : ''}</option>)}
           </select>
         </div>
         <div className="flex flex-col">
           <label className={labelClass} htmlFor="lead-bathrooms">Bathrooms</label>
-          <select id="lead-bathrooms" name="bathrooms" className={cn(fieldClass, "appearance-none cursor-pointer")}>
+          <select id="lead-bathrooms" name="bathrooms" className={cn(fieldClass, "select-chevron appearance-none cursor-pointer")}>
             {[1,1.5,2,2.5,3,3.5,4].map(n => <option key={n} value={n}>{n} Bathroom{n > 1 ? 's' : ''}</option>)}
           </select>
         </div>
       </div>
 
       {/* TCR / A2P 10DLC Compliant SMS Consent Section */}
-      <div className="flex items-start gap-3 bg-surface-low p-5">
+      <div className="flex items-start gap-3 rounded-[3px] bg-site-mist p-5">
         <input 
           type="checkbox"
           id="sms_consent"
           name="sms_consent"
           checked={smsConsent}
           onChange={(e) => setSmsConsent(e.target.checked)}
-          className="mt-0.5 w-4 h-4 accent-[var(--color-accent)] shrink-0"
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-site-blue)]"
         />
-        <label htmlFor="sms_consent" className="text-body-sm text-ink-muted select-none">
+        <label htmlFor="sms_consent" className="select-none text-[12.5px] leading-[1.7] text-site-text">
           By checking this box and submitting this form, you agree to receive SMS messages from Dany Clean Pro / Brazilian Clean about your cleaning service request, estimates, and appointment updates. Message frequency varies. Message and data rates may apply. Reply HELP for help, reply STOP to opt out. View our{' '}
-          <Link to="/privacy-policy" className="text-accent hover:underline font-semibold">Privacy Policy</Link>
+          <Link to="/privacy-policy" className="font-semibold text-site-blue hover:underline">Privacy Policy</Link>
           {' '}and{' '}
-          <Link to="/terms" className="text-accent hover:underline font-semibold">Terms &amp; Conditions</Link>.
+          <Link to="/terms" className="font-semibold text-site-blue hover:underline">Terms &amp; Conditions</Link>.
         </label>
       </div>
 
@@ -268,29 +301,29 @@ export default function LeadForm() {
           type="submit"
           disabled={mutation.isPending}
           className={cn(
-            "w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-accent text-white text-label-md uppercase px-10 py-4 hover:bg-accent-strong transition-colors relative",
+            "relative inline-flex h-[52px] w-full items-center justify-center gap-3 rounded-full bg-site-blue px-10 text-[13px] font-semibold uppercase tracking-[0.1em] text-white shadow-[0_14px_30px_-12px_rgba(13,118,242,0.7)] transition-[background-color,transform] duration-300 ease-[var(--ease-settle)] hover:bg-site-blue-strong active:scale-[0.98] sm:w-auto",
             mutation.isPending && "opacity-70 cursor-not-allowed"
           )}
         >
           <span className={cn("flex items-center gap-3 transition-opacity", mutation.isPending ? "opacity-0" : "opacity-100")}>
-            Check Availability <ArrowRight size={16} />
+            Request Free Estimate <ArrowRight size={16} />
           </span>
           
           {mutation.isPending && (
             <span className="absolute inset-0 flex items-center justify-center animate-pulse">
-              Connecting with a professional…
+              Sending…
             </span>
           )}
         </button>
 
-        <p className="text-body-sm text-ink-muted flex items-start gap-2">
-          <Lock size={14} className="text-accent shrink-0 mt-1" />
-          No upfront payment required. We contact you to review requirements and confirm your appointment.
+        <p className="flex items-start gap-2 text-[12.5px] leading-[1.7] text-site-text">
+          <Lock size={14} className="mt-[3px] shrink-0 text-site-blue" />
+          The estimate is free. Dany will get back to you within 30 minutes to confirm the day and the price.
         </p>
       </div>
 
       {mutation.isError && (
-        <p className="text-body-sm text-red-600">
+        <p className="text-[13px] font-medium text-red-600">
           Something went wrong. Please try calling us at {businessPhone} instead.
         </p>
       )}

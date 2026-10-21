@@ -1,141 +1,135 @@
-import { Mail, Phone, MapPin, Instagram, Facebook, Twitter, LogOut, Lock } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Container from './ui/Container';
+import { ChevronRight, Phone, MessageSquare, Mail } from 'lucide-react';
 import { useAdminAuth } from '../lib/auth';
 import { useConfig } from '../hooks/useConfig';
-import { useSetting } from '../lib/settings';
-import { DEFAULT_LOGO, usableLogo } from '../lib/brand';
+import { smsHref } from '../lib/smsLine';
+import { openQuote, scrollToSection } from '../lib/quote';
+import { triggerAICall, handleSMSLaunch } from '../lib/contact';
+import { SiteLogo } from './layout/Header';
+import SiteContainer from './home/SiteContainer';
+import { STRIP_SERVICES } from './home/content';
 
+const EMAIL = 'danycleanenpro@gmail.com';
+
+/**
+ * The footer, after the reference: the mark, a line about the business and
+ * three square buttons; two columns of links; and a field with a blue button.
+ *
+ * The squares were social links in the reference. The business has no
+ * accounts to link to, so they call, text and e-mail Dany instead. The field
+ * was a newsletter; here it takes an e-mail address to the quote request.
+ * The privacy policy and terms, which the SMS consent points to, and the team
+ * login stay in the second column.
+ */
 export default function Footer() {
-  const { user, logout } = useAdminAuth();
+  const { user } = useAdminAuth();
   const { businessPhone } = useConfig();
-  const { value: storedLogo } = useSetting('app_logo', DEFAULT_LOGO);
-  const appLogo = usableLogo(storedLogo);
+  const [email, setEmail] = useState('');
 
-  const triggerAICall = (e: React.MouseEvent) => {
-    // allow native action while triggering internal event
-    window.dispatchEvent(new CustomEvent('trigger-ai-call'));
-  };
+  const linkClass = 'group flex items-center gap-2.5 text-[13.5px] font-medium text-white/75 transition-colors hover:text-white';
+  const chevron = <ChevronRight size={13} strokeWidth={2} className="text-white/45 transition-colors group-hover:text-site-blue" />;
+
+  const squares = [
+    { Icon: Phone, label: `Call ${businessPhone}`, href: `tel:${businessPhone.replace(/\D/g, '')}`, onClick: triggerAICall },
+    { Icon: MessageSquare, label: 'Send a text message', href: smsHref(), onClick: handleSMSLaunch },
+    { Icon: Mail, label: `E-mail ${EMAIL}`, href: `mailto:${EMAIL}` },
+  ];
+
+  const company = [
+    { label: 'Get a Free Quote', go: () => openQuote() },
+    { label: 'Why Choose Us', go: () => scrollToSection('why') },
+    { label: 'About Us', go: () => scrollToSection('about') },
+    { label: 'Contact Dany', go: () => scrollToSection('quote') },
+  ];
 
   return (
-    <footer className="w-full bg-surface-low border-t border-rule py-16">
-      <Container>
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-12 mb-16">
-          <div className="max-w-md">
-            <Link to="/" className="inline-block mb-4">
-              {appLogo ? (
-                <img src={appLogo} alt="Dany Clean Pro" className="h-12 w-auto object-contain mb-3" />
-              ) : null}
-              <span className="block font-display text-headline-md text-ink tracking-tight">
-                Dany Clean Pro
-              </span>
-            </Link>
-            <p className="text-body-md text-ink-muted">
-              Residential and commercial cleaning for Connecticut homes and businesses for over five years.
-              Meticulous, discreet, family-owned care — quality you can trust at prices you can afford.
-            </p>
-            <div className="flex gap-3 mt-6">
-              {[Instagram, Facebook, Twitter].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="w-10 h-10 flex items-center justify-center bg-surface text-ink-muted hover:bg-ink hover:text-white transition-colors"
-                >
-                  <Icon size={16} />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-10 sm:gap-16 lg:gap-20">
-            <div className="flex flex-col gap-3">
-              <span className="text-label-md uppercase text-accent">Navigate</span>
-              <a href="#services" className="text-body-md text-ink hover:text-accent transition-colors whitespace-nowrap">Cleaning Services</a>
-              <a href="#gallery" className="text-body-md text-ink hover:text-accent transition-colors whitespace-nowrap">Our Gallery</a>
-              <a href="#reviews" className="text-body-md text-ink hover:text-accent transition-colors whitespace-nowrap">Reviews</a>
-              <a href="#areas" className="text-body-md text-ink hover:text-accent transition-colors whitespace-nowrap">Service Areas</a>
-              <a href="#quote" className="text-body-md text-ink hover:text-accent transition-colors whitespace-nowrap">Request Estimate</a>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <span className="text-label-md uppercase text-accent">Direct Contact</span>
-              <a
-                href={`tel:${businessPhone.replace(/\D/g, '')}`}
-                onClick={triggerAICall}
-                className="text-body-md text-ink hover:text-accent transition-colors flex items-center gap-2"
-              >
-                <Phone size={14} className="text-ink-faint" /> {businessPhone}
-              </a>
-              <a
-                href="mailto:danycleanenpro@gmail.com"
-                className="text-body-md text-ink hover:text-accent transition-colors flex items-center gap-2 break-all"
-              >
-                <Mail size={14} className="text-ink-faint shrink-0" /> danycleanenpro@gmail.com
-              </a>
-              <span className="text-body-md text-ink flex items-center gap-2">
-                <MapPin size={14} className="text-ink-faint" /> Waterbury, CT &amp; across Connecticut
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <span className="text-label-md uppercase text-accent">Working Hours</span>
-              <span className="text-body-md text-ink flex justify-between gap-8 whitespace-nowrap">
-                <span className="text-ink-muted">Mon – Fri</span> 8am – 6pm
-              </span>
-              <span className="text-body-md text-ink flex justify-between gap-8 whitespace-nowrap">
-                <span className="text-ink-muted">Saturday</span> 9am – 4pm
-              </span>
-              <span className="text-body-md text-ink flex justify-between gap-8 whitespace-nowrap">
-                <span className="text-ink-muted">Sunday</span> Open for bookings
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-8 border-t border-rule flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <p className="text-label-sm uppercase text-ink-faint">
-            © {new Date().getFullYear()} Dany Clean Pro. All rights reserved.
+    <footer id="contact" className="border-t-[10px] border-white bg-site-night font-site">
+      <SiteContainer className="grid gap-12 pb-[120px] pt-[90px] lg:pb-[70px] sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1.86fr] lg:gap-x-0 lg:pt-[100px]">
+        <div>
+          <Link to="/" aria-label="Dany Clean Pro — home"><SiteLogo /></Link>
+          <p className="mt-7 max-w-[290px] text-[13.5px] leading-[1.85] text-white/80">
+            Professional residential and commercial cleaning, based in Waterbury and serving homes and
+            businesses across Connecticut for over five years.
           </p>
-
-          <div className="flex flex-wrap items-center gap-6">
-            <Link to="/privacy-policy" className="text-label-sm uppercase text-ink-muted hover:text-ink transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="text-label-sm uppercase text-ink-muted hover:text-ink transition-colors">
-              Terms &amp; Conditions
-            </Link>
-
-            {/* Admin Authentication */}
-            {user ? (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/admin/dashboard"
-                  target="_blank"
-                  className="flex flex-col bg-surface px-4 py-2 hover:bg-surface-mid transition-colors"
-                >
-                  <span className="text-label-sm uppercase text-accent">Admin Dashboard</span>
-                  <span className="text-body-sm text-ink truncate max-w-[200px]">{user.email}</span>
-                </Link>
-                <button
-                  onClick={logout}
-                  title="Logout"
-                  className="w-10 h-10 flex items-center justify-center bg-surface text-ink-muted hover:bg-ink hover:text-white transition-colors"
-                >
-                  <LogOut size={14} />
-                </button>
-              </div>
-            ) : (
-              <Link
-                to="/admin/login"
-                target="_blank"
-                className="flex items-center gap-2 text-label-sm uppercase text-ink-muted hover:text-ink transition-colors"
+          <div className="mt-8 flex gap-2">
+            {squares.map(({ Icon, label, href, onClick }) => (
+              <a
+                key={label}
+                href={href}
+                onClick={onClick}
+                aria-label={label}
+                title={label}
+                className="flex h-12 w-12 items-center justify-center bg-site-night-raised text-white transition-colors hover:bg-site-blue"
               >
-                <Lock size={12} /> Admin Login
-              </Link>
-            )}
+                <Icon size={16} strokeWidth={1.75} />
+              </a>
+            ))}
           </div>
         </div>
-      </Container>
+
+        <div>
+          <h3 className="text-[15px] font-semibold text-white">Services</h3>
+          <ul className="mt-6 space-y-3.5">
+            {STRIP_SERVICES.map(({ title, service }) => (
+              <li key={title}>
+                <button type="button" onClick={() => openQuote({ service_type: service })} className={linkClass}>
+                  {chevron}{title}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-[15px] font-semibold text-white">Company</h3>
+          <ul className="mt-6 space-y-3.5">
+            {company.map(item => (
+              <li key={item.label}>
+                <button type="button" onClick={item.go} className={linkClass}>{chevron}{item.label}</button>
+              </li>
+            ))}
+            <li><Link to="/privacy-policy" className={linkClass}>{chevron}Privacy Policy</Link></li>
+            <li><Link to="/terms" className={linkClass}>{chevron}Terms &amp; Conditions</Link></li>
+            <li>
+              <Link to={user ? '/admin/dashboard' : '/admin/login'} target="_blank" className={linkClass}>
+                {chevron}{user ? 'Admin Dashboard' : 'Team Login'}
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-[15px] font-semibold text-white">Free Estimate</h3>
+          <p className="mt-6 text-[13.5px] leading-[2] text-white/80">
+            Leave your e-mail and tell us about your home. Dany sends the exact price within 30 minutes.
+          </p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              openQuote({ email: email.trim() });
+            }}
+            className="mt-6 flex"
+          >
+            <label htmlFor="footer-email" className="sr-only">Your e-mail</label>
+            <input
+              id="footer-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your e-mail"
+              className="h-[46px] min-w-0 flex-1 bg-white px-4 text-[13.5px] font-medium text-site-navy placeholder:font-normal placeholder:text-[#a3acb9] outline-none focus:ring-2 focus:ring-inset focus:ring-site-blue"
+            />
+            <button
+              type="submit"
+              aria-label="Continue to the quote request"
+              className="flex h-[46px] w-[68px] shrink-0 items-center justify-center bg-site-blue text-white transition-colors hover:bg-site-blue-strong"
+            >
+              <ChevronRight size={18} strokeWidth={2.25} />
+            </button>
+          </form>
+        </div>
+      </SiteContainer>
     </footer>
   );
 }

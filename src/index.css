@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /*
@@ -17,6 +17,21 @@
      Weight and spacing do the work the second family used to do. */
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Figtree", ui-sans-serif, system-ui, sans-serif;
+
+  /* The public site. Its approved reference is set in a geometric sans with
+     heavy, wide headings; Poppins is that face. The panel keeps Figtree. */
+  --font-site: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Public site palette, sampled from the approved reference. */
+  --color-site-blue: #0d76f2;        /* buttons, the raised service card */
+  --color-site-blue-strong: #0a62cf;
+  --color-site-navy: #0f2c66;        /* headings on white */
+  --color-site-deep: #07254f;        /* the dark services band */
+  --color-site-night: #04132a;       /* footer */
+  --color-site-night-raised: #0a1f3f;/* squares and fields on the footer */
+  --color-site-mist: #f4f5f9;        /* the grey band */
+  --color-site-text: #747f90;        /* body copy on white */
+  --color-site-line: #2b4c86;        /* outlines on the dark band */
 
   /* Surfaces */
   --color-surface: #ffffff;
@@ -120,6 +135,12 @@
     @apply font-display text-ink;
   }
 
+  /* The public site sets its headings in its own face; the rule above would
+     otherwise put the panel's Figtree back on every one of them. */
+  .font-site :where(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-site);
+  }
+
   ::selection {
     background: var(--color-accent-soft);
     color: var(--color-accent-ink);
@@ -132,4 +153,13 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* A native select with its arrow drawn in the site's navy, so the field reads
+   as a choice without the browser's own chrome. */
+@utility select-chevron {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230f2c66' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 2.75rem;
 }

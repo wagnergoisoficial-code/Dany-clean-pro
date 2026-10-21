@@ -3,14 +3,10 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './layout/Header';
 import Footer from './Footer';
 import AIChatWidget from './AIChatWidget';
-import { cn } from '../lib/utils';
 import { track, trackContactLinks } from '../lib/metaPixel';
 
 export default function Layout() {
   const location = useLocation();
-  // The home page opens with a full-bleed hero that runs beneath the fixed header;
-  // every other page starts below it.
-  const isHome = location.pathname === '/';
 
   // index.html already counted the page the visitor landed on; only the
   // pages they move to after it are new to the pixel. Compared by path rather
@@ -25,9 +21,11 @@ export default function Layout() {
   useEffect(() => trackContactLinks(), []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-surface">
+    <div className="relative min-h-screen flex flex-col font-sans bg-surface">
+      {/* On the home page the header lies over the hero; elsewhere it is in
+          the flow and the page starts below it. */}
       <Header />
-      <main className={cn("flex-grow", !isHome && "pt-20")}>
+      <main className="flex-grow">
         <Outlet />
       </main>
       <Footer />
