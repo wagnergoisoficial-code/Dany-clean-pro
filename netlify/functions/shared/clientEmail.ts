@@ -84,8 +84,8 @@ export function buildClientEmail(kind: ClientEmailKind, lead: Record<string, any
           eyebrow: 'Request received',
           heading: `Thanks, ${first}`,
           body: [
-            `We've received your request${esc(serviceLine)} and it's with our scheduling desk now.`,
-            `<strong>What happens next:</strong> we'll call or text you within a few hours to confirm the details, go over anything specific about your home, and give you your price. No payment is needed to get the estimate.`,
+            `We've received your request${esc(serviceLine)}, and Dany has it now.`,
+            `<strong>What happens next:</strong> Dany will get back to you within 30 minutes to confirm the day and send you the exact price. The estimate is completely free.`,
             `If you need us sooner, just call or text — that reaches us fastest.`,
           ],
           footnote: 'You received this because you requested a cleaning estimate on danycleanpro.com.',
@@ -93,9 +93,9 @@ export function buildClientEmail(kind: ClientEmailKind, lead: Record<string, any
         text: [
           `Thanks, ${first} —`,
           '',
-          `We've received your request${serviceLine} and it's with our scheduling desk.`,
-          `We'll call or text within a few hours to confirm details and give you your price.`,
-          `No payment is needed to get the estimate.`,
+          `We've received your request${serviceLine}, and Dany has it now.`,
+          `Dany will get back to you within 30 minutes to confirm the day and send you the exact price.`,
+          `The estimate is completely free.`,
           '',
           `Call ${PHONE} · Text ${TEXT} · ${INBOX}`,
         ].join('\n'),
