@@ -7,19 +7,19 @@ import { PHOTOS } from './content';
  * The grey band: who the company is, signed by the owner, and two short cards
  * that lead further down the page.
  */
-export default function Difference({ photos = [] }: { photos?: string[] }) {
+export default function Difference() {
   const cards = [
     {
       title: 'Who We Are',
       text: 'A Waterbury cleaning company with over five years of experience and more than 3,000 customers served in Connecticut.',
-      photo: photos[0] || PHOTOS.bedroom,
+      photo: PHOTOS.bedroom,
       go: () => scrollToSection('why'),
       label: 'Why choose us',
     },
     {
       title: 'Homes & Offices',
       text: 'Residential and commercial cleaning, one-time or recurring: weekly, bi-weekly or monthly.',
-      photo: photos[1] || PHOTOS.office,
+      photo: PHOTOS.office,
       go: () => scrollToSection('services'),
       label: 'See our services',
     },

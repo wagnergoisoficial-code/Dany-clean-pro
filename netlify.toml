@@ -8,6 +8,11 @@
 [functions."scheduled-automations"]
   schedule = "@hourly"
 
+# The gallery's photos live in Firebase Storage at full phone size. The image
+# CDN serves the grid a small copy of each (see src/hooks/useGallery.ts).
+[images]
+  remote_images = ["https://firebasestorage\\.googleapis\\.com/.*"]
+
 
 [[redirects]]
   from = "/terms"

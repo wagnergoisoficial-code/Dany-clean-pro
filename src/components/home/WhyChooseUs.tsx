@@ -7,17 +7,13 @@ import { REASONS, REASON_DEFAULT } from './content';
 /**
  * "Why Choose Us?" — three reasons on a ruled line, a stack of three photos
  * and the words for the reason that is open.
- *
- * `front` lets Dany's own uploads take the front photo of each reason; the
- * stock photo behind it stays as the frame.
  */
-export default function WhyChooseUs({ front = [] }: { front?: string[] }) {
+export default function WhyChooseUs() {
   const [open, setOpen] = useState(REASON_DEFAULT);
   const reduce = useReducedMotion();
   const ids = useId();
   const reason = REASONS[open];
-  const [back, middle, stockFront] = reason.photos;
-  const frontPhoto = front[open] || stockFront;
+  const [back, middle, front] = reason.photos;
 
   return (
     <section id="why" className="scroll-mt-6 bg-white pb-[90px] pt-[110px] lg:pb-[110px] lg:pt-[135px]">
@@ -82,7 +78,7 @@ export default function WhyChooseUs({ front = [] }: { front?: string[] }) {
                 className="absolute left-0 top-[15.7%] h-[72.3%] w-[62.5%] rounded-[3px] object-cover brightness-[0.45] saturate-[0.6]" />
               <img src={middle} alt="" loading="lazy"
                 className="absolute left-[7.7%] top-0 h-[78.4%] w-[88.5%] rounded-[3px] object-cover shadow-[0_18px_40px_-18px_rgba(4,19,42,0.55)]" />
-              <img src={frontPhoto} alt="" loading="lazy"
+              <img src={front} alt="" loading="lazy"
                 className="absolute left-[15.6%] top-[14.9%] h-[85.1%] w-[84.4%] rounded-[3px] object-cover shadow-[0_34px_60px_-16px_rgba(13,118,242,0.55)]" />
             </motion.div>
           </AnimatePresence>
