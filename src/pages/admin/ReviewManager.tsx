@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Star, Eye, EyeOff, Trash2, MessageSquare } from 'lucide-react';
+import { Star, Trash2, MessageSquare } from 'lucide-react';
 import { PageHeader, Panel, Empty, Skeleton } from '../../components/admin/ui/Panel';
+import { Badge } from '../../components/admin/ui/Table';
+import Button, { IconButton } from '../../components/admin/ui/Button';
 import { Review, AuthState } from '../../types';
 import { cn } from '../../lib/utils';
 import { collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -42,10 +44,10 @@ export default function ReviewManager({ auth }: ReviewManagerProps) {
         if (isFirebaseReady()) {
           const q = query(collection(db, 'reviews'), orderBy('date', 'desc'));
           const snapshot = await getDocs(q);
-          return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          })) as any;
+          // Waiting ones first: they are the ones that need Dany.
+          return snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }) as any)
+            .sort((a: any, b: any) => Number(!!a.isPublished) - Number(!!b.isPublished));
         }
       } catch (err) {
         console.error('Firestore reviews fetch failed:', err);
@@ -114,7 +116,7 @@ export default function ReviewManager({ auth }: ReviewManagerProps) {
     <div className="animate-in fade-in duration-300 max-w-4xl">
       <PageHeader
         title="Reviews"
-        hint="What customers wrote. Published ones appear on your site; the rest stay here."
+        hint="Reviews written on your site arrive here first, and by e-mail with the writer's full name and address. Publish the ones you want shown — nothing appears on the site until you do. The three Thumbtack reviews are always shown."
       />
       <Panel>
 
@@ -134,39 +136,44 @@ export default function ReviewManager({ auth }: ReviewManagerProps) {
             return (
               <div key={review.id} className={cn(
                 "p-4 rounded-xl ring-1 transition-colors duration-150",
-                isPublished ? "bg-white ring-slate-900/[0.07]" : "bg-slate-50/70 ring-slate-900/[0.05]"
+                isPublished ? "bg-white ring-slate-900/[0.07]" : "bg-amber-50/40 ring-amber-900/[0.08]"
               )}>
-                <div className="flex justify-between items-start gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 flex-grow">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                        <span className="text-sm font-bold text-slate-900 truncate">{review.author}</span>
-                       <div className="flex gap-0.5 text-amber-400">
-                         {[...Array(review.rating)].map((_, i) => <Star key={i} size={10} fill="currentColor" />)}
+                       <div className="flex gap-0.5 text-amber-400" aria-label={`${review.rating} out of 5 stars`}>
+                         {[...Array(Math.max(0, Math.min(5, Number(review.rating) || 0)))].map((_, i) => <Star key={i} size={11} fill="currentColor" />)}
                        </div>
+                       {isPublished
+                         ? <Badge tone="green" dot>On the site</Badge>
+                         : <Badge tone="amber" dot>Waiting for you</Badge>}
                     </div>
-                    <p className="text-[13px] text-slate-600 leading-relaxed mb-2">{review.comment}</p>
-                    <span className="text-[12px] text-slate-400 tabular-nums">{review.date}</span>
+                    <p className="text-[13px] text-slate-600 leading-relaxed mb-2 whitespace-pre-line">{review.comment}</p>
+                    <p className="text-[12px] text-slate-400 flex flex-wrap gap-x-2 gap-y-0.5">
+                      <span className="tabular-nums">{review.date}</span>
+                      {review.city && <span>· {review.city}</span>}
+                      {review.service && <span>· {review.service}</span>}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button 
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      size="sm"
+                      intent={isPublished ? 'neutral' : 'green'}
+                      variant={isPublished ? 'smooth' : 'solid'}
                       onClick={() => toggleReview.mutate(review)}
-                      className={cn(
-                        "w-9 h-9 grid place-items-center rounded-lg transition-colors duration-150",
-                        isPublished
-                          ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                      )}
-                      title={isPublished ? "Unpublish Review" : "Publish Review"}
+                      disabled={toggleReview.isPending}
                     >
-                      {isPublished ? <Eye size={16} /> : <EyeOff size={16} />}
-                    </button>
-                    <button 
-                      onClick={() => { if(confirm('Are you sure you want to delete this review?')) deleteReview.mutate(String(review.id)) }}
-                      className="w-9 h-9 grid place-items-center rounded-lg bg-white text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors duration-150"
-                      title="Delete review"
+                      {isPublished ? 'Hide from site' : 'Publish'}
+                    </Button>
+                    <IconButton
+                      label="Delete review"
+                      intent="red"
+                      size="sm"
+                      onClick={() => { if (confirm('Delete this review for good?')) deleteReview.mutate(String(review.id)); }}
                     >
-                      <Trash2 size={16} />
-                    </button>
+                      <Trash2 size={15} />
+                    </IconButton>
                   </div>
                 </div>
               </div>

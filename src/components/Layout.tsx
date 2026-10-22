@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './layout/Header';
 import Footer from './Footer';
 import AIChatWidget from './AIChatWidget';
+import ReviewModal from './reviews/ReviewModal';
 import { track, trackContactLinks } from '../lib/metaPixel';
 
 export default function Layout() {
@@ -30,6 +31,7 @@ export default function Layout() {
       </main>
       <Footer />
       <AIChatWidget />
+      <ReviewModal />
     </div>
   );
 }

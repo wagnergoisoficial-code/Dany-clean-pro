@@ -89,6 +89,7 @@ export default function Footer() {
                 <button type="button" onClick={item.go} className={linkClass}>{chevron}{item.label}</button>
               </li>
             ))}
+            <li><Link to="/reviews" className={linkClass}>{chevron}Client Reviews</Link></li>
             <li><Link to="/privacy-policy" className={linkClass}>{chevron}Privacy Policy</Link></li>
             <li><Link to="/terms" className={linkClass}>{chevron}Terms &amp; Conditions</Link></li>
             <li>

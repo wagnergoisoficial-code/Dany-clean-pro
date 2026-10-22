@@ -112,7 +112,7 @@ export default function Header() {
           <ul className="grid grid-cols-7">
             {nav.map((item, i) => (
               <li key={item.label} className="relative">
-                {i === 0 && <span aria-hidden className="absolute -top-px left-0 h-[3px] w-[136px] bg-site-blue" />}
+                {i === 0 && isHome && <span aria-hidden className="absolute -top-px left-0 h-[3px] w-[136px] bg-site-blue" />}
                 {i > 0 && <span aria-hidden className="absolute left-[-18px] top-1/2 h-8 w-px -translate-y-1/2 bg-white/15" />}
                 <button
                   type="button"

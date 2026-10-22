@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Hero from '../components/home/Hero';
 import ServiceStrip from '../components/home/ServiceStrip';
 import WhyChooseUs from '../components/home/WhyChooseUs';
+import Testimonials from '../components/home/Testimonials';
 import Difference from '../components/home/Difference';
 import Gallery from '../components/home/Gallery';
 import Excellence from '../components/home/Excellence';
@@ -9,9 +10,9 @@ import QuoteSection from '../components/home/QuoteSection';
 
 /**
  * The home page, built to the approved reference: hero with the service
- * strip, "Why Choose Us?", the grey band, the navy band. Dany's gallery, the
- * quote request and the contacts are added in the same design, at the owner's
- * request.
+ * strip, "Why Choose Us?", the grey band, the navy band. Client reviews,
+ * Dany's gallery, the quote request and the contacts are added in the same
+ * design, at the owner's request.
  */
 export default function Home() {
   // Arriving from another page or an e-mail link (/#quote, /#gallery…): the
@@ -31,6 +32,7 @@ export default function Home() {
       <Hero />
       <ServiceStrip />
       <WhyChooseUs />
+      <Testimonials />
       <Difference />
       <Gallery />
       <Excellence />

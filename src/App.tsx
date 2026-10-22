@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Layout from './components/Layout';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
+import Reviews from './pages/Reviews';
 import { AuthState } from './types';
 import { auth as firebaseAuth } from './lib/firebase';
 import AIVoiceCall from './components/AIVoiceCall';
@@ -164,6 +165,8 @@ export default function App() {
               <Route path="/terms" element={<TermsAndConditions />} />
               <Route path="/termos" element={<TermsAndConditions />} />
               <Route path="/termos-e-condicoes" element={<TermsAndConditions />} />
+              <Route path="/reviews" element={<Reviews />} />
+              <Route path="/testimonials" element={<Navigate to="/reviews" replace />} />
             </Route>
             
             {/* Private Admin Routes */}

@@ -139,7 +139,7 @@ export function buildClientEmail(kind: ClientEmailKind, lead: Record<string, any
             `If anything wasn't right, tell us first — we'll come back and re-clean it at no charge. That guarantee is real and we'd rather fix it than have you live with it.`,
             `And if you were happy, a few words from you helps other families in Connecticut find us.`,
           ],
-          cta: { label: 'Leave a review', href: `${SITE}/#reviews` },
+          cta: { label: 'Leave a review', href: `${SITE}/reviews?write=1` },
           footnote: optOut,
         }),
         text: [
@@ -147,7 +147,7 @@ export function buildClientEmail(kind: ClientEmailKind, lead: Record<string, any
           '',
           `Thank you for having us in your home — how did it go?`,
           `If anything wasn't right, tell us first and we'll come back and re-clean at no charge.`,
-          `If you were happy, a few words helps other families find us: ${SITE}/#reviews`,
+          `If you were happy, a few words helps other families find us: ${SITE}/reviews?write=1`,
           '',
           optOut,
         ].join('\n'),

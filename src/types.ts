@@ -91,12 +91,18 @@ export interface RecoveryAttempt {
 }
 
 export interface Review {
-  id: number;
+  id: number | string;
   author: string;
   rating: number;
   comment: string;
   date: string;
-  is_published: boolean;
+  /** The local server's name for it; Firestore documents use isPublished. */
+  is_published?: boolean;
+  isPublished?: boolean;
+  /** Written on the site. Public once published, so no e-mail here: that goes to Dany by mail only. */
+  city?: string;
+  service?: string;
+  source?: 'website';
 }
 
 export interface GalleryItem {

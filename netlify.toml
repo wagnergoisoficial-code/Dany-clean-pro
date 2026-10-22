@@ -117,6 +117,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/reviews/*"
+  to = "/.netlify/functions/reviews"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/leads"
   to = "/.netlify/functions/leads"
   status = 200
