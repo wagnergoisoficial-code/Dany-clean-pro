@@ -19,9 +19,12 @@ import { within } from './shared/withTimeout';
  * ("Sarah M."), the town, the service and the words.
  *
  * Two cheap filters keep most bots out without bothering people: a field
- * hidden from sight that only a bot fills in, and a form sent less than a
- * few seconds after it was opened. Both get a polite "thank you" and are
- * dropped, so the bot learns nothing.
+ * hidden from sight that only a bot fills in, and a form sent less than two
+ * seconds after it was opened. Both get a polite "thank you" and are
+ * dropped, so the bot learns nothing. Neither may ever catch a person: the
+ * trap has a name no browser's autofill recognises, and the time is measured
+ * on the visitor's own device — comparing their clock with this server's
+ * would drop every review from a phone whose clock runs fast.
  */
 
 const HEADERS = {
@@ -74,7 +77,9 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 export const handler: Handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-  if (event.httpMethod !== 'POST' || !/\/submit\/?$/.test(event.path || '')) {
+  // Any POST is a submission: this function does nothing else, and a check on
+  // the path would be one more way for a real review to be turned away.
+  if (event.httpMethod !== 'POST') {
     return json(404, { ok: false, error: 'Not found' });
   }
 
@@ -86,8 +91,8 @@ export const handler: Handler = async (event) => {
   }
 
   // Bots: thanked and forgotten.
-  const startedAt = Number(input.startedAt) || 0;
-  if (clean(input.website, 200) || (startedAt && Date.now() - startedAt < 3000)) {
+  const elapsed = Number(input.elapsedMs);
+  if (clean(input.dcp_trap, 200) || (Number.isFinite(elapsed) && elapsed >= 0 && elapsed < 2000)) {
     console.warn('[reviews] dropped a submission that looked automated');
     return json(200, { ok: true });
   }
@@ -125,7 +130,7 @@ export const handler: Handler = async (event) => {
 
   let id = '';
   try {
-    const ref = await within(() => firestore().collection('reviews').add(review), 6000, 'review write');
+    const ref = await within(() => firestore().collection('reviews').add(review), 5000, 'review write');
     id = ref.id;
   } catch (err: any) {
     console.error('[reviews] REVIEW NOT STORED:', err?.message || err);
@@ -151,7 +156,7 @@ export const handler: Handler = async (event) => {
     </div>`,
     text: `${name} left a review: ${rating}/5\n${where ? where + '\n' : ''}\n${comment}\n\n${email ? `E-mail: ${email}\n\n` : ''}`
       + `It is not on the site yet. To publish it, open Reviews in the dashboard:\n${panel}`,
-  }), 4000, 'review e-mail').catch((err: any) => ({ sent: false, error: String(err?.message || err) }));
+  }), 3000, 'review e-mail').catch((err: any) => ({ sent: false, error: String(err?.message || err) }));
 
   if (!mail.sent) console.error('[reviews] review stored but NOT e-mailed:', id, '|', (mail as any).error);
   console.log('[reviews] stored', id, '| rating', rating, '| e-mailed:', mail.sent);

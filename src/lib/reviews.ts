@@ -78,9 +78,9 @@ export interface ReviewSubmission {
   email: string;
   consent: boolean;
   /** A field people cannot see; anything in it was typed by a bot. */
-  website: string;
-  /** When the form was opened, so a submit within a blink can be told apart. */
-  startedAt: number;
+  dcp_trap: string;
+  /** How long the form was open, timed on the visitor's device (their clock may not match the server's). */
+  elapsedMs: number;
 }
 
 export async function submitReview(review: ReviewSubmission): Promise<void> {
@@ -92,7 +92,9 @@ export async function submitReview(review: ReviewSubmission): Promise<void> {
   let body: any = {};
   try { body = await response.json(); } catch {}
   if (!response.ok || body?.ok === false) {
-    throw new Error(body?.error || 'We could not send your review. Please try again.');
+    // The status is what tells a routing problem (404) from a server one (5xx).
+    console.warn('[reviews] submit failed:', response.status, body?.error || '');
+    throw new Error(body?.error || 'We could not send your review. Please try again, or text it to us at (475) 341-3699.');
   }
 }
 

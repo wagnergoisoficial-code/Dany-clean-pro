@@ -90,8 +90,8 @@ function Dialog({ onClose }: { onClose: () => void }) {
         comment,
         email: String(form.get('email') || ''),
         consent,
-        website: String(form.get('website') || ''),
-        startedAt: startedAt.current,
+        dcp_trap: String(form.get('dcp_trap') || ''),
+        elapsedMs: Date.now() - startedAt.current,
       });
       setFirstName(name.trim().split(/\s+/)[0] || '');
       setState('sent');
@@ -232,7 +232,7 @@ function Dialog({ onClose }: { onClose: () => void }) {
 
             {/* Hidden from people; a bot that fills every field fills this one too. */}
             <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-              <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
+              <label>Leave this field empty<input name="dcp_trap" tabIndex={-1} autoComplete="off" /></label>
             </div>
 
             <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-[3px] bg-site-mist p-4">
