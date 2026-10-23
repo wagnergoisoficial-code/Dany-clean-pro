@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Phone, MessageSquare, Mail } from 'lucide-react';
-import { useAdminAuth } from '../lib/auth';
 import { useConfig } from '../hooks/useConfig';
 import { smsHref } from '../lib/smsLine';
 import { openQuote, scrollToSection } from '../lib/quote';
@@ -23,7 +22,6 @@ const EMAIL = 'danycleanenpro@gmail.com';
  * login stay in the second column.
  */
 export default function Footer() {
-  const { user } = useAdminAuth();
   const { businessPhone } = useConfig();
   const [email, setEmail] = useState('');
 
@@ -92,10 +90,10 @@ export default function Footer() {
             <li><Link to="/reviews" className={linkClass}>{chevron}Client Reviews</Link></li>
             <li><Link to="/privacy-policy" className={linkClass}>{chevron}Privacy Policy</Link></li>
             <li><Link to="/terms" className={linkClass}>{chevron}Terms &amp; Conditions</Link></li>
+            {/* Signed in already, /admin/login goes straight to the dashboard.
+                Checking here would put sign-in code on every public page. */}
             <li>
-              <Link to={user ? '/admin/dashboard' : '/admin/login'} target="_blank" className={linkClass}>
-                {chevron}{user ? 'Admin Dashboard' : 'Team Login'}
-              </Link>
+              <Link to="/admin/login" target="_blank" className={linkClass}>{chevron}Team Login</Link>
             </li>
           </ul>
         </div>

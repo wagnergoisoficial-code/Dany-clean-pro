@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, isFirebaseReady } from '../../lib/firebase';
+import { firestoreNow } from '../../lib/firestoreLazy';
 import { cn } from '../../lib/utils';
 import { useConfig } from '../../hooks/useConfig';
 import { track } from '../../lib/metaPixel';
@@ -73,16 +72,19 @@ export default function LeadForm({ prefill }: LeadFormProps) {
 
       const submissionPromise = (async () => {
         try {
-          // Rule 1: Always prioritize direct Firestore if initialized
-          if (isFirebaseReady()) {
+          // Rule 1: Always prioritize direct Firestore if initialized. The
+          // database code is fetched now, on submit, rather than with the
+          // page — nobody needs it until they send the form.
+          const kit = await firestoreNow();
+          if (kit) {
              console.log('LeadForm: Firebase ready - attempting direct Firestore submission');
              try {
-               const docRef = await addDoc(collection(db, 'leads'), {
+               const docRef = await kit.fs.addDoc(kit.fs.collection(kit.db, 'leads'), {
                  ...formData,
                  bedrooms: Number(formData.bedrooms) || formData.bedrooms,
                  bathrooms: Number(formData.bathrooms) || formData.bathrooms,
                  status: 'new',
-                 createdAt: serverTimestamp(),
+                 createdAt: kit.fs.serverTimestamp(),
                  source: 'direct-client-firestore-priority'
                });
                console.log('LeadForm: Firestore submission successful, ID:', docRef.id);
@@ -189,7 +191,14 @@ export default function LeadForm({ prefill }: LeadFormProps) {
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      // The database code starts downloading when someone begins to fill the
+      // form in, so by the time they press send it is usually already here.
+      onFocusCapture={() => { firestoreNow(); }}
+      className="flex flex-col gap-6"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col">
           <label className={labelClass} htmlFor="lead-name">Your Full Name *</label>

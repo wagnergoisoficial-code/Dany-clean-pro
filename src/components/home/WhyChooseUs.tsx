@@ -1,5 +1,4 @@
 import { useId, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import SiteContainer from './SiteContainer';
 import { REASONS, REASON_DEFAULT } from './content';
@@ -10,7 +9,6 @@ import { REASONS, REASON_DEFAULT } from './content';
  */
 export default function WhyChooseUs() {
   const [open, setOpen] = useState(REASON_DEFAULT);
-  const reduce = useReducedMotion();
   const ids = useId();
   const reason = REASONS[open];
   const [back, middle, front] = reason.photos;
@@ -65,23 +63,16 @@ export default function WhyChooseUs() {
           aria-labelledby={`${ids}-tab-${open}`}
           className="mt-[60px] grid items-center gap-12 lg:mt-[75px] lg:grid-cols-[480px_minmax(0,1fr)] lg:gap-[58px]"
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={open}
-              initial={reduce ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduce ? undefined : { opacity: 0, y: -8 }}
-              transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-              className="relative mx-auto aspect-[480/343] w-full max-w-[480px]"
-            >
-              <img src={back} alt="" loading="lazy"
+          {/* Remounted per reason (key), so each switch plays the rise-in;
+              CSS only, so the home page carries no animation library. */}
+          <div key={open} className="relative mx-auto aspect-[480/343] w-full max-w-[480px] motion-safe:animate-[rise-in_0.35s_cubic-bezier(0.32,0.72,0,1)]">
+              <img src={back} alt="" loading="lazy" decoding="async" fetchPriority="low" width={720} height={480}
                 className="absolute left-0 top-[15.7%] h-[72.3%] w-[62.5%] rounded-[3px] object-cover brightness-[0.45] saturate-[0.6]" />
-              <img src={middle} alt="" loading="lazy"
+              <img src={middle} alt="" loading="lazy" decoding="async" fetchPriority="low" width={720} height={480}
                 className="absolute left-[7.7%] top-0 h-[78.4%] w-[88.5%] rounded-[3px] object-cover shadow-[0_18px_40px_-18px_rgba(4,19,42,0.55)]" />
-              <img src={front} alt="" loading="lazy"
+              <img src={front} alt="" loading="lazy" decoding="async" fetchPriority="low" width={720} height={480}
                 className="absolute left-[15.6%] top-[14.9%] h-[85.1%] w-[84.4%] rounded-[3px] object-cover shadow-[0_34px_60px_-16px_rgba(13,118,242,0.55)]" />
-            </motion.div>
-          </AnimatePresence>
+          </div>
 
           <div className="mx-auto max-w-[540px] lg:mx-0">
             <p className="text-[14.5px] leading-[1.9] text-site-text">{reason.lead}</p>

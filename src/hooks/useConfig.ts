@@ -1,62 +1,53 @@
-import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db, isFirebaseReady } from '../lib/firebase';
+import { useQuery } from '@tanstack/react-query';
+import { afterPageLoad } from '../lib/timing';
+import { getDocument } from '../lib/firestoreRest';
 
-export function useConfig() {
-  const [config, setConfig] = useState<{ businessPhone: string }>({
-    businessPhone: '(218) 357-5938' // Initial generic fallback
-  });
+const DEFAULT_PHONE = '(218) 357-5938';
+// A placeholder the very first version of the site shipped with.
+const PLACEHOLDER_PHONE = '(203) 456-7890';
 
-  useEffect(() => {
-    const fetchConfig = async () => {
-      const isProd = window.location.hostname === 'danycleanpro.com' || 
-                     window.location.hostname === 'www.danycleanpro.com' ||
-                     window.location.hostname.includes('netlify.app');
+type Config = { businessPhone: string } & Record<string, any>;
 
-      // 1. Try API if NOT in production
+/**
+ * The business phone shown across the site (header, hero, contact block,
+ * footer, form, chat), from settings/general when it is set there.
+ *
+ * Read once per visit and shared by every component that shows it — each one
+ * used to fetch it for itself, six requests for the same document. The
+ * default is on screen from the first paint; the stored value, if any, is
+ * fetched once the page has loaded.
+ */
+export function useConfig(): Config {
+  const { data } = useQuery<Config>({
+    queryKey: ['public-config'],
+    staleTime: Infinity,
+    queryFn: async () => {
+      const host = window.location.hostname;
+      const isProd = host === 'danycleanpro.com' || host === 'www.danycleanpro.com' || host.includes('netlify.app');
+
+      // The local development server answers /api/config; the live site has
+      // no such route, so it is not asked there.
       if (!isProd) {
         try {
           const res = await fetch('/api/config');
-          if (res.ok) {
-            const contentType = res.headers.get("content-type");
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-              const data = await res.json();
-              if (data && data.businessPhone) {
-                const phoneVal = (data.businessPhone === '(203) 456-7890' || !data.businessPhone)
-                  ? '(218) 357-5938'
-                  : data.businessPhone;
-                setConfig({ ...data, businessPhone: phoneVal });
-                return; // Success
-              }
+          if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+            const local = await res.json();
+            if (local?.businessPhone) {
+              return { ...local, businessPhone: local.businessPhone === PLACEHOLDER_PHONE ? DEFAULT_PHONE : local.businessPhone };
             }
           }
-        } catch (err) {
-          console.warn('API config unavailable');
+        } catch {
+          // no local server — fall through
         }
       }
 
-      // 2. Try Firestore
-      if (isFirebaseReady()) {
-        try {
-          const docRef = doc(db, 'settings', 'general');
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            if (data && data.businessPhone) {
-              const phoneVal = (data.businessPhone === '(203) 456-7890' || !data.businessPhone)
-                ? '(218) 357-5938'
-                : data.businessPhone;
-              setConfig({ ...data, businessPhone: phoneVal } as any);
-            }
-          }
-        } catch (err) {
-          console.error('Firestore config fetch failed:', err);
-        }
+      await afterPageLoad();
+      const stored = (await getDocument('settings/general'))?.data;
+      if (stored?.businessPhone) {
+        return { ...stored, businessPhone: stored.businessPhone === PLACEHOLDER_PHONE ? DEFAULT_PHONE : stored.businessPhone };
       }
-    };
-
-    fetchConfig();
-  }, []);
-
-  return config;
+      return { businessPhone: DEFAULT_PHONE };
+    },
+  });
+  return data ?? { businessPhone: DEFAULT_PHONE };
 }

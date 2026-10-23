@@ -3,8 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- The cover photo is the largest thing on the home page's first screen.
+         Asked for here, while the page is still arriving, instead of after
+         the JavaScript has run. The URLs must be exactly the ones the <img>
+         in src/components/home/Hero.tsx asks for (src/lib/images.ts builds
+         them, src/lib/heroCover.ts holds the widths and quality), or the
+         browser downloads the picture twice. %HERO_COVER_FILE% is filled in
+         at build time from src/generated/heroCover.ts. -->
+    <script>
+      (function () {
+        if (location.pathname !== '/') return;
+        var file = '%HERO_COVER_FILE%';
+        var link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.setAttribute('fetchpriority', 'high');
+        var host = location.hostname;
+        if (host === 'danycleanpro.com' || host === 'www.danycleanpro.com' || /\.netlify\.app$/.test(host)) {
+          var copy = function (w) { return '/.netlify/images?url=' + encodeURIComponent(file) + '&w=' + w + '&q=65'; };
+          link.setAttribute('imagesrcset', [640, 960, 1280, 1920].map(function (w) { return copy(w) + ' ' + w + 'w'; }).join(', '));
+          link.setAttribute('imagesizes', '100vw');
+          link.href = copy(1280);
+        } else {
+          link.href = file;
+        }
+        document.head.appendChild(link);
+      })();
+    </script>
+
+    <!-- Poppins is served from this site (see src/index.css); these two
+         weights carry the first screen's headline and buttons. -->
+    <link rel="preload" href="/fonts/poppins-latin-700.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/poppins-latin-600.woff2" as="font" type="font/woff2" crossorigin />
+
+    <!-- Figtree, for the dashboard and the policy pages, without holding up
+         the first paint: the stylesheet applies once it has arrived. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" /></noscript>
     <title>Dany Clean Pro — Residential &amp; Commercial Cleaning in Connecticut</title>
     <meta
       name="description"

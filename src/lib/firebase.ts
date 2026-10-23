@@ -1,72 +1,30 @@
-import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { app, db, databaseId, firebaseConfig, isFirebaseReady } from './firebaseCore';
 
-// Helper to get config value from environment variables
-// Helper to clean environment variables (removes quotes and spaces)
-const cleanEnvVar = (value: any): string | undefined => {
-  if (typeof value !== 'string') return undefined;
-  // Remove wrapping quotes (common in some CI environments) and trim spaces
-  const cleaned = value.replace(/^["'](.+)["']$/, '$1').trim();
-  return cleaned || undefined;
-};
+/**
+ * Firebase for the dashboard: the app and database from firebaseCore, plus
+ * sign-in and file storage. The public pages never import this module — it
+ * would put sign-in and storage, which no visitor uses, on their critical
+ * path — they reach the database through firestoreLazy.ts instead.
+ */
 
-const firebaseConfig = {
-  apiKey: cleanEnvVar(import.meta.env.VITE_FIREBASE_API_KEY),
-  authDomain: cleanEnvVar(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
-  projectId: cleanEnvVar(import.meta.env.VITE_FIREBASE_PROJECT_ID),
-  storageBucket: cleanEnvVar(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
-  messagingSenderId: cleanEnvVar(import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
-  appId: cleanEnvVar(import.meta.env.VITE_FIREBASE_APP_ID),
-  measurementId: cleanEnvVar(import.meta.env.VITE_FIREBASE_MEASUREMENT_ID),
-};
-
-console.log('--- Firebase Audit ---');
-console.log('Project ID:', firebaseConfig.projectId || 'MISSING');
-console.log('API Key Present:', !!firebaseConfig.apiKey);
-console.log('Mode:', import.meta.env.MODE);
-console.log('---------------------');
-
-const dbId = import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined;
-
-// Check if we have the minimal config needed
-if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.warn("Firebase configuration is missing or incomplete. Ensure VITE_FIREBASE_API_KEY and VITE_FIREBASE_PROJECT_ID are set in environment variables.");
+if (import.meta.env.DEV) {
+  console.log('--- Firebase Audit ---');
+  console.log('Project ID:', firebaseConfig.projectId || 'MISSING');
+  console.log('API Key Present:', !!firebaseConfig.apiKey);
+  console.log('Database:', databaseId || '(default)');
+  console.log('---------------------');
 }
 
-let app: any;
-let db: any;
 let auth: any;
 let storage: any;
 
-// Helper to check if we are truly connected
-export const isFirebaseReady = () => {
-  return db && db.type !== 'mock';
-};
-
-try {
-  if (firebaseConfig.apiKey && firebaseConfig.projectId) {
-    app = initializeApp(firebaseConfig);
-    // CRITICAL: Must use the specific database ID provisioned by AI Studio
-    // If we are on danycleanpro.com, we might be using a different setup, or it might be the same.
-    // However, our code MUST respect the environment variable if it exists.
-    db = getFirestore(app, dbId);
-    auth = getAuth(app);
-    storage = getStorage(app);
-    console.log("Firebase initialized with project:", firebaseConfig.projectId, "and DB:", dbId || '(default)');
-  } else {
-    throw new Error("Firebase config missing API Key or Project ID");
-  }
-} catch (err) {
-  console.warn("Firebase could not be initialized. Using mock services.", err);
-  // Mock Firebase to prevent crashes in the UI
-  app = { name: '[MOCK]' } as any;
-  db = { 
-    type: 'mock', 
-    _databaseId: { projectId: 'mock-id' },
-    firestoreGuid: 'mock-guid'
-  } as any;
+if (app) {
+  auth = getAuth(app);
+  storage = getStorage(app);
+} else {
   auth = {
     onAuthStateChanged: (cb: any) => {
       cb(null);
@@ -82,6 +40,7 @@ try {
   } as any;
 }
 
+export { isFirebaseReady };
 export { db, auth, storage };
 
 // Validation check

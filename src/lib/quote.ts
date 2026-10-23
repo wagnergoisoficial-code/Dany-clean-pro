@@ -24,6 +24,13 @@ export function openQuote(defaults: QuoteDefaults = {}) {
     window.location.assign('/#quote');
     return;
   }
+  // The home page draws its lower sections a moment after the first screen.
+  // Tapped before the form exists, the hash carries the visitor there once
+  // it does (Home looks for it); the service choice is the one thing lost.
+  if (!document.getElementById('quote')) {
+    window.location.hash = 'quote';
+    return;
+  }
   window.dispatchEvent(new CustomEvent<QuoteDefaults>(QUOTE_EVENT, { detail: defaults }));
 }
 
@@ -35,6 +42,11 @@ export function scrollToSection(id: string) {
   }
   if (id === 'top') {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  if (!document.getElementById(id)) {
+    // Not drawn yet (see openQuote): Home scrolls to the hash once it is.
+    window.location.hash = id;
     return;
   }
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });

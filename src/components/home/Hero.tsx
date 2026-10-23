@@ -1,33 +1,47 @@
 import { useEffect, useState } from 'react';
 import { MessageSquareText, PhoneCall } from 'lucide-react';
-import { useSetting } from '../../lib/settings';
 import { useConfig } from '../../hooks/useConfig';
 import { openQuote } from '../../lib/quote';
 import { smsHref, SMS_NUMBER_DISPLAY } from '../../lib/smsLine';
 import { triggerAICall, handleSMSLaunch } from '../../lib/contact';
 import { PHOTOS } from './content';
+import { HERO_COVER, HERO_QUALITY, HERO_WIDTHS, newerCover } from '../../lib/heroCover';
+import { cdnSrcSet, cdnUrl } from '../../lib/images';
+import { afterPageLoad } from '../../lib/timing';
 
 /**
  * The opening photograph, toned the reference's deep blue.
  *
- * The photo is whatever Dany set as the cover in the dashboard; until then, a
- * bright cleaned room. Any photograph goes through the same treatment — grey,
- * then multiplied with blue — so an upload sits in the design instead of
- * fighting it.
+ * The photo is the cover Dany chose in the dashboard, baked into a file at
+ * build time (scripts/bake-hero.mjs) so it can be preloaded by index.html and
+ * served by the CDN at the size of the screen: it is the largest thing on the
+ * first screen, and it used to arrive last. If she has changed the cover since
+ * the build, the new one is swapped in once the page has loaded. Any
+ * photograph goes through the same treatment — grey, then multiplied with
+ * blue — so an upload sits in the design instead of fighting it.
  *
  * The bottom padding is the space the service strip covers.
  */
 export default function Hero() {
-  const { value: cover } = useSetting('hero_cover');
   const { businessPhone } = useConfig();
-  const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [cover]);
+  const [override, setOverride] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    afterPageLoad().then(newerCover).then((cover) => { if (live && cover) setOverride(cover); });
+    return () => { live = false; };
+  }, []);
 
   return (
     <section id="top" className="relative overflow-hidden bg-site-deep">
       <img
-        src={cover && !failed ? cover : PHOTOS.hero}
-        onError={() => setFailed(true)}
+        src={override || cdnUrl(HERO_COVER.file, 1280, HERO_QUALITY)}
+        srcSet={override ? undefined : cdnSrcSet(HERO_COVER.file, HERO_WIDTHS, HERO_QUALITY)}
+        sizes="100vw"
+        width={HERO_COVER.width}
+        height={HERO_COVER.height}
+        fetchPriority="high"
+        onError={() => setOverride(PHOTOS.hero)}
         alt=""
         className="absolute inset-0 h-full w-full object-cover grayscale"
       />

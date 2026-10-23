@@ -1,7 +1,19 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import {defineConfig, loadEnv, type Plugin} from 'vite';
+import {HERO_COVER} from './src/generated/heroCover';
+
+/**
+ * Puts the baked cover photo's path into index.html's preload script
+ * (scripts/bake-hero.mjs writes it before every build).
+ */
+function heroCoverPreload(): Plugin {
+  return {
+    name: 'hero-cover-preload',
+    transformIndexHtml: (html) => html.replace(/%HERO_COVER_FILE%/g, HERO_COVER.file),
+  };
+}
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', 'VITE_');
@@ -24,7 +36,7 @@ export default defineConfig(({mode}) => {
   }
 
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), heroCoverPreload()],
     define: envDefines,
     resolve: {
       alias: {

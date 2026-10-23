@@ -44,7 +44,7 @@ export default function Difference() {
         <div className="grid gap-12 sm:grid-cols-2 sm:gap-12">
           {cards.map(card => (
             <article key={card.title}>
-              <img src={card.photo} alt="" loading="lazy" className="h-[150px] w-full rounded-[3px] object-cover lg:h-[140px]" />
+              <img src={card.photo} alt="" loading="lazy" decoding="async" fetchPriority="low" width={720} height={480} className="h-[150px] w-full rounded-[3px] object-cover lg:h-[140px]" />
               <h3 className="mt-6 text-[13px] font-bold uppercase tracking-[0.06em] text-site-navy">{card.title}</h3>
               <p className="mt-3 text-[14px] leading-[1.85] text-site-text">{card.text}</p>
               <button

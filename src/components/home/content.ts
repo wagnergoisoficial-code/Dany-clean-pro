@@ -14,21 +14,25 @@ import {
  * service already chosen.
  */
 
-const unsplash = (id: string, w = 1200) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=80&w=${w}`;
+// 720px covers the largest frame these sit in (about 400px) on a 2x screen;
+// quality 70 is invisible under the page's treatment and about half the bytes
+// of 80. They load just below the first screen, while the cover is still
+// coming in, so every kilobyte here is one the cover waits for.
+const unsplash = (id: string, w = 720) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=70&w=${w}`;
 
 /** Each of these was looked at; the gallery's sample list has a box of doughnuts in it. */
 export const PHOTOS = {
-  hero: unsplash('1600607687939-ce8a6c25118c', 2400),            // bright, cleaned living space
-  windowClean: unsplash('1581578731548-c64695cc6952', 900),      // cleaner at a window
-  bathroom: unsplash('1584622650111-993a426fbf0a', 900),
-  kitchen: unsplash('1556911220-e15b29be8c8f', 700),
-  livingRoom: unsplash('1560185127-6ed189bf02f4', 900),
-  bedroom: unsplash('1505693416388-ac5ce068fe85', 900),
-  houseAtDusk: unsplash('1600585154340-be6161a56a0c', 700),
-  sprayBottle: unsplash('1563453392212-326f5e854473', 900),
-  sofa: unsplash('1484101403633-562f891dc89a', 900),
-  office: unsplash('1497366754035-f200968a6e72', 900),
+  hero: unsplash('1600607687939-ce8a6c25118c', 1600),            // bright, cleaned living space
+  windowClean: unsplash('1581578731548-c64695cc6952'),      // cleaner at a window
+  bathroom: unsplash('1584622650111-993a426fbf0a'),
+  kitchen: unsplash('1556911220-e15b29be8c8f'),
+  livingRoom: unsplash('1560185127-6ed189bf02f4'),
+  bedroom: unsplash('1505693416388-ac5ce068fe85'),
+  houseAtDusk: unsplash('1600585154340-be6161a56a0c'),
+  sprayBottle: unsplash('1563453392212-326f5e854473'),
+  sofa: unsplash('1484101403633-562f891dc89a'),
+  office: unsplash('1497366754035-f200968a6e72'),
 };
 
 export interface Service {

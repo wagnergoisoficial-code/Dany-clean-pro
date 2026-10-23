@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import Hero from '../components/home/Hero';
 import ServiceStrip from '../components/home/ServiceStrip';
 import WhyChooseUs from '../components/home/WhyChooseUs';
@@ -15,28 +15,50 @@ import QuoteSection from '../components/home/QuoteSection';
  * design, at the owner's request.
  */
 export default function Home() {
-  // Arriving from another page or an e-mail link (/#quote, /#gallery…): the
-  // sections render after the browser has looked for the anchor, and the
-  // gallery only once its photos arrive, so look again a little later.
+  // The first screen — the cover and the service strip — is drawn at once;
+  // the rest of the page follows in a transition, which React renders in
+  // small slices, so a slow phone is never locked up for the second it takes
+  // to build everything below the fold.
+  const [rest, setRest] = useState(false);
+  useEffect(() => { startTransition(() => setRest(true)); }, []);
+
+  // Arriving from another page or an e-mail link (/#quote, /#gallery…), or a
+  // link followed before the rest of the page was drawn: the sections exist
+  // only once `rest` is in, and the gallery only once its photos have arrived
+  // after the page loaded — so keep looking for the anchor, for a while.
   useEffect(() => {
+    if (!rest) return;
     const id = window.location.hash.slice(1);
     if (!id) return;
-    const timer = window.setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, id === 'gallery' ? 900 : 150);
-    return () => window.clearTimeout(timer);
-  }, []);
+    let tries = 0;
+    const timer = window.setInterval(() => {
+      const target = document.getElementById(id);
+      if (target || ++tries > 50) {
+        window.clearInterval(timer);
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 200);
+    return () => window.clearInterval(timer);
+  }, [rest]);
 
   return (
     <div className="font-site">
       <Hero />
       <ServiceStrip />
-      <WhyChooseUs />
-      <Testimonials />
-      <Difference />
-      <Gallery />
-      <Excellence />
-      <QuoteSection />
+      {rest ? (
+        <>
+          <WhyChooseUs />
+          <Testimonials />
+          <Difference />
+          <Gallery />
+          <Excellence />
+          <QuoteSection />
+        </>
+      ) : (
+        // Holds the footer below the fold until the sections arrive: on a tall
+        // screen it would otherwise show under the strip and then jump.
+        <div aria-hidden className="min-h-screen" />
+      )}
     </div>
   );
 }

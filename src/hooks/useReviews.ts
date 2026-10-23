@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db, isFirebaseReady } from '../lib/firebase';
+import { afterPageLoad } from '../lib/timing';
+import { whereEqual } from '../lib/firestoreRest';
 import { THUMBTACK_REVIEWS, type PublicReview } from '../lib/reviews';
 
 /**
@@ -17,29 +17,25 @@ export function useReviews(): { reviews: PublicReview[]; loading: boolean } {
     queryKey: ['public-reviews'],
     staleTime: 5 * 60_000,
     queryFn: async () => {
-      let published: PublicReview[] = [];
-      if (isFirebaseReady()) {
-        try {
-          const snapshot = await getDocs(query(collection(db, 'reviews'), where('isPublished', '==', true)));
-          published = snapshot.docs
-            .map(doc => {
-              const d = doc.data() as any;
-              return {
-                id: doc.id,
-                author: String(d.author || '').trim(),
-                rating: Math.min(5, Math.max(1, Math.round(Number(d.rating) || 0))),
-                comment: String(d.comment || '').trim(),
-                date: String(d.date || '').slice(0, 10),
-                city: d.city ? String(d.city) : undefined,
-                service: d.service ? String(d.service) : undefined,
-                source: 'website' as const,
-              };
-            })
-            .filter(r => r.author && r.comment && r.rating);
-        } catch (err) {
-          console.warn('Published reviews unavailable:', err);
-        }
-      }
+      // The Thumbtack reviews are on screen meanwhile; the published ones
+      // join them once the page has loaded, over plain REST (firestoreRest).
+      await afterPageLoad();
+      const docs = await whereEqual('reviews', 'isPublished', true);
+      const published: PublicReview[] = docs
+        .map(doc => {
+          const d = doc.data;
+          return {
+            id: doc.id,
+            author: String(d.author || '').trim(),
+            rating: Math.min(5, Math.max(1, Math.round(Number(d.rating) || 0))),
+            comment: String(d.comment || '').trim(),
+            date: String(d.date || '').slice(0, 10),
+            city: d.city ? String(d.city) : undefined,
+            service: d.service ? String(d.service) : undefined,
+            source: 'website' as const,
+          };
+        })
+        .filter(r => r.author && r.comment && r.rating);
       return [...published, ...THUMBTACK_REVIEWS].sort((a, b) => b.date.localeCompare(a.date));
     },
   });

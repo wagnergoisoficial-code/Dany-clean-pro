@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Home from './pages/Home';
-import AdminLogin from './pages/AdminLogin';
-import AdminSetup from './pages/AdminSetup';
-import AdminDashboard from './pages/AdminDashboard';
 import Layout from './components/Layout';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsAndConditions from './pages/TermsAndConditions';
-import Reviews from './pages/Reviews';
-import { AuthState } from './types';
-import { auth as firebaseAuth } from './lib/firebase';
-import AIVoiceCall from './components/AIVoiceCall';
-import SMSFallbackModal from './components/SMSFallbackModal';
-import { AnimatePresence } from 'motion/react';
 import { AlertCircle } from 'lucide-react';
+
+// Fetched when opened, not with the home page. The dashboard and sign-in were
+// about half of everything a phone downloaded before it could show the site;
+// the policy pages, the reviews page and the call and text windows are only
+// wanted by some visitors, and only after they ask for them.
+const AdminArea = lazy(() => import('./pages/AdminArea'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+const Reviews = lazy(() => import('./pages/Reviews'));
+const AIVoiceCall = lazy(() => import('./components/AIVoiceCall'));
+const SMSFallbackModal = lazy(() => import('./components/SMSFallbackModal'));
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: any) {
@@ -57,8 +57,6 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-import { isAdminEmail, hasAdminRecord } from './lib/admins';
-
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -77,75 +75,9 @@ export default function App() {
       window.removeEventListener('trigger-sms-fallback', handleTriggerSMS);
     };
   }, []);
-  const [auth, setAuth] = useState<AuthState>(() => {
-    const saved = localStorage.getItem('dany_clean_auth');
-    return saved ? JSON.parse(saved) : { token: null, user: null };
-  });
-
-  useEffect(() => {
-    if (auth.token) {
-      localStorage.setItem('dany_clean_auth', JSON.stringify(auth));
-    } else {
-      localStorage.removeItem('dany_clean_auth');
-    }
-  }, [auth]);
-
-  const login = (token: string, user: { id: number; username: string }) => {
-    setAuth({ token, user });
-  };
-
-  const logout = () => {
-    setAuth({ token: null, user: null });
-  };
-
-  const [fbUser, setFbUser] = useState<any>(null);
-  const [fbLoading, setFbLoading] = useState(true);
-
-  useEffect(() => {
-    return firebaseAuth.onAuthStateChanged((user) => {
-      setFbUser(user);
-      setFbLoading(false);
-      if (user) {
-        setAuth(prev => {
-          if (!prev.token) {
-            return { token: 'fb-token', user: { id: 9999, username: user.email || 'firebase-admin' } };
-          }
-          return prev;
-        });
-      }
-    });
-  }, []);
-
-  // Access is a question only Firebase Auth and the admins collection can
-  // answer. `|| !!auth.token` used to be here, and that token came out of
-  // localStorage unverified: writing the key by hand in a browser console was
-  // a complete way past the login.
-  const [adminState, setAdminState] = useState<'checking' | 'yes' | 'no'>('checking');
-
-  useEffect(() => {
-    if (!fbUser) { setAdminState('no'); return; }
-    if (isAdminEmail(fbUser.email)) { setAdminState('yes'); return; }
-    let live = true;
-    hasAdminRecord(fbUser.uid).then(ok => { if (live) setAdminState(ok ? 'yes' : 'no'); });
-    return () => { live = false; };
-  }, [fbUser]);
-
-  const hasAccess = adminState === 'yes';
-
-  // Still waiting to hear who, if anyone, is signed in. This used to hold the
-  // whole site — the marketing pages too — behind a spinner, so a visitor
-  // whose browser blocks Firebase (an ad blocker, private browsing, storage
-  // turned off, a slow line) got "Initializing Dany Clean Pro Platform…"
-  // instead of the business, and there was nothing to wait for: the home page
-  // does not care who is signed in. Only the admin routes do.
-  const decidingAccess = fbLoading || (fbUser && adminState === 'checking');
-
-  const booting = (
+  const adminLoading = (
     <div className="min-h-screen bg-surface-low flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-        <p className="text-ink-muted font-medium animate-pulse">Checking your access…</p>
-      </div>
+      <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -153,10 +85,10 @@ export default function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <AnimatePresence>
+          <Suspense fallback={null}>
             {isVoiceCallOpen && <AIVoiceCall onClose={() => setIsVoiceCallOpen(false)} />}
             {isSMSFallbackOpen && <SMSFallbackModal onClose={() => setIsSMSFallbackOpen(false)} />}
-          </AnimatePresence>
+          </Suspense>
           <Routes>
             {/* Public Routes */}
             <Route element={<Layout />}>
@@ -169,28 +101,9 @@ export default function App() {
               <Route path="/testimonials" element={<Navigate to="/reviews" replace />} />
             </Route>
             
-            {/* Private Admin Routes */}
-            {/* Creating the first administrator. The server closes this off
-                once one exists, so the page needs no gate of its own. */}
-            <Route path="/admin/setup" element={<AdminSetup />} />
-            <Route 
-              path="/admin/login" 
-              element={decidingAccess ? booting : (!hasAccess ? <AdminLogin onLogin={login} /> : <Navigate to="/admin/dashboard" />)} 
-            />
-            <Route 
-              path="/admin/dashboard/*" 
-              element={decidingAccess ? booting : hasAccess ? (
-                <AdminDashboard 
-                  auth={auth} 
-                  fbUser={fbUser}
-                  onLogout={async () => {
-                     await firebaseAuth.signOut();
-                     logout(); // Clear old auth state too
-                  }} 
-                />
-              ) : <Navigate to="/admin/login" />} 
-            />
-            
+            {/* The dashboard, sign-in and first-admin setup, in their own chunk. */}
+            <Route path="/admin/*" element={<Suspense fallback={adminLoading}><AdminArea /></Suspense>} />
+
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </BrowserRouter>

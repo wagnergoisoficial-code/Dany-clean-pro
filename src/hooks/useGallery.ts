@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { collection, getDocs } from 'firebase/firestore';
-import { db, isFirebaseReady } from '../lib/firebase';
+import { afterPageLoad } from '../lib/timing';
+import { listDocuments } from '../lib/firestoreRest';
+import { cdnUrl } from '../lib/images';
 
 export interface GalleryPhoto {
   url: string;
@@ -26,14 +27,16 @@ export function useGallery(): { photos: GalleryPhoto[]; loading: boolean } {
     queryKey: ['gallery-photos'],
     staleTime: 5 * 60_000,
     queryFn: async () => {
-      if (!isFirebaseReady()) return [];
+      // Below the fold: read once the page has loaded, over plain REST
+      // (see firestoreRest) — no database SDK for a list of photos.
+      await afterPageLoad();
       try {
-        const snapshot = await getDocs(collection(db, 'gallery'));
+        const docs = await listDocuments('gallery');
         const seen = new Set<string>();
-        return snapshot.docs
+        return docs
           .map(doc => {
-            const d = doc.data() as any;
-            const at = d?.createdAt?.toMillis?.() ?? (d?.createdAt ? Date.parse(d.createdAt) : 0);
+            const d = doc.data;
+            const at = d?.createdAt ? Date.parse(d.createdAt) : 0;
             return {
               url: String(d?.url || '').trim(),
               title: String(d?.title || '').trim(),
@@ -66,18 +69,7 @@ export function photoTitle(title: string): string {
   return t;
 }
 
-/**
- * A smaller copy of a gallery photo for the grid.
- *
- * Uploads are phone photos, 1200px and up to half a megabyte each; eight of
- * them is three megabytes before anyone has asked to look. On the live site
- * Netlify's image CDN resizes them (netlify.toml allows Firebase Storage as a
- * source). Anywhere else — a local preview — there is no CDN, so the original
- * is used.
- */
+/** A smaller copy of a gallery photo for the grid (Firebase Storage originals are phone-sized). */
 export function thumbUrl(url: string, width: number): string {
-  const host = typeof window !== 'undefined' ? window.location.hostname : '';
-  const live = host === 'danycleanpro.com' || host === 'www.danycleanpro.com' || host.endsWith('.netlify.app');
-  if (!live || !/^https:\/\/firebasestorage\.googleapis\.com\//.test(url)) return url;
-  return `/.netlify/images?url=${encodeURIComponent(url)}&w=${width}&q=72`;
+  return /^https:\/\/firebasestorage\.googleapis\.com\//.test(url) ? cdnUrl(url, width, 72) : url;
 }

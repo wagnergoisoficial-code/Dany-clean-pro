@@ -13,6 +13,30 @@
 [images]
   remote_images = ["https://firebasestorage\\.googleapis\\.com/.*"]
 
+# A browser may keep these for a year: their names change whenever their
+# content does — Vite's hashed bundles, the baked cover (named by its hash).
+# The fonts are named by weight; if one is ever replaced, give it a new name.
+# Everything else keeps Netlify's default and is checked on every visit.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/hero/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/logo-112.png"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
 
 [[redirects]]
   from = "/terms"

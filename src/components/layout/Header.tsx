@@ -3,12 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, PhoneCall, MessageSquareText, Phone, MessageSquare } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useConfig } from '../../hooks/useConfig';
-import { useSetting } from '../../lib/settings';
+import { usePublicSetting } from '../../hooks/usePublicSetting';
 import { DEFAULT_LOGO, usableLogo } from '../../lib/brand';
 import { smsHref, SMS_NUMBER_DISPLAY } from '../../lib/smsLine';
 import { openQuote, scrollToSection } from '../../lib/quote';
 import { triggerAICall, handleSMSLaunch } from '../../lib/contact';
 import SiteContainer from '../home/SiteContainer';
+import { cdnUrl } from '../../lib/images';
 
 /**
  * The site header, as the approved reference draws it: the mark and two
@@ -21,12 +22,20 @@ import SiteContainer from '../home/SiteContainer';
 
 type NavItem = { label: string; sub: string; go: () => void };
 
+/**
+ * The mark shipped with the site is /logo.png, 512px and 370 KB, shown at 56px.
+ * /logo-112.png is the same mark at twice that size, about 28 KB, and on the
+ * live site the CDN turns it into WebP or AVIF. A logo uploaded in the
+ * dashboard still wins, once the page has loaded.
+ */
+const SMALL_LOGO = '/logo-112.png';
+
 export function SiteLogo({ className }: { className?: string }) {
-  const { value: storedLogo } = useSetting('app_logo', DEFAULT_LOGO);
-  const logo = usableLogo(storedLogo);
+  const stored = usableLogo(usePublicSetting('app_logo'));
+  const logo = stored === DEFAULT_LOGO ? cdnUrl(SMALL_LOGO, 112, 80) : stored;
   return (
     <span className={cn('flex items-center gap-3', className)}>
-      <img src={logo} alt="" className="h-12 w-auto object-contain lg:h-14" />
+      <img src={logo} alt="" width={56} height={56} className="h-12 w-12 object-contain lg:h-14 lg:w-14" />
       <span className="leading-none">
         <span className="block text-[17px] font-semibold tracking-[-0.01em] text-white lg:text-[19px]">Dany Clean Pro</span>
         <span className="mt-1.5 block text-[11px] font-medium tracking-[0.04em] text-white/65">Professional Cleaning</span>

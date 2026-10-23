@@ -49,6 +49,8 @@ export default function Gallery() {
                     alt={title || 'Cleaning by Dany Clean Pro'}
                     loading="lazy"
                     decoding="async"
+                    width={640}
+                    height={480}
                     className="h-full w-full object-cover transition-transform duration-700 ease-[var(--ease-settle)] group-hover:scale-[1.04]"
                   />
                   <span aria-hidden className="absolute inset-0 flex items-center justify-center bg-site-deep/0 transition-colors duration-300 group-hover:bg-site-deep/35">

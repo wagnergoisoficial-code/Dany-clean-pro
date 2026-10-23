@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType, isFirebaseReady } from './firebase';
+import { firestoreWhenIdle } from './firestoreLazy';
 
 export function useSetting(settingId: string, defaultValue: string | null = null) {
   const [value, setValue] = useState<string | null>(defaultValue);
@@ -34,13 +33,18 @@ export function useSetting(settingId: string, defaultValue: string | null = null
     window.addEventListener('settings-updated' as any, handleStorageChange);
     
     let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
 
-    // If db is ready, try to subscribe
-    if (isFirebaseReady()) {
-      const docRef = doc(db, 'settings', settingId);
-      
-      // Use onSnapshot for real-time updates
-      unsubscribe = onSnapshot(docRef, (docSnap) => {
+    // The database is fetched once the page has loaded (see firestoreLazy):
+    // a setting refines what is already on screen, so it never holds up the
+    // first paint.
+    firestoreWhenIdle().then((kit) => {
+      if (cancelled) return;
+      if (!kit) { fetchLocal(); return; }
+      const docRef = kit.fs.doc(kit.db, 'settings', settingId);
+
+      // Real-time, so a change made in the dashboard shows without a reload.
+      unsubscribe = kit.fs.onSnapshot(docRef, (docSnap) => {
         const stored = docSnap.exists() ? docSnap.data().value : undefined;
         // An empty stored value means "nothing chosen", not "show nothing" —
         // removing a logo in the dashboard should land back on the one the
@@ -57,15 +61,14 @@ export function useSetting(settingId: string, defaultValue: string | null = null
         }
         setLoading(false);
       }, (error) => {
-        handleFirestoreError(error, OperationType.GET, `settings/${settingId}`);
+        console.warn(`settings/${settingId} could not be read:`, error?.message || error);
         // Even on error, try to load from local
         fetchLocal();
       });
-    } else {
-      fetchLocal();
-    }
+    });
 
     return () => {
+      cancelled = true;
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('settings-updated' as any, handleStorageChange);
       if (unsubscribe) unsubscribe();
