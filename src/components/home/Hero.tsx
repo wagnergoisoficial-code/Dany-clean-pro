@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
+import { MessageSquareText, PhoneCall } from 'lucide-react';
 import { useSetting } from '../../lib/settings';
+import { useConfig } from '../../hooks/useConfig';
 import { openQuote } from '../../lib/quote';
+import { smsHref, SMS_NUMBER_DISPLAY } from '../../lib/smsLine';
+import { triggerAICall, handleSMSLaunch } from '../../lib/contact';
 import { PHOTOS } from './content';
 
 /**
@@ -15,6 +19,7 @@ import { PHOTOS } from './content';
  */
 export default function Hero() {
   const { value: cover } = useSetting('hero_cover');
+  const { businessPhone } = useConfig();
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [cover]);
 
@@ -43,6 +48,36 @@ export default function Hero() {
         >
           Free Quote
         </button>
+
+        {/* On a computer the two contacts sit top right in the header. On a
+            phone or tablet the header has room only for the menu button, so
+            they come here, in the first view, drawn the same way: a thin icon,
+            the line to tap, a quieter line under it, and a rule between the
+            two like the one between the menu's links. */}
+        <div className="mt-10 grid w-full max-w-[400px] grid-cols-2 border-t border-white/20 pt-6 lg:hidden">
+          <a
+            href={`tel:${businessPhone.replace(/\D/g, '')}`}
+            onClick={triggerAICall}
+            className="flex min-w-0 items-center justify-center gap-2.5 pr-2"
+          >
+            <PhoneCall size={22} strokeWidth={1.4} className="shrink-0 text-white/70" />
+            <span className="text-left leading-none">
+              <span className="block whitespace-nowrap text-[13.5px] font-semibold text-white">{businessPhone}</span>
+              <span className="mt-1.5 block text-[11.5px] font-medium text-white/60">Call Dany</span>
+            </span>
+          </a>
+          <a
+            href={smsHref()}
+            onClick={handleSMSLaunch}
+            className="relative flex min-w-0 items-center justify-center gap-2.5 pl-2 before:absolute before:left-0 before:top-1/2 before:h-9 before:w-px before:-translate-y-1/2 before:bg-white/20"
+          >
+            <MessageSquareText size={22} strokeWidth={1.4} className="shrink-0 text-white/70" />
+            <span className="text-left leading-none">
+              <span className="block text-[13px] font-semibold uppercase tracking-[0.04em] text-white">Text Us</span>
+              <span className="mt-1.5 block whitespace-nowrap text-[11.5px] font-medium text-white/60">{SMS_NUMBER_DISPLAY}</span>
+            </span>
+          </a>
+        </div>
       </div>
     </section>
   );
