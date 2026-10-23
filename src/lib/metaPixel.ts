@@ -33,6 +33,27 @@ export function track(event: StandardEvent, params?: Record<string, string | num
 }
 
 /**
+ * A Lead for a call or a text, once per channel per visit.
+ *
+ * The Meta campaign optimises for Lead, and for a cleaning company a tap on
+ * "call" or "text" is as much a lead as the quote form. Someone who taps
+ * "call" three times is still one person, though, so the Lead goes out the
+ * first time in the browser tab's session; Contact still goes out on every
+ * tap. Storage can be refused (private mode), so memory backs it up.
+ */
+const LEADS_SENT = 'dcp-pixel-contact-leads';
+const sentThisPage = new Set<string>();
+
+function leadOncePerVisit(channel: string) {
+  let sent: string[] = [];
+  try { sent = JSON.parse(sessionStorage.getItem(LEADS_SENT) || '[]'); } catch {}
+  if (sentThisPage.has(channel) || sent.includes(channel)) return;
+  sentThisPage.add(channel);
+  try { sessionStorage.setItem(LEADS_SENT, JSON.stringify([...sent, channel])); } catch {}
+  track('Lead', { content_name: channel });
+}
+
+/**
  * A tap on a phone or text link is the visitor reaching out. Those links are
  * spread across the header, the hero, the footer and the contact block, so
  * one listener on the document hears them all instead of five handlers that
@@ -43,7 +64,9 @@ export function trackContactLinks(): () => void {
     const link = (e.target as Element | null)?.closest?.('a[href^="tel:"], a[href^="sms:"]');
     if (!link) return;
     const href = link.getAttribute('href') || '';
-    track('Contact', { content_name: href.startsWith('sms:') ? 'Text' : 'Phone call' });
+    const channel = href.startsWith('sms:') ? 'Text' : 'Phone call';
+    track('Contact', { content_name: channel });
+    leadOncePerVisit(channel);
   };
   document.addEventListener('click', onClick, true);
   return () => document.removeEventListener('click', onClick, true);
