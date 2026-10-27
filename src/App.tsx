@@ -13,6 +13,7 @@ const AdminArea = lazy(() => import('./pages/AdminArea'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
 const Reviews = lazy(() => import('./pages/Reviews'));
+const ThankYou = lazy(() => import('./pages/ThankYou'));
 const AIVoiceCall = lazy(() => import('./components/AIVoiceCall'));
 const SMSFallbackModal = lazy(() => import('./components/SMSFallbackModal'));
 
@@ -99,6 +100,9 @@ export default function App() {
               <Route path="/termos-e-condicoes" element={<TermsAndConditions />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/testimonials" element={<Navigate to="/reviews" replace />} />
+              {/* Where the quote form lands; ad conversions are counted by this address. */}
+              <Route path="/thank-you" element={<ThankYou />} />
+              <Route path="/obrigado" element={<ThankYou />} />
             </Route>
             
             {/* The dashboard, sign-in and first-admin setup, in their own chunk. */}

@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
+import { ArrowRight, Lock } from 'lucide-react';
 import { firestoreNow } from '../../lib/firestoreLazy';
 import { cn } from '../../lib/utils';
 import { useConfig } from '../../hooks/useConfig';
-import { track } from '../../lib/metaPixel';
+import { goToThankYou } from '../../lib/thankYou';
 import type { QuoteDefaults } from '../../lib/quote';
 import { fieldClass, labelClass, SERVICES } from '../../lib/forms';
 
@@ -43,7 +43,6 @@ interface LeadFormProps {
 }
 
 export default function LeadForm({ prefill }: LeadFormProps) {
-  const [submitted, setSubmitted] = useState(false);
   const [smsConsent, setSmsConsent] = useState(false);
   const { businessPhone } = useConfig();
   const formRef = useRef<HTMLFormElement>(null);
@@ -124,11 +123,10 @@ export default function LeadForm({ prefill }: LeadFormProps) {
 
       return Promise.race([submissionPromise, timeoutPromise]);
     },
-    onSuccess: () => {
-      setSubmitted(true);
-      // Counted only once the request is safely stored, so the ads optimise
-      // for quotes that reached the inbox, not for clicks on a button.
-      track('Lead', { content_name: 'Quote form' });
+    onSuccess: (_result, sent: any) => {
+      // Only once the request is safely stored: on to /thank-you, where the
+      // conversion is counted (lib/thankYou.ts explains why it is a page).
+      goToThankYou(String(sent?.name || ''));
     },
     onError: (error: any) => {
       console.error("Submission error details:", error);
@@ -158,37 +156,6 @@ export default function LeadForm({ prefill }: LeadFormProps) {
     
     mutation.mutate(data);
   };
-
-  if (submitted) {
-    return (
-      <div className="flex flex-col items-center text-center py-10">
-        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-site-blue text-white">
-          <CheckCircle size={30} strokeWidth={1.75} />
-        </div>
-        <h3 className="mb-3 text-[22px] font-bold text-site-navy">Request received</h3>
-        <p className="mb-8 max-w-md text-[14.5px] leading-[1.85] text-site-text">
-          Thank you. Dany has your request and will get back to you within 30 minutes to confirm the day
-          and send the exact price. A confirmation is on its way to your e-mail.
-        </p>
-        <div className="mb-8 w-full max-w-md bg-site-mist p-5 text-left">
-          <p className="text-[14px] font-semibold text-site-navy">
-            <span className="mb-1 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-site-text">Call Dany</span>
-            {businessPhone}
-          </p>
-          <p className="mt-3 text-[14px] font-semibold text-site-navy">
-            <span className="mb-1 block text-[11.5px] font-semibold uppercase tracking-[0.06em] text-site-text">Email</span>
-            danycleanenpro@gmail.com
-          </p>
-        </div>
-        <button 
-          onClick={() => setSubmitted(false)}
-          className="border-b border-site-blue/40 pb-1 text-[12.5px] font-semibold uppercase tracking-[0.08em] text-site-blue transition-colors hover:text-site-blue-strong"
-        >
-          Submit another request
-        </button>
-      </div>
-    );
-  }
 
   return (
     <form
