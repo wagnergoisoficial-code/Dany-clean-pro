@@ -13,7 +13,8 @@ import { cdnUrl } from '../../lib/images';
 
 /**
  * The site header, as the approved reference draws it: the mark and two
- * contact blocks on top, a ruled row of labelled links beneath.
+ * contact blocks on top, a ruled row of labelled links beneath. A quote
+ * button follows the contacts, so the form is as close as the phone.
  *
  * On the home page it lies over the hero photograph and scrolls away with it —
  * the reference has no bar that follows the reader. Every other page has no
@@ -103,6 +104,14 @@ export default function Header() {
                 <span className="mt-1.5 block text-[12px] font-medium text-white/55">{SMS_NUMBER_DISPLAY}</span>
               </span>
             </a>
+            {/* Phones and tablets have the same button in the hero, just above the contacts. */}
+            <button
+              type="button"
+              onClick={() => openQuote()}
+              className="inline-flex h-[46px] items-center justify-center rounded-full bg-site-blue px-7 text-[13px] font-semibold uppercase tracking-[0.1em] text-white shadow-[0_14px_30px_-12px_rgba(13,118,242,0.7)] transition-[background-color,transform] duration-300 ease-[var(--ease-settle)] hover:bg-site-blue-strong active:scale-[0.98]"
+            >
+              Free Quote
+            </button>
           </div>
 
           <button
