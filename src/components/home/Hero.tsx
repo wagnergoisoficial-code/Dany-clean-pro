@@ -9,6 +9,9 @@ import { HERO_COVER, HERO_QUALITY, HERO_WIDTHS, newerCover } from '../../lib/her
 import { cdnSrcSet, cdnUrl } from '../../lib/images';
 import { afterPageLoad } from '../../lib/timing';
 
+/** The end of Nov 26 in Connecticut; the offer leaves the page on its own. Same date as PROMO in businessKnowledge.ts. */
+const PROMO_ENDS = Date.parse('2026-11-27T05:00:00Z');
+
 /**
  * The opening photograph, toned the reference's deep blue.
  *
@@ -49,6 +52,19 @@ export default function Hero() {
       <div aria-hidden className="absolute inset-0 bg-[#031a33]/35" />
 
       <div className="relative flex min-h-[600px] flex-col items-center justify-center px-5 pb-[150px] pt-[150px] text-center lg:min-h-[790px] lg:pb-[150px] lg:pt-[210px]">
+        {Date.now() < PROMO_ENDS && (
+          <button
+            type="button"
+            onClick={() => openQuote({ service_type: 'Deep Cleaning' })}
+            className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/25 bg-white/10 py-1.5 pl-1.5 pr-4 text-left backdrop-blur-sm transition-colors hover:bg-white/15"
+          >
+            <span className="shrink-0 rounded-full bg-[#f59e0b] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-[#1f1300]">20% off</span>
+            <span className="text-[12px] font-semibold leading-tight text-white sm:text-[13px]">
+              Thanksgiving Deep Cleaning
+              <span className="block font-medium text-white/70 sm:inline"><span className="hidden sm:inline"> · </span>book by Nov 26</span>
+            </span>
+          </button>
+        )}
         <p className="text-[14px] font-light uppercase tracking-[0.2em] text-white/85 sm:text-[20px] sm:tracking-[0.32em] lg:text-[23px]">
           Spotless Homes &amp; Offices
         </p>

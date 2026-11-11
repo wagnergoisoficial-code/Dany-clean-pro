@@ -173,6 +173,13 @@ const SCRIPTS: Array<[string, string]> = [
    + 'you with that information.'],
 ];
 
+/** The offer on the home page, with the same end date as PROMO_ENDS in Hero.tsx; after it the receptionist stops mentioning it. */
+const PROMO = {
+  ends: Date.parse('2026-11-27T05:00:00Z'), // end of Nov 26 in Connecticut
+  text: 'Thanksgiving promotion: 20% off deep cleaning booked by November 26, 2026. Mention it to anyone '
+    + 'asking about deep cleaning, prices or discounts. Dany takes the 20% off when sending the price.',
+};
+
 function render(extra: string): string {
   const todo = (label: string, value: string) =>
     value ? `- ${label}: ${value}` : `- ${label}: not established — hand this question to a person.`;
@@ -203,7 +210,7 @@ Say, close to word for word: "${BUSINESS.licensing.english}"
 
 HOURS
 ${BUSINESS.hours}
-
+${Date.now() < PROMO.ends ? `\nCURRENT PROMOTION\n${PROMO.text}\n` : ''}
 NOT ESTABLISHED YET
 ${todo('Pricing', BUSINESS.pricing)}
 ${todo('How far out bookings go', BUSINESS.leadTime)}
