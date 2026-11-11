@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './layout/Header';
+import PromoBar from './layout/PromoBar';
 import Footer from './Footer';
 import ReviewModal from './reviews/ReviewModal';
 import { track, trackContactLinks } from '../lib/metaPixel';
@@ -35,16 +36,20 @@ export default function Layout() {
 
   return (
     <div className="relative min-h-screen flex flex-col font-sans bg-surface">
+      <PromoBar />
       {/* On the home page the header lies over the hero; elsewhere it is in
-          the flow and the page starts below it. */}
-      <Header />
-      <main className="flex-grow">
-        {/* The policy and reviews pages arrive as their own chunks; the
-            header and footer stay put while one loads. */}
-        <Suspense fallback={<div className="min-h-[70vh]" />}>
-          <Outlet />
-        </Suspense>
-      </main>
+          the flow and the page starts below it. This box starts under the
+          promotion bar, so the header's top-0 does too. */}
+      <div className="relative flex flex-grow flex-col">
+        <Header />
+        <main className="flex-grow">
+          {/* The policy and reviews pages arrive as their own chunks; the
+              header and footer stay put while one loads. */}
+          <Suspense fallback={<div className="min-h-[70vh]" />}>
+            <Outlet />
+          </Suspense>
+        </main>
+      </div>
       <Footer />
       {chat && <Suspense fallback={null}><AIChatWidget /></Suspense>}
       <ReviewModal />

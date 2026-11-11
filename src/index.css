@@ -214,6 +214,12 @@
   padding-right: 2.75rem;
 }
 
+/* The promotion bar's background pulsing between two yellows; the text never fades. */
+@keyframes promo-blink {
+  0%, 100% { background-color: #facc15; }
+  50% { background-color: #fef08a; }
+}
+
 /* The photo stack in "Why Choose Us?" rising into place when a reason opens. */
 @keyframes rise-in {
   from { opacity: 0; transform: translateY(12px); }
