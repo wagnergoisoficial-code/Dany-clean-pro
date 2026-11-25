@@ -45,8 +45,10 @@ export default function Hero() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover grayscale"
       />
-      <div aria-hidden className="absolute inset-0 bg-[#0b4a82] mix-blend-multiply" />
-      <div aria-hidden className="absolute inset-0 bg-[#031a33]/35" />
+      {/* Lighter than before, at the owner's request, so the house reads: a
+          brighter blue, and the shade kept mostly behind the words. */}
+      <div aria-hidden className="absolute inset-0 bg-[#2a7ad0] mix-blend-multiply" />
+      <div aria-hidden className="absolute inset-0 bg-[#031a33]/25 lg:bg-transparent lg:bg-gradient-to-r lg:from-[#031a33]/55 lg:via-[#031a33]/15 lg:to-transparent" />
 
       {/* Dany herself, standing at the right on any computer screen, behind the
           service strip. On anything narrower she is the round portrait above
