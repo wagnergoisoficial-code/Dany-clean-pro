@@ -8,6 +8,7 @@ import { useConfig } from '../../hooks/useConfig';
 import { goToThankYou } from '../../lib/thankYou';
 import type { QuoteDefaults } from '../../lib/quote';
 import { fieldClass, labelClass, SERVICES, FREQUENCIES } from '../../lib/forms';
+import { readReferral } from '../../lib/referral';
 
 /**
  * Mirror a Firestore-written lead into the operations inbox.
@@ -61,6 +62,13 @@ export default function LeadForm({ prefill }: LeadFormProps) {
     const timer = window.setTimeout(() => name?.focus({ preventScroll: true }), 450);
     return () => window.clearTimeout(timer);
   }, [prefill]);
+
+  // Arrived through a friend's referral link: their name is already in "Who referred you?".
+  useEffect(() => {
+    const ref = readReferral();
+    const input = formRef.current?.elements.namedItem('referred_by') as HTMLInputElement | null;
+    if (ref && input && !input.value) input.value = ref;
+  }, []);
 
   const mutation = useMutation({
     mutationFn: async (formData: any) => {
