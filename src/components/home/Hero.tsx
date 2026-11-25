@@ -48,11 +48,32 @@ export default function Hero() {
       <div aria-hidden className="absolute inset-0 bg-[#0b4a82] mix-blend-multiply" />
       <div aria-hidden className="absolute inset-0 bg-[#031a33]/35" />
 
-      <div className="relative flex min-h-[600px] flex-col items-center justify-center px-5 pb-[150px] pt-[150px] text-center lg:min-h-[790px] lg:pb-[150px] lg:pt-[210px]">
+      {/* Dani herself, standing at the right on a wide screen, behind the
+          service strip. On anything narrower she is the round portrait above
+          the heading. Lazy, so the size that is hidden is never downloaded. */}
+      <img
+        src="/images/dani-hero.webp"
+        alt="Dani, founder of Dany Clean Pro, in the company uniform"
+        width={731}
+        height={1000}
+        loading="lazy"
+        className="pointer-events-none absolute bottom-0 right-[max(20px,calc((100vw-1210px)/2+20px))] hidden h-[560px] w-auto select-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)] xl:block"
+      />
+
+      <div className="relative flex min-h-[600px] flex-col items-center justify-center px-5 pb-[150px] pt-[150px] text-center lg:min-h-[790px] lg:pb-[150px] lg:pt-[210px] xl:mx-auto xl:max-w-[1210px] xl:items-start xl:text-left">
+        <img
+          src="/images/dani-avatar.webp"
+          alt="Dani, founder of Dany Clean Pro"
+          width={320}
+          height={320}
+          loading="lazy"
+          className="mb-3 h-[92px] w-[92px] rounded-full border-[3px] border-white/90 bg-site-blue object-cover shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] xl:hidden"
+        />
+        <p className="mb-5 text-[12px] font-medium tracking-[0.04em] text-white/75 xl:hidden">Hi, I'm Dani, the founder.</p>
         <p className="text-[14px] font-light uppercase tracking-[0.2em] text-white/85 sm:text-[20px] sm:tracking-[0.32em] lg:text-[23px]">
           Spotless Homes &amp; Offices
         </p>
-        <h1 className="mt-1 text-[30px] font-bold uppercase leading-tight tracking-[0.02em] text-white sm:text-[36px] lg:text-[42px]">
+        <h1 className="mt-1 text-[30px] font-bold uppercase leading-tight tracking-[0.02em] text-white sm:text-[36px] lg:text-[42px] xl:max-w-[600px] xl:text-[46px]">
           Waterbury &amp; Across Connecticut
         </h1>
         <button
