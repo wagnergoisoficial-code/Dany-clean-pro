@@ -33,7 +33,7 @@ export default function Difference() {
             Cleaning Company<br />With a Difference.<br />Exceptional Care.
           </h2>
           <p className="mt-6 text-[14.5px] leading-[1.9] text-site-text">
-            Dany Clean Pro serves Waterbury and communities across Connecticut. Our team, hand-picked and trained by Dani,
+            Dany Clean Pro serves Waterbury and communities across Connecticut. Our team, hand-picked and trained by Dany,
             focuses on quality, detail and respect for every home or workplace, from recurring cleaning
             to move-in, move-out and post-construction work.
           </p>

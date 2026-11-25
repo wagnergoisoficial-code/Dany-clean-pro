@@ -83,7 +83,7 @@ export interface Reason {
 export const REASONS: Reason[] = [
   {
     label: ['Hand-Picked', 'Team'],
-    lead: 'Our team is hand-picked by Dani: people she personally knows and trusts, trained by her to '
+    lead: 'Our team is hand-picked by Dany: people she personally knows and trusts, trained by her to '
       + 'her own standards in every home and workplace we clean.',
     follow: 'Cleaning is tailored to each home, with attention to detail and respect for your space.',
     photos: [PHOTOS.kitchen, PHOTOS.bathroom, PHOTOS.windowClean],

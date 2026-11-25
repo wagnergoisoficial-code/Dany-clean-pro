@@ -48,28 +48,34 @@ export default function Hero() {
       <div aria-hidden className="absolute inset-0 bg-[#0b4a82] mix-blend-multiply" />
       <div aria-hidden className="absolute inset-0 bg-[#031a33]/35" />
 
-      {/* Dani herself, standing at the right on any computer screen, behind the
+      {/* Dany herself, standing at the right on any computer screen, behind the
           service strip. On anything narrower she is the round portrait above
           the heading. Lazy, so the size that is hidden is never downloaded. */}
-      <img
-        src="/images/dani-hero.webp"
-        alt="Dani, founder of Dany Clean Pro, in the company uniform"
-        width={731}
-        height={1000}
-        loading="lazy"
-        className="pointer-events-none absolute bottom-0 right-[max(20px,calc((100vw-1210px)/2+20px))] hidden h-[470px] w-auto select-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)] lg:block xl:h-[560px]"
-      />
+      <div className="pointer-events-none absolute bottom-0 right-[max(20px,calc((100vw-1210px)/2+20px))] hidden select-none lg:block">
+        <img
+          src="/images/dani-hero.webp"
+          alt="Dany, founder of Dany Clean Pro, in the company uniform"
+          width={731}
+          height={1000}
+          loading="lazy"
+          className="h-[470px] w-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)] xl:h-[560px]"
+        />
+        <span className="absolute bottom-[130px] left-0 rounded-full bg-white px-5 py-2.5 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.55)]">
+          <span className="block text-[15px] font-bold leading-tight text-site-navy">Dany</span>
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-site-blue">Founder</span>
+        </span>
+      </div>
 
       <div className="relative flex min-h-[600px] flex-col items-center justify-center px-5 pb-[150px] pt-[150px] text-center lg:min-h-[790px] lg:pb-[150px] lg:pt-[210px] lg:mx-auto lg:max-w-[1210px] lg:items-start lg:text-left">
         <img
           src="/images/dani-avatar.webp"
-          alt="Dani, founder of Dany Clean Pro"
+          alt="Dany, founder of Dany Clean Pro"
           width={320}
           height={320}
           loading="lazy"
           className="mb-3 h-[92px] w-[92px] rounded-full border-[3px] border-white/90 bg-site-blue object-cover shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] lg:hidden"
         />
-        <p className="mb-5 text-[12px] font-medium tracking-[0.04em] text-white/75 lg:hidden">Hi, I'm Dani, the founder.</p>
+        <p className="mb-5 text-[12px] font-medium tracking-[0.04em] text-white/75 lg:hidden">Hi, I'm Dany, the founder.</p>
         <p className="text-[14px] font-light uppercase tracking-[0.2em] text-white/85 sm:text-[20px] sm:tracking-[0.32em] lg:text-[26px] xl:text-[28px]">
           Spotless Homes &amp; Offices
         </p>
@@ -77,7 +83,7 @@ export default function Hero() {
           Waterbury &amp; Across Connecticut
         </h1>
         <p className="mt-5 hidden max-w-[520px] text-[17px] leading-[1.7] text-white/85 lg:block xl:text-[18px]">
-          Recurring, deep and move-out cleaning by a team Dani trains herself.
+          Recurring, deep and move-out cleaning by a team Dany trains herself.
         </p>
         <button
           type="button"
