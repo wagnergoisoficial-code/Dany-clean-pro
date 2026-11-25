@@ -1,7 +1,7 @@
 import { openQuote } from '../../lib/quote';
 
-/** The end of Nov 26 in Connecticut; the bar leaves the site on its own. Same date as PROMO in businessKnowledge.ts. */
-const PROMO_ENDS = Date.parse('2026-11-27T05:00:00Z');
+/** Ended early at the owner's request on Nov 25. Same date as PROMO in businessKnowledge.ts; set a future date to show a bar again. */
+const PROMO_ENDS = Date.parse('2026-11-25T17:00:00Z');
 
 /**
  * The Thanksgiving offer, across the top of every page. It opens the quote

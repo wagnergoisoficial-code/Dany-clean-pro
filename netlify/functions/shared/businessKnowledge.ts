@@ -189,7 +189,7 @@ const SCRIPTS: Array<[string, string]> = [
 
 /** The offer in the site's top bar, with the same end date as PROMO_ENDS in PromoBar.tsx; after it the receptionist stops mentioning it. */
 const PROMO = {
-  ends: Date.parse('2026-11-27T05:00:00Z'), // end of Nov 26 in Connecticut
+  ends: Date.parse('2026-11-25T17:00:00Z'), // ended early at the owner's request on Nov 25
   text: 'Thanksgiving promotion: 20% off deep cleaning booked by November 26, 2026. Mention it to anyone '
     + 'asking about deep cleaning, prices or discounts. Dany takes the 20% off when sending the price.',
 };
