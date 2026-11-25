@@ -101,7 +101,7 @@ export const REASONS: Reason[] = [
     label: ['Free', 'Estimates'],
     lead: 'Tell us about your home or office, and Dany will get back to you within 30 minutes to confirm '
       + 'the day and send your price. The estimate is completely free.',
-    follow: 'Serving Waterbury and nearby towns, subject to availability.',
+    follow: 'Serving Waterbury and communities across Connecticut, subject to availability.',
     photos: [PHOTOS.bathroom, PHOTOS.sofa, PHOTOS.sprayBottle],
   },
 ];

@@ -11,8 +11,8 @@ import { softly } from './withTimeout';
  * Everything below comes from the owner's own briefing document
  * (brand/dany-clean-pro-profile.docx, revised 14 October 2026), corrected with
  * what the owner confirmed in November 2026: 2,000+ cleanings (not 3,000
- * customers), a hand-picked team with no formal background check, nearby towns
- * only, no post-event cleaning, and the policies block below. Where that
+ * customers), a hand-picked team with no formal background check, Connecticut
+ * only (no Massachusetts), no post-event cleaning, and the policies block below. Where that
  * document says a claim is not established yet, the claim is not made here
  * either, however convenient it would be — a receptionist that oversells is
  * worse than one that says a colleague will confirm.
@@ -44,8 +44,8 @@ export const BUSINESS = {
    * that a ZIP code is confirmed before travel is agreed.
    */
   areas:
-    'Waterbury and nearby towns, subject to availability. Anywhere farther away is confirmed '
-    + 'by the team case by case; never promise it.',
+    'Waterbury and communities across Connecticut, subject to availability. Every city and ZIP '
+    + 'code is confirmed by the team; never promise coverage.',
 
   services: [
     'House cleaning — residential, one-time or recurring',
@@ -163,7 +163,7 @@ HOW TO BEHAVE
 /** Answers the owner wrote out, to be used close to word for word. */
 const SCRIPTS: Array<[string, string]> = [
   ['What areas do you serve?',
-   'We are based in Waterbury and serve the nearby towns. Please share your city and ZIP code '
+   'We are based in Waterbury and serve communities across Connecticut. Please share your city and ZIP code '
    + 'so our team can confirm availability in your area.'],
   ['How much does cleaning cost?',
    'The estimate is completely free. Let me take a few details and Dany will send you the exact '

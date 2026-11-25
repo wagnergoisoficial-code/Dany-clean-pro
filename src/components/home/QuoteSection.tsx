@@ -43,7 +43,7 @@ export default function QuoteSection() {
     },
     { Icon: MessageSquareText, title: 'Text Us', value: SMS_NUMBER_DISPLAY, note: 'Text messages only', href: smsHref(), onClick: handleSMSLaunch },
     { Icon: Mail, title: 'Email', value: EMAIL, note: 'Dany replies personally', href: `mailto:${EMAIL}` },
-    { Icon: MapPin, title: 'Service Area', value: 'Waterbury, Connecticut', note: 'And nearby towns', href: '' },
+    { Icon: MapPin, title: 'Service Area', value: 'Waterbury, Connecticut', note: 'And across Connecticut', href: '' },
   ];
 
   return (
