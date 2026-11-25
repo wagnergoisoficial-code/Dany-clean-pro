@@ -9,7 +9,10 @@ import { softly } from './withTimeout';
  * fact is corrected once and both channels change.
  *
  * Everything below comes from the owner's own briefing document
- * (brand/dany-clean-pro-profile.docx, revised 14 October 2026). Where that
+ * (brand/dany-clean-pro-profile.docx, revised 14 October 2026), corrected with
+ * what the owner confirmed in November 2026: 2,000+ cleanings (not 3,000
+ * customers), a hand-picked team with no formal background check, nearby towns
+ * only, no post-event cleaning, and the policies block below. Where that
  * document says a claim is not established yet, the claim is not made here
  * either, however convenient it would be — a receptionist that oversells is
  * worse than one that says a colleague will confirm.
@@ -41,8 +44,8 @@ export const BUSINESS = {
    * that a ZIP code is confirmed before travel is agreed.
    */
   areas:
-    'Waterbury and the surrounding area; locations throughout Connecticut; and select '
-    + 'cities in Massachusetts near the Connecticut border, subject to availability.',
+    'Waterbury and nearby towns, subject to availability. Anywhere farther away is confirmed '
+    + 'by the team case by case; never promise it.',
 
   services: [
     'House cleaning — residential, one-time or recurring',
@@ -50,8 +53,8 @@ export const BUSINESS = {
     'Recurring cleaning — weekly, bi-weekly or monthly',
     'Deep cleaning',
     'Move-in and move-out cleaning',
-    'Post-event cleaning',
     'Post-construction and post-renovation cleaning',
+    'Home organizing, quoted by the size of the home (a separate service from deep cleaning)',
     'Apartment and condo cleaning',
     'Vacant property cleaning',
     'Airbnb and vacation rental turnovers',
@@ -72,9 +75,23 @@ export const BUSINESS = {
 
   facts: [
     'Over five years of experience in the United States.',
-    'More than 3,000 customers served in Connecticut.',
-    'A team of four professionals, each selected, vetted and trained.',
+    'More than 2,000 cleanings across Connecticut.',
+    'The team is hand-picked by Dany: people she personally knows and trusts, trained by her. '
+      + 'Never promise the same person at every visit.',
     'Cleaning is tailored to each home or workplace.',
+  ],
+
+  /** Confirmed by the owner in November 2026. */
+  policies: [
+    'Satisfaction: if something is not right, tell us within 24 hours and we come back to fix it at no cost.',
+    'Payment on the day, once the cleaning is finished, by Zelle, Venmo or cash.',
+    'We bring our own products and equipment, and use the client\'s if she prefers.',
+    'Homes with dogs or cats are fine. Pet waste is not picked up.',
+    'We text the client when we arrive and when we finish.',
+    'A regular cleaning covers dusting, vacuuming and mopping floors, bathrooms (toilet, sink, shower, '
+      + 'mirror), the kitchen (counters, sink, stovetop, outside of appliances), inside the microwave, '
+      + 'making the beds and taking out the trash.',
+    'Move-in and move-out cleaning is for an empty home and includes inside the cabinets, oven and refrigerator.',
   ],
 
   /**
@@ -95,9 +112,9 @@ export const BUSINESS = {
     english: 'That is something Dany handles directly — let me take your number and Dany will '
       + 'get back to you with that information.',
   },
-  screening: 'Team members are selected, vetted and trained. Do not claim a formal criminal '
-    + 'background check — that has not been confirmed. Offer to have the team follow up on '
-    + 'specific screening questions.',
+  screening: 'Team members are hand-picked by Dany, people she personally knows and trusts, and '
+    + 'trained by her. Do not claim a formal background check: there is none. Offer to have Dany '
+    + 'follow up on specific screening questions.',
 
   hours: 'Monday to Friday 8am to 6pm, Saturday 9am to 4pm. Sunday is not a service day, '
     + 'but a request can still be taken.',
@@ -105,8 +122,10 @@ export const BUSINESS = {
   // --- Only the owner can answer these. Left blank on purpose. ---
   pricing: '',          // TODO e.g. "Standard 3 bed/2 bath starts around $X"
   leadTime: '',         // TODO e.g. "usually books 3 to 5 days out"
-  accessPolicy: '',     // TODO e.g. "lockbox code, smart lock PIN, or meet at the door"
-  cancellation: '',     // TODO e.g. "48 hours notice to reschedule"
+  accessPolicy: 'We can keep a key or the door code and clean while the client is out. If we '
+    + 'cannot get in on the day, half the price of the cleaning is charged.',
+  cancellation: 'Free cancellation or rescheduling with at least 3 days notice. Cancelling with '
+    + 'less than 3 days notice has a $60 fee.',
 };
 
 /** The shape of a call, from the owner's briefing. */
@@ -132,7 +151,7 @@ HOW TO BEHAVE
   and time they would like, and say Dany will call back within 30 minutes to confirm the day and
   the price. That is a promise a person keeps, so it is the only one to make.
 - Never promise a specific appointment time, and never say anything is booked.
-- Never confirm coverage for a city or ZIP code on your own, especially in Massachusetts.
+- Never confirm coverage for a city or ZIP code on your own, especially outside the Waterbury area.
   Take the city and ZIP and say the team will confirm availability.
 - The company name is "Dany Clean Pro", with one N. Never "Danny".
 - Speak American English with American customers. If someone would rather use another
@@ -144,8 +163,7 @@ HOW TO BEHAVE
 /** Answers the owner wrote out, to be used close to word for word. */
 const SCRIPTS: Array<[string, string]> = [
   ['What areas do you serve?',
-   'We serve Waterbury and the surrounding area, locations throughout Connecticut, and select '
-   + 'cities in Massachusetts near the Connecticut border. Please share your city and ZIP code '
+   'We are based in Waterbury and serve the nearby towns. Please share your city and ZIP code '
    + 'so our team can confirm availability in your area.'],
   ['How much does cleaning cost?',
    'The estimate is completely free. Let me take a few details and Dany will send you the exact '
@@ -153,18 +171,14 @@ const SCRIPTS: Array<[string, string]> = [
   ['Do you offer deep cleaning?',
    'Yes, deep cleaning is among the services we offer. Could you tell me the number of bedrooms '
    + 'and bathrooms?'],
-  ['Do you offer post-event cleaning?',
-   'Yes, post-event cleaning is one of our services. Please share the event location, date, '
-   + 'approximate space size, and cleaning needs so our team can review availability and '
-   + 'provide an estimate.'],
   ['Can you clean inside the oven or refrigerator?',
    'Those may be available as add-on services. I can note your request and have our team confirm '
    + 'the scope and estimate.'],
   ['Do you clean upholstery?',
    'We do not offer upholstery cleaning at this time.'],
   ['Are your cleaners background checked?',
-   'Our team members are selected, vetted, and trained. For details about specific screening '
-   + 'procedures, I can ask our team to follow up.'],
+   'Our team is hand-picked by Dany, people she personally knows and trusts, and trained by her. '
+   + 'If you have specific questions, I can ask Dany to follow up.'],
   ['Can I book for tomorrow?',
    'Let me take the day and time that suit you best, and Dany will call you back within thirty '
    + 'minutes to confirm it along with the price.'],
@@ -204,6 +218,9 @@ ABOUT THE TEAM
 ${BUSINESS.facts.map(f => `- ${f}`).join('\n')}
 - ${BUSINESS.screening}
 
+POLICIES (confirmed by the owner, state them as written)
+${BUSINESS.policies.map(p => `- ${p}`).join('\n')}
+
 LICENSING AND INSURANCE — READ THIS BEFORE ANSWERING
 ${BUSINESS.licensing.status}
 Say, close to word for word: "${BUSINESS.licensing.english}"
@@ -211,7 +228,7 @@ Say, close to word for word: "${BUSINESS.licensing.english}"
 HOURS
 ${BUSINESS.hours}
 ${Date.now() < PROMO.ends ? `\nCURRENT PROMOTION\n${PROMO.text}\n` : ''}
-NOT ESTABLISHED YET
+BOOKING DETAILS (anything marked not established goes to a person)
 ${todo('Pricing', BUSINESS.pricing)}
 ${todo('How far out bookings go', BUSINESS.leadTime)}
 ${todo('How the cleaner gets in', BUSINESS.accessPolicy)}

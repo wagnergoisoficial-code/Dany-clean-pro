@@ -15,5 +15,8 @@ export const SERVICES = [
   'Office & Commercial',
   'Airbnb / Vacation Rental',
   'Post-Construction',
-  'Post-Event',
+  'Home Organizing',
 ];
+
+/** How often the client would like cleaning; recurring work is what the business is built on. */
+export const FREQUENCIES = ['Weekly', 'Every other week', 'Monthly', 'One-time'];

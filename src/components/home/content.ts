@@ -1,6 +1,6 @@
 import {
   House, Sparkles, Truck, Building2, KeyRound,
-  CalendarCheck, HardHat, PartyPopper, Building, Bath,
+  CalendarCheck, HardHat, Boxes, Building, Bath,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -63,8 +63,8 @@ export const BAND_SERVICES: Service[] = [
     description: 'Weekly, bi-weekly or monthly visits that keep your home ready, without you having to think about it.' },
   { title: 'Post-Construction', service: 'Post-Construction', Icon: HardHat,
     description: 'Dust and debris cleared after construction or renovation, so the new space is ready to use.' },
-  { title: 'Post-Event', service: 'Post-Event', Icon: PartyPopper,
-    description: 'After the party, the meeting or the celebration, we bring the space back to the way it was.' },
+  { title: 'Home Organizing', service: 'Home Organizing', Icon: Boxes,
+    description: 'Closets, pantries and rooms put back in order, quoted by the size of the home.' },
   { title: 'Apartments & Condos', service: 'Standard Residential Cleaning', Icon: Building,
     description: 'Apartments, condos and vacant properties cleaned with the same care as a family home.' },
   { title: 'Kitchens & Bathrooms', service: 'Deep Cleaning', Icon: Bath,
@@ -82,10 +82,9 @@ export interface Reason {
 
 export const REASONS: Reason[] = [
   {
-    label: ['Vetted', 'Team'],
-    lead: 'Every visit is handled by our own team of four professionals, each one selected, vetted and '
-      + 'trained by Dany Clean Pro. The same careful hands and the same standards, in every home and '
-      + 'workplace we clean.',
+    label: ['Hand-Picked', 'Team'],
+    lead: 'Our team is hand-picked by Dani: people she personally knows and trusts, trained by her to '
+      + 'her own standards in every home and workplace we clean.',
     follow: 'Cleaning is tailored to each home, with attention to detail and respect for your space.',
     photos: [PHOTOS.kitchen, PHOTOS.bathroom, PHOTOS.windowClean],
   },
@@ -94,16 +93,15 @@ export const REASONS: Reason[] = [
     lead: 'Dany Clean Pro is a professional residential and commercial cleaning company based in '
       + 'Waterbury, Connecticut. With over five years of experience in the United States, we take pride '
       + 'in attentive, reliable cleaning.',
-    follow: 'More than 3,000 customers served across Connecticut, from recurring house cleaning to '
+    follow: 'More than 2,000 cleanings across Connecticut, from recurring house cleaning to '
       + 'move-out and post-construction work.',
     photos: [PHOTOS.houseAtDusk, PHOTOS.bedroom, PHOTOS.livingRoom],
   },
   {
     label: ['Free', 'Estimates'],
     lead: 'Tell us about your home or office, and Dany will get back to you within 30 minutes to confirm '
-      + 'the day and send the exact price. The estimate is completely free.',
-    follow: 'Serving Waterbury, communities throughout Connecticut, and select Massachusetts cities near '
-      + 'the border, subject to availability.',
+      + 'the day and send your price. The estimate is completely free.',
+    follow: 'Serving Waterbury and nearby towns, subject to availability.',
     photos: [PHOTOS.bathroom, PHOTOS.sofa, PHOTOS.sprayBottle],
   },
 ];

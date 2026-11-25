@@ -68,9 +68,8 @@ export const handler: Handler = async (event) => {
       
       BUSINESS INFO:
       - We offer: Residential, Deep, Regular, Recurring, Move-in/out, Post-construction, Commercial, and Airbnb cleaning.
-      - Service Area: Waterbury and the surrounding area, locations throughout Connecticut,
-        and select Massachusetts cities near the Connecticut border. Always ask for the
-        city and ZIP code and say the team confirms availability — never promise coverage.
+      - Service Area: Waterbury and nearby towns. Always ask for the city and ZIP code and
+        say the team confirms availability. Never promise coverage.
       
       CONVERSATION FLOW (Ask ONLY ONE question at a time):
       1. Name & Phone: If not known, ask "May I have your name and the best phone number to contact you?"

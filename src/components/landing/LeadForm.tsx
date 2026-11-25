@@ -7,7 +7,7 @@ import { cn } from '../../lib/utils';
 import { useConfig } from '../../hooks/useConfig';
 import { goToThankYou } from '../../lib/thankYou';
 import type { QuoteDefaults } from '../../lib/quote';
-import { fieldClass, labelClass, SERVICES } from '../../lib/forms';
+import { fieldClass, labelClass, SERVICES, FREQUENCIES } from '../../lib/forms';
 
 /**
  * Mirror a Firestore-written lead into the operations inbox.
@@ -147,8 +147,20 @@ export default function LeadForm({ prefill }: LeadFormProps) {
     const utm_medium = urlParams.get('utm_medium') || '';
     const utm_campaign = urlParams.get('utm_campaign') || '';
 
+    // How often, who referred them and what to focus on travel together in
+    // `message`: the lead rules allow 15 fields and the form already uses 14,
+    // and `message` is the field the inbox e-mail ("Notes") and the admin
+    // ("Initial Contact Message") already show.
+    const { frequency, referred_by, focus, ...fields } = rawData as Record<string, FormDataEntryValue>;
+    const notes = [
+      frequency ? `How often: ${String(frequency).trim()}` : '',
+      String(focus || '').trim() ? `Focus: ${String(focus).trim()}` : '',
+      String(referred_by || '').trim() ? `Referred by: ${String(referred_by).trim()}` : '',
+    ].filter(Boolean).join(' | ');
+
     const data = {
-      ...rawData,
+      ...fields,
+      ...(notes ? { message: notes } : {}),
       utm_source,
       utm_medium,
       utm_campaign
@@ -209,7 +221,7 @@ export default function LeadForm({ prefill }: LeadFormProps) {
             required
             id="lead-city"
             name="city"
-            placeholder="e.g. Stamford"
+            placeholder="e.g. Waterbury"
             className={fieldClass}
           />
         </div>
@@ -238,6 +250,43 @@ export default function LeadForm({ prefill }: LeadFormProps) {
             {[1,1.5,2,2.5,3,3.5,4].map(n => <option key={n} value={n}>{n} Bathroom{n > 1 ? 's' : ''}</option>)}
           </select>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col">
+          <label className={labelClass} htmlFor="lead-frequency">How Often? *</label>
+          <select
+            required
+            id="lead-frequency"
+            name="frequency"
+            defaultValue=""
+            className={cn(fieldClass, "select-chevron appearance-none cursor-pointer")}
+          >
+            <option value="" disabled>Choose one</option>
+            {FREQUENCIES.map(option => <option key={option}>{option}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col">
+          <label className={labelClass} htmlFor="lead-referred">Who Referred You?</label>
+          <input
+            id="lead-referred"
+            name="referred_by"
+            maxLength={80}
+            placeholder="Optional"
+            className={fieldClass}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col">
+        <label className={labelClass} htmlFor="lead-focus">Anything We Should Focus On?</label>
+        <input
+          id="lead-focus"
+          name="focus"
+          maxLength={200}
+          placeholder="Optional, e.g. kitchen, baseboards"
+          className={fieldClass}
+        />
       </div>
 
       {/* TCR / A2P 10DLC Compliant SMS Consent Section */}

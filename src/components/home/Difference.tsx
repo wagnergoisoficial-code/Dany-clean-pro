@@ -11,7 +11,7 @@ export default function Difference() {
   const cards = [
     {
       title: 'Who We Are',
-      text: 'A Waterbury cleaning company with over five years of experience and more than 3,000 customers served in Connecticut.',
+      text: 'A Waterbury cleaning company with over five years of experience and more than 2,000 cleanings across Connecticut.',
       photo: PHOTOS.bedroom,
       go: () => scrollToSection('why'),
       label: 'Why choose us',
@@ -33,9 +33,9 @@ export default function Difference() {
             Cleaning Company<br />With a Difference.<br />Exceptional Care.
           </h2>
           <p className="mt-6 text-[14.5px] leading-[1.9] text-site-text">
-            Dany Clean Pro serves Waterbury, the surrounding area and communities throughout Connecticut.
-            Our team of four professionals focuses on quality, detail and respect for every home or
-            workplace, from recurring cleaning to move-in, move-out and post-construction work.
+            Dany Clean Pro serves Waterbury and nearby towns. Our team, hand-picked and trained by Dani,
+            focuses on quality, detail and respect for every home or workplace, from recurring cleaning
+            to move-in, move-out and post-construction work.
           </p>
           <p className="mt-8 text-[13px] font-bold uppercase tracking-[0.06em] text-site-navy">Dany</p>
           <p className="mt-1 text-[12.5px] font-medium text-site-text">Owner, Dany Clean Pro</p>

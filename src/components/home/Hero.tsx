@@ -53,7 +53,7 @@ export default function Hero() {
           Spotless Homes &amp; Offices
         </p>
         <h1 className="mt-1 text-[30px] font-bold uppercase leading-tight tracking-[0.02em] text-white sm:text-[36px] lg:text-[42px]">
-          Across Connecticut
+          In Waterbury &amp; Nearby Towns
         </h1>
         <button
           type="button"
