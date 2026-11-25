@@ -70,12 +70,15 @@ export default function Hero() {
           className="mb-3 h-[92px] w-[92px] rounded-full border-[3px] border-white/90 bg-site-blue object-cover shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] lg:hidden"
         />
         <p className="mb-5 text-[12px] font-medium tracking-[0.04em] text-white/75 lg:hidden">Hi, I'm Dani, the founder.</p>
-        <p className="text-[14px] font-light uppercase tracking-[0.2em] text-white/85 sm:text-[20px] sm:tracking-[0.32em] lg:text-[23px]">
+        <p className="text-[14px] font-light uppercase tracking-[0.2em] text-white/85 sm:text-[20px] sm:tracking-[0.32em] lg:text-[26px] xl:text-[28px]">
           Spotless Homes &amp; Offices
         </p>
-        <h1 className="mt-1 text-[30px] font-bold uppercase leading-tight tracking-[0.02em] text-white sm:text-[36px] lg:max-w-[520px] lg:text-[42px] xl:max-w-[600px] xl:text-[46px]">
+        <h1 className="mt-1 text-[30px] font-bold uppercase leading-tight tracking-[0.02em] text-white sm:text-[36px] lg:max-w-[640px] lg:text-[50px] lg:leading-[1.1] xl:max-w-[720px] xl:text-[58px]">
           Waterbury &amp; Across Connecticut
         </h1>
+        <p className="mt-5 hidden max-w-[520px] text-[17px] leading-[1.7] text-white/85 lg:block xl:text-[18px]">
+          Recurring, deep and move-out cleaning by a team Dani trains herself.
+        </p>
         <button
           type="button"
           onClick={() => openQuote()}
