@@ -108,3 +108,127 @@ export const REASONS: Reason[] = [
 
 /** The tab open on arrival — the middle one, as in the reference. */
 export const REASON_DEFAULT = 1;
+
+/*
+ * The sections modelled on the large American cleaning sites: how it works,
+ * what a cleaning includes, the 24-hour promise and the questions people ask.
+ * Every line is something the owner confirmed in November 2026; nothing here
+ * promises insurance, background checks, contracts or prices.
+ */
+
+export interface Step {
+  title: string;
+  text: string;
+}
+
+export const HOW_IT_WORKS: Step[] = [
+  {
+    title: 'Tell us about your home',
+    text: 'Fill in the quick form, call or text. Bedrooms, bathrooms and how often you would like cleaning.',
+  },
+  {
+    title: 'Get your price',
+    text: 'Dany gets back to you with your price. For a deep cleaning, a few photos of the home let us give you the exact number.',
+  },
+  {
+    title: 'We clean, you pay after',
+    text: 'We text you when we arrive and when we finish. You pay on the day, once the cleaning is done, by Zelle, Venmo or cash.',
+  },
+];
+
+export const PROMISE = {
+  name: "Dany's 24-Hour Promise",
+  text: "If anything isn't right, tell us within 24 hours and we'll come back to fix it, at no cost to you.",
+};
+
+export interface ChecklistRoom {
+  room: string;
+  items: string[];
+}
+
+/** What a regular cleaning covers, room by room, as Dany listed it. */
+export const CHECKLIST: ChecklistRoom[] = [
+  {
+    room: 'Kitchen',
+    items: [
+      'Counters and sink cleaned',
+      'Stovetop cleaned',
+      'Outside of appliances wiped',
+      'Inside of the microwave',
+      'Floors vacuumed and mopped',
+      'Trash taken out',
+    ],
+  },
+  {
+    room: 'Bathrooms',
+    items: [
+      'Toilet cleaned',
+      'Sink cleaned',
+      'Shower and tub cleaned',
+      'Mirrors cleaned',
+      'Floors vacuumed and mopped',
+      'Trash taken out',
+    ],
+  },
+  {
+    room: 'Bedrooms & Living Areas',
+    items: [
+      'Dusting',
+      'Beds made',
+      'Floors vacuumed and mopped',
+      'Trash taken out',
+    ],
+  },
+];
+
+export const CHECKLIST_DEEP =
+  'Inside the oven, baseboards, doors, ceiling fans, spot cleaning on walls and interior window glass.';
+
+export const CHECKLIST_MOVE =
+  'An empty home, with the inside of the cabinets, the oven and the refrigerator included.';
+
+export const CHECKLIST_ADDONS = 'Inside the refrigerator and inside the cabinets can be added to any cleaning.';
+
+export interface Faq {
+  q: string;
+  a: string;
+}
+
+export const FAQS: Faq[] = [
+  {
+    q: 'Do I need to be home during the cleaning?',
+    a: "No. Many clients give us a key or a door code and we clean while they're out. We text you when we arrive and when we finish.",
+  },
+  {
+    q: 'Do you bring your own supplies?',
+    a: "Yes, we bring our own products and equipment. If you'd rather we use yours, just let us know.",
+  },
+  {
+    q: 'Is it okay if I have pets?',
+    a: "Of course. Dogs and cats are no problem. We just don't pick up pet waste.",
+  },
+  {
+    q: 'How is the price set?',
+    a: 'By the size of your home, its condition and how often you would like cleaning. Your first cleaning has its own price, and recurring visits cost less per visit.',
+  },
+  {
+    q: "What's the difference between a regular and a deep cleaning?",
+    a: `A regular cleaning keeps your home fresh visit after visit. A deep cleaning goes further: ${CHECKLIST_DEEP.charAt(0).toLowerCase()}${CHECKLIST_DEEP.slice(1)} It's a good fit for a home that hasn't been professionally cleaned in a while.`,
+  },
+  {
+    q: 'How do I pay?',
+    a: 'On the day, once the cleaning is finished, by Zelle, Venmo or cash.',
+  },
+  {
+    q: "What if I'm not happy with something?",
+    a: `Tell us within 24 hours and we'll come back to fix it at no cost. That's ${PROMISE.name}.`,
+  },
+  {
+    q: 'Can I cancel or reschedule?',
+    a: "Yes, free of charge with at least 3 days' notice. Cancelling with less than 3 days' notice has a $60 fee, and if we can't get into the home on the day, half the price of the cleaning is charged.",
+  },
+  {
+    q: 'What areas do you serve?',
+    a: "We're based in Waterbury and serve communities across Connecticut. Send us your city and ZIP code and we'll confirm availability.",
+  },
+];

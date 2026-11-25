@@ -7,6 +7,11 @@ import Difference from '../components/home/Difference';
 import Gallery from '../components/home/Gallery';
 import Excellence from '../components/home/Excellence';
 import QuoteSection from '../components/home/QuoteSection';
+import HowItWorks from '../components/home/HowItWorks';
+import PromiseBand from '../components/home/PromiseBand';
+import Checklist from '../components/home/Checklist';
+import Faq from '../components/home/Faq';
+import StickyQuote from '../components/home/StickyQuote';
 
 /**
  * The home page, built to the approved reference: hero with the service
@@ -48,11 +53,16 @@ export default function Home() {
       {rest ? (
         <>
           <WhyChooseUs />
+          <HowItWorks />
           <Testimonials />
+          <PromiseBand />
           <Difference />
           <Gallery />
+          <Checklist />
           <Excellence />
+          <Faq />
           <QuoteSection />
+          <StickyQuote />
         </>
       ) : (
         // Holds the footer below the fold until the sections arrive: on a tall
