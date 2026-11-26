@@ -21,7 +21,8 @@ const EMAIL = 'danycleanenpro@gmail.com';
  * footer's e-mail field arrives with its choice already filled in. The e-mails
  * Dany's automations send link to /#quote, which is this section's id.
  */
-export default function QuoteSection() {
+/** formFirst: on phones the form comes before the contact list (the /quote page). */
+export default function QuoteSection({ formFirst = false }: { formFirst?: boolean }) {
   const { businessPhone } = useConfig();
   const [prefill, setPrefill] = useState<QuoteDefaults & { nonce: number }>({ nonce: 0 });
 
@@ -47,7 +48,7 @@ export default function QuoteSection() {
   ];
 
   return (
-    <section id="quote" className="scroll-mt-6 bg-white pb-[100px] pt-[100px] lg:pb-[120px] lg:pt-[125px]">
+    <section id="quote" className={`scroll-mt-6 bg-white pb-[100px] lg:pb-[120px] lg:pt-[125px] ${formFirst ? 'pt-[50px]' : 'pt-[100px]'}`}>
       <SiteContainer>
         <h2 className="text-center text-[28px] font-bold leading-tight text-site-navy lg:text-[33px]">
           Request Your Free Estimate
@@ -57,8 +58,8 @@ export default function QuoteSection() {
           and send the exact price.
         </p>
 
-        <div className="mt-[60px] grid gap-12 lg:mt-[70px] lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-[75px]">
-          <ul className="grid content-start gap-8 sm:grid-cols-2 lg:grid-cols-1 lg:gap-9 lg:pt-6">
+        <div className={`${formFirst ? 'mt-8' : 'mt-[60px]'} grid gap-12 lg:mt-[70px] lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-[75px]`}>
+          <ul className={`grid content-start gap-8 sm:grid-cols-2 lg:grid-cols-1 lg:gap-9 lg:pt-6 ${formFirst ? 'order-2 lg:order-none' : ''}`}>
             {contacts.map(({ Icon, title, value, note, href, onClick }) => {
               const body = (
                 <>
@@ -82,7 +83,7 @@ export default function QuoteSection() {
             })}
           </ul>
 
-          <div className="bg-white p-6 shadow-[0_30px_60px_-24px_rgba(7,37,79,0.28)] sm:p-10">
+          <div className={`bg-white p-6 shadow-[0_30px_60px_-24px_rgba(7,37,79,0.28)] sm:p-10 ${formFirst ? 'order-1 lg:order-none' : ''}`}>
             <LeadForm prefill={prefill} />
           </div>
         </div>

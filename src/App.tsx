@@ -15,6 +15,7 @@ const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
 const Reviews = lazy(() => import('./pages/Reviews'));
 const ThankYou = lazy(() => import('./pages/ThankYou'));
 const Refer = lazy(() => import('./pages/Refer'));
+const QuotePage = lazy(() => import('./pages/QuotePage'));
 const AIVoiceCall = lazy(() => import('./components/AIVoiceCall'));
 const SMSFallbackModal = lazy(() => import('./components/SMSFallbackModal'));
 
@@ -101,6 +102,7 @@ export default function App() {
               <Route path="/termos-e-condicoes" element={<TermsAndConditions />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/refer" element={<Refer />} />
+              <Route path="/quote" element={<QuotePage />} />
               <Route path="/testimonials" element={<Navigate to="/reviews" replace />} />
               {/* Where the quote form lands; ad conversions are counted by this address. */}
               <Route path="/thank-you" element={<ThankYou />} />
