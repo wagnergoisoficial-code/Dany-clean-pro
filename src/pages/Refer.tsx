@@ -5,6 +5,7 @@ import SiteContainer from '../components/home/SiteContainer';
 import { openQuote } from '../lib/quote';
 import { REFERRAL, cleanName, referralLink, rememberReferral } from '../lib/referral';
 import { fieldClass, labelClass } from '../lib/forms';
+import { PHOTOS } from '../components/home/content';
 
 const button =
   'inline-flex h-[52px] items-center justify-center gap-2 rounded-full px-9 text-[13px] font-semibold uppercase tracking-[0.1em] transition-[background-color,transform] duration-300 ease-[var(--ease-settle)] active:scale-[0.98]';
@@ -27,9 +28,20 @@ export default function Refer() {
 
   return (
     <div className="font-site">
-      <section className="bg-site-deep pb-[80px] pt-[50px] text-center lg:pb-[100px] lg:pt-[70px]">
-        <SiteContainer className="max-w-[820px]">
-          {from ? <FriendHeading from={from} /> : <ProgramHeading />}
+      <section className="bg-site-deep pb-[80px] pt-[50px] lg:pb-[100px] lg:pt-[70px]">
+        <SiteContainer className="grid items-center gap-12 text-center lg:grid-cols-[1fr_440px] lg:gap-16 lg:text-left">
+          <div className="[&>*:first-child]:mx-auto lg:[&>*:first-child]:mx-0 lg:[&_p]:mx-0">
+            {from ? <FriendHeading from={from} /> : <ProgramHeading />}
+          </div>
+          <figure className="mx-auto w-full max-w-[440px]">
+            <img
+              src={PHOTOS.friendsCoffee}
+              alt="Two friends sharing coffee at home"
+              width={880}
+              height={660}
+              className="aspect-[4/3] w-full rounded-[4px] border-[3px] border-white/90 object-cover shadow-[0_30px_60px_-25px_rgba(0,0,0,0.65)]"
+            />
+          </figure>
         </SiteContainer>
       </section>
 

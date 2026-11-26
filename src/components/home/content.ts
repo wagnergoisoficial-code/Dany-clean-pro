@@ -23,6 +23,7 @@ const unsplash = (id: string, w = 720) =>
 
 /** Each of these was looked at; the gallery's sample list has a box of doughnuts in it. */
 export const PHOTOS = {
+  friendsCoffee: unsplash('1550623627-755160d35f08', 1000),  // two friends sharing coffee at home (Mad Fish Digital)
   hero: unsplash('1600607687939-ce8a6c25118c', 1600),            // bright, cleaned living space
   windowClean: unsplash('1581578731548-c64695cc6952'),      // cleaner at a window
   bathroom: unsplash('1584622650111-993a426fbf0a'),
