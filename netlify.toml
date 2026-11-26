@@ -158,6 +158,13 @@
   status = 200
   force = true
 
+# Short link for the Welcome Guide, to send by text: danycleanpro.com/welcome
+[[redirects]]
+  from = "/welcome"
+  to = "/welcome-guide.pdf"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

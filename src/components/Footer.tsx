@@ -88,6 +88,7 @@ export default function Footer() {
               </li>
             ))}
             <li><Link to="/refer" className={linkClass}>{chevron}Refer a Friend</Link></li>
+            <li><a href="/welcome-guide.pdf" target="_blank" rel="noopener" className={linkClass}>{chevron}Welcome Guide</a></li>
             <li><Link to="/reviews" className={linkClass}>{chevron}Client Reviews</Link></li>
             <li><Link to="/privacy-policy" className={linkClass}>{chevron}Privacy Policy</Link></li>
             <li><Link to="/terms" className={linkClass}>{chevron}Terms &amp; Conditions</Link></li>
